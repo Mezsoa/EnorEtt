@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EnorEtt - Swedish Grammar Helper</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <span class="logo-en">en</span>
+        <span class="logo-divider">/</span>
+        <span class="logo-ett">ett</span>
+      </div>
+      <p class="subtitle">Din svenska grammatikassistent</p>
+    </header>
+
+    <!-- Input Section -->
+    <div class="input-section">
+      <div class="input-wrapper">
+        <input 
+          type="text" 
+          id="wordInput" 
+          class="word-input" 
+          placeholder="Skriv ett substantiv..."
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <button id="clearBtn" class="clear-btn" title="Rensa">×</button>
+      </div>
+      <button id="checkBtn" class="check-btn">
+        <span class="btn-text">Kolla</span>
+        <span class="btn-icon">→</span>
+      </button>
+    </div>
+
+    <!-- Results Section -->
+    <div id="resultSection" class="result-section hidden">
+      <div id="resultContent" class="result-content">
+        <!-- Dynamic content will be inserted here -->
+      </div>
+    </div>
+
+    <!-- Pro Features Banner -->
+    <div class="pro-banner" id="proBanner">
+      <div class="pro-content">
+        <span class="pro-icon">✨</span>
+        <span class="pro-text">Unlock 10,000+ words & AI features</span>
+        <button class="pro-upgrade-btn" id="proUpgradeBtn">Upgrade</button>
+      </div>
+    </div>
+
+    <!-- Examples Section (shown when no search) -->
+    <div id="examplesSection" class="examples-section">
+      <p class="examples-title">Exempel:</p>
+      <div class="examples-grid">
+        <button class="example-btn" data-word="bil">bil</button>
+        <button class="example-btn" data-word="hus">hus</button>
+        <button class="example-btn" data-word="bok">bok</button>
+        <button class="example-btn" data-word="barn">barn</button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="stats" id="statsInfo">
+        <span class="stats-text">📚 1000+ ord i databasen</span>
+      </div>
+      <div class="feedback hidden" id="feedbackSection">
+        <p class="feedback-question">Var detta hjälpsamt?</p>
+        <div class="feedback-buttons">
+          <button class="feedback-btn" data-feedback="yes">👍</button>
+          <button class="feedback-btn" data-feedback="no">👎</button>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div id="loadingIndicator" class="loading-indicator hidden">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Load scripts in order: dictionary first, then lookup, then popup -->
+  <script src="../utils/dictionary.js"></script>
+  <script src="../utils/lookup.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
+

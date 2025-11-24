@@ -1,0 +1,17 @@
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="16" height="16" rx="3" fill="url(#gradient16)"/>
+  
+  <!-- "E" letterform split design -->
+  <path d="M5 4.5h4v1.5h-2.5v1h2v1.5h-2v1.5h2.5v1.5h-4z" fill="white" opacity="0.95"/>
+  <line x1="8" y1="4" x2="8" y2="12" stroke="white" stroke-width="0.5" opacity="0.3"/>
+  
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="gradient16" x1="0" y1="0" x2="16" y2="16" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4A90E2"/>
+      <stop offset="100%" stop-color="#50C8C8"/>
+    </linearGradient>
+  </defs>
+</svg>
+
