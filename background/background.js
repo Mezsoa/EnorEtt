@@ -221,6 +221,128 @@ chrome.runtime.onSuspend.addListener(() => {
   // Perform any cleanup here
 });
 
+/**
+ * Initialize subscription sync
+ */
+async function initSubscriptionSync() {
+  try {
+    // Sync subscription status periodically
+    const syncSubscription = async () => {
+      try {
+        // Get user ID from storage
+        const userData = await chrome.storage.local.get(['enorett_userId']);
+        const userId = userData.enorett_userId;
+        
+        if (!userId) {
+          return;
+        }
+        
+        // Fetch subscription status from API
+        const response = await fetch(`https://api.enorett.se/api/subscription/status?userId=${encodeURIComponent(userId)}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.subscription) {
+            await chrome.storage.local.set({
+              enorett_subscription: {
+                ...data.subscription,
+                lastSynced: new Date().toISOString()
+              }
+            });
+          } else {
+            // No active subscription
+            await chrome.storage.local.remove(['enorett_subscription']);
+          }
+        }
+      } catch (error) {
+        console.error('Error syncing subscription:', error);
+      }
+    };
+    
+    // Sync immediately on startup
+    await syncSubscription();
+    
+    // Set up periodic sync (every hour)
+    setInterval(syncSubscription, 60 * 60 * 1000);
+  } catch (error) {
+    console.error('Error initializing subscription sync:', error);
+  }
+}
+
+/**
+ * Handle payment success callback
+ */
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'PAYMENT_SUCCESS') {
+    handlePaymentSuccess(message.data);
+    sendResponse({ success: true });
+  }
+  return false;
+});
+
+/**
+ * Handle payment success
+ */
+async function handlePaymentSuccess(data) {
+  try {
+    // If sessionId is provided, fetch subscription details
+    if (data.sessionId) {
+      const response = await fetch(`https://api.enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.subscription) {
+          await chrome.storage.local.set({
+            enorett_subscription: {
+              ...result.subscription,
+              lastSynced: new Date().toISOString()
+            }
+          });
+          
+          // Notify all popups
+          chrome.runtime.sendMessage({
+            type: 'SUBSCRIPTION_UPDATED',
+            subscription: result.subscription
+          }).catch(() => {
+            // Popup might not be open, ignore
+          });
+        }
+      }
+    } else if (data.subscription) {
+      // Direct subscription data provided
+      await chrome.storage.local.set({
+        enorett_subscription: {
+          ...data.subscription,
+          lastSynced: new Date().toISOString()
+        }
+      });
+      
+      // Notify all popups
+      chrome.runtime.sendMessage({
+        type: 'SUBSCRIPTION_UPDATED',
+        subscription: data.subscription
+      }).catch(() => {
+        // Popup might not be open, ignore
+      });
+    }
+  } catch (error) {
+    console.error('Error handling payment success:', error);
+  }
+}
+
+// Initialize subscription sync
+initSubscriptionSync();
+
 // Log when service worker starts
 console.log('EnorEtt background service worker started');
 

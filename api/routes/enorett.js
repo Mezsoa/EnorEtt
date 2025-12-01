@@ -59,12 +59,31 @@ function getExtendedDictionary() {
 loadDictionary();
 
 /**
+ * Middleware to verify Pro subscription
+ */
+async function verifyProSubscription(req, res, next) {
+  const { pro, userId } = req.query;
+  
+  if (pro === 'true' && userId) {
+    // In production, verify subscription status from database
+    // For now, we'll allow it if userId is provided
+    // TODO: Implement actual subscription verification
+    req.isPro = true;
+  } else {
+    req.isPro = false;
+  }
+  
+  next();
+}
+
+/**
  * GET /api/enorett?word=X
  * Look up a Swedish word
  */
-router.get('/', async (req, res) => {
+router.get('/', verifyProSubscription, async (req, res) => {
   try {
     const { word } = req.query;
+    const isPro = req.isPro;
     
     // Validate input
     if (!word) {
@@ -92,7 +111,7 @@ router.get('/', async (req, res) => {
     const entry = dictionary.find(e => e.word === normalizedWord);
     
     if (entry) {
-      return res.json({
+      const response = {
         success: true,
         word: entry.word,
         article: entry.article,
@@ -101,7 +120,15 @@ router.get('/', async (req, res) => {
         source: 'dictionary',
         explanation: `Från ordbok: ${entry.word} = ${entry.translation}`,
         ...(entry.frequency && { frequency: entry.frequency })
-      });
+      };
+      
+      // Add Pro features if user is Pro
+      if (isPro) {
+        response.examples = entry.examples || getExampleSentences(entry.word, entry.article);
+        response.pronunciation = entry.pronunciation || getPronunciation(entry.word);
+      }
+      
+      return res.json(response);
     }
     
     // Pattern-based fallback
@@ -268,6 +295,38 @@ function detectByPattern(word) {
   }
   
   return null;
+}
+
+/**
+ * Get example sentences for a word (Pro feature)
+ */
+function getExampleSentences(word, article) {
+  // In production, this would come from a database
+  // For now, return simple examples
+  const examples = {
+    'bil': ['Jag köpte en bil igår.', 'Bilen är röd.'],
+    'hus': ['Vi bor i ett hus.', 'Huset är stort.'],
+    'bok': ['Jag läser en bok.', 'Boken är intressant.'],
+    'barn': ['Ett barn leker.', 'Barnet är glad.']
+  };
+  
+  return examples[word] || [`Detta är ${article === 'en' ? 'en' : 'ett'} ${word}.`];
+}
+
+/**
+ * Get pronunciation guide for a word (Pro feature)
+ */
+function getPronunciation(word) {
+  // In production, this would use IPA or phonetic transcription
+  // For now, return a simple guide
+  const pronunciations = {
+    'bil': '[bi:l]',
+    'hus': '[hʉ:s]',
+    'bok': '[bu:k]',
+    'barn': '[bɑ:ɳ]'
+  };
+  
+  return pronunciations[word] || `[${word}]`;
 }
 
 export default router;

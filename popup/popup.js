@@ -21,6 +21,7 @@ const proUpgradeBtn = document.getElementById('proUpgradeBtn');
 // State
 let currentWord = '';
 let lastResult = null;
+let isPro = false;
 
 /**
  * Initialize the popup
@@ -57,6 +58,9 @@ function init() {
   
   // Load stats
   updateStats();
+  
+  // Check subscription status
+  checkSubscriptionStatus();
   
   // Check if there's a word from context menu
   checkForContextMenuWord();
@@ -115,8 +119,11 @@ async function handleCheck() {
   hideExamples();
   
   try {
+    // Check if user is Pro for API access
+    const useAPI = isPro;
+    
     // Lookup the word
-    const result = await lookupWord(word);
+    const result = await lookupWord(word, useAPI);
     lastResult = result;
     
     // Hide loading
@@ -156,7 +163,7 @@ function displayResult(result) {
  * Display successful result
  */
 function displaySuccessResult(result) {
-  const { word, article, translation, confidence, source, explanation, warning } = result;
+  const { word, article, translation, confidence, source, explanation, warning, examples, pronunciation } = result;
   
   const html = `
     <div class="result-main">
@@ -189,6 +196,20 @@ function displaySuccessResult(result) {
           <div class="result-info-text">${warning}</div>
         </div>
       ` : ''}
+      
+      ${examples && examples.length > 0 && isPro ? `
+        <div class="result-examples">
+          <div class="result-examples-title">Exempel:</div>
+          ${examples.map(example => `<div class="result-example">${example}</div>`).join('')}
+        </div>
+      ` : ''}
+      
+      ${pronunciation && isPro ? `
+        <div class="result-pronunciation">
+          <span class="result-pronunciation-icon">🔊</span>
+          <span class="result-pronunciation-text">${pronunciation}</span>
+        </div>
+      ` : ''}
     </div>
   `;
   
@@ -199,7 +220,7 @@ function displaySuccessResult(result) {
  * Display error result
  */
 function displayErrorResult(result) {
-  const { word, error, errorEn, suggestion } = result;
+  const { word, error, errorEn, suggestion, requiresPro } = result;
   
   const html = `
     <div class="result-error">
@@ -209,8 +230,11 @@ function displayErrorResult(result) {
         ${errorEn || 'Word not found in dictionary'}
       </div>
       ${suggestion ? `
-        <div class="result-suggestion">
+        <div class="result-suggestion ${requiresPro ? 'pro-prompt' : ''}">
           💡 ${suggestion}
+          ${requiresPro ? `
+            <button class="upgrade-prompt-btn" onclick="handleProUpgrade()">Upgrade to Pro</button>
+          ` : ''}
         </div>
       ` : ''}
     </div>
@@ -378,17 +402,61 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // Initialize on load
 /**
+ * Check subscription status and update UI
+ */
+async function checkSubscriptionStatus() {
+  try {
+    isPro = await isProUser();
+    updateProUI();
+  } catch (error) {
+    console.error('Error checking subscription status:', error);
+    isPro = false;
+    updateProUI();
+  }
+}
+
+/**
+ * Update UI based on Pro status
+ */
+function updateProUI() {
+  if (isPro) {
+    // Hide upgrade banner for Pro users
+    proBanner.classList.add('hidden');
+    
+    // Update stats to show Pro dictionary count
+    const statsText = statsInfo.querySelector('.stats-text');
+    if (statsText) {
+      statsText.textContent = '📚 10,000+ ord i databasen (Pro)';
+    }
+  } else {
+    // Show upgrade banner for free users
+    proBanner.classList.remove('hidden');
+  }
+}
+
+/**
  * Handle Pro upgrade button click
  */
 function handleProUpgrade() {
   // Open landing page in new tab
   chrome.tabs.create({
-    url: 'https://enorett.com/upgrade' // Replace with your actual landing page
+    url: 'https://enorett.se/upgrade'
   });
   
   // Track upgrade click (analytics)
   console.log('Pro upgrade clicked');
 }
+
+/**
+ * Listen for subscription updates
+ */
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'SUBSCRIPTION_UPDATED') {
+    checkSubscriptionStatus();
+    sendResponse({ success: true });
+  }
+  return false;
+});
 
 document.addEventListener('DOMContentLoaded', init);
 

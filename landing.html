@@ -162,10 +162,64 @@
     </div>
     
     <script>
-        function handleUpgrade() {
-            // In a real implementation, this would integrate with Stripe/PayPal
-            alert('Payment integration coming soon! For now, contact us at hello@enorett.com');
+        async function handleUpgrade() {
+            try {
+                // Get extension ID from URL or use default
+                const urlParams = new URLSearchParams(window.location.search);
+                const extensionId = urlParams.get('extensionId') || 'enorett';
+                
+                // Create checkout session via API
+                const response = await fetch('https://api.enorett.se/api/subscription/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        extensionId: extensionId,
+                        returnUrl: window.location.href + '?success=true',
+                        cancelUrl: window.location.href + '?canceled=true'
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to create checkout session');
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.checkoutUrl) {
+                    // Redirect to Stripe checkout
+                    window.location.href = data.checkoutUrl;
+                } else {
+                    throw new Error('Invalid response from server');
+                }
+            } catch (error) {
+                console.error('Upgrade error:', error);
+                // Fallback: show contact info
+                alert('Payment integration is being set up. For now, contact us at hello@enorett.se');
+            }
         }
+        
+        // Handle payment success callback
+        window.addEventListener('load', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('success') === 'true') {
+                // Notify extension of successful payment
+                if (chrome && chrome.runtime) {
+                    chrome.runtime.sendMessage({
+                        type: 'PAYMENT_SUCCESS',
+                        data: {
+                            sessionId: urlParams.get('session_id')
+                        }
+                    });
+                }
+                
+                // Show success message
+                alert('Payment successful! Your Pro subscription is now active.');
+            } else if (urlParams.get('canceled') === 'true') {
+                alert('Payment was canceled. You can try again anytime.');
+            }
+        });
     </script>
 </body>
 </html>

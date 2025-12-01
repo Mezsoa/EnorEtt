@@ -46,10 +46,35 @@ const patterns = {
  * Lookup a Swedish word and return its article
  * 
  * @param {string} word - The Swedish noun to look up
- * @param {boolean} useAPI - Whether to use API fallback (future feature)
+ * @param {boolean} useAPI - Whether to use API fallback (Pro feature)
  * @returns {Promise<object>} Result object with article, confidence, and explanation
  */
 async function lookupWord(word, useAPI = false) {
+  // Check if user is Pro for API access
+  let isProUserValue = false;
+  try {
+    // Check storage directly (subscription.js functions are available in popup context)
+    if (typeof chrome !== 'undefined' && chrome.storage) {
+      const result = await chrome.storage.local.get(['enorett_subscription']);
+      const subscription = result.enorett_subscription;
+      if (subscription && (subscription.status === 'active' || subscription.status === 'trialing')) {
+        if (subscription.expiresAt) {
+          const expiresAt = new Date(subscription.expiresAt);
+          isProUserValue = expiresAt > new Date();
+        } else {
+          isProUserValue = true;
+        }
+      }
+    }
+  } catch (error) {
+    console.warn('Could not check Pro status:', error);
+    isProUserValue = false;
+  }
+  
+  // Only allow API access for Pro users
+  if (useAPI && !isProUserValue) {
+    useAPI = false;
+  }
   // Normalize the input
   const normalizedWord = word.trim().toLowerCase();
   
@@ -101,10 +126,10 @@ async function lookupWord(word, useAPI = false) {
     };
   }
   
-  // 3. API LOOKUP (Future feature)
-  if (useAPI) {
+  // 3. API LOOKUP (Pro feature)
+  if (useAPI && isProUserValue) {
     try {
-      const apiResult = await fetchFromAPI(normalizedWord);
+      const apiResult = await fetchFromAPI(normalizedWord, true);
       if (apiResult.success) {
         return apiResult;
       }
@@ -113,14 +138,17 @@ async function lookupWord(word, useAPI = false) {
     }
   }
   
-  // 4. UNKNOWN WORD
+  // 4. UNKNOWN WORD - Show upgrade prompt for free users
+  const upgradePrompt = !isProUserValue ? "Upgrade to Pro för 10,000+ ord och API-åtkomst" : null;
+  
   return {
     success: false,
     word: normalizedWord,
     error: "Ordet finns inte i ordboken",
     errorEn: "Word not found in dictionary",
-    suggestion: "Statistiskt sett är ~70% av svenska ord 'en-ord'",
-    confidence: "none"
+    suggestion: upgradePrompt || "Statistiskt sett är ~70% av svenska ord 'en-ord'",
+    confidence: "none",
+    requiresPro: !isProUserValue
   };
 }
 
@@ -165,14 +193,37 @@ function detectByPattern(word) {
  * @param {string} word - The word to look up
  * @returns {Promise<object>} API result
  */
-async function fetchFromAPI(word) {
-  // TODO: Implement actual API call
+async function fetchFromAPI(word, isPro = false) {
   const API_ENDPOINT = 'https://api.enorett.se/api/enorett';
   
   try {
-    const response = await fetch(`${API_ENDPOINT}?word=${encodeURIComponent(word)}`);
+    // Get user ID for Pro verification
+    let userId = null;
+    try {
+      const userData = await chrome.storage.local.get(['enorett_userId']);
+      userId = userData.enorett_userId;
+    } catch (error) {
+      console.warn('Could not get user ID:', error);
+    }
+    
+    const url = `${API_ENDPOINT}?word=${encodeURIComponent(word)}${isPro ? '&pro=true' : ''}${userId ? `&userId=${encodeURIComponent(userId)}` : ''}`;
+    
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
     
     if (!response.ok) {
+      if (response.status === 403) {
+        return {
+          success: false,
+          error: "Pro-funktion krävs",
+          errorEn: "Pro feature required",
+          requiresPro: true
+        };
+      }
       throw new Error(`API error: ${response.status}`);
     }
     
@@ -185,7 +236,9 @@ async function fetchFromAPI(word) {
       translation: data.translation,
       confidence: data.confidence || "high",
       source: "api",
-      explanation: data.explanation
+      explanation: data.explanation,
+      examples: data.examples || [],
+      pronunciation: data.pronunciation || null
     };
   } catch (error) {
     return {

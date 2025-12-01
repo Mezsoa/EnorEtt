@@ -9,6 +9,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import enorEttRouter from './routes/enorett.js';
+import subscriptionRouter from './routes/subscription.js';
 
 // Load environment variables
 dotenv.config();
@@ -90,6 +91,7 @@ app.get('/health', (req, res) => {
 
 // API routes
 app.use('/api/enorett', enorEttRouter);
+app.use('/api/subscription', subscriptionRouter);
 
 // ============================================
 // ERROR HANDLING
