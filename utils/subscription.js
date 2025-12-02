@@ -22,8 +22,8 @@ async function getSubscriptionStatus() {
 }
 
 /**
- * Check if user has active Pro subscription
- * @returns {Promise<boolean>} True if user has active Pro subscription
+ * Check if user has active Pro subscription/purchase
+ * @returns {Promise<boolean>} True if user has active Pro access
  */
 async function isProUser() {
   const subscription = await getSubscriptionStatus();
@@ -32,19 +32,25 @@ async function isProUser() {
     return false;
   }
   
-  // Check if subscription is active
+  // Check if subscription/purchase is active
   if (subscription.status !== 'active' && subscription.status !== 'trialing') {
     return false;
   }
   
-  // Check if subscription hasn't expired
+  // Check if purchase hasn't expired (for one-time payments)
   if (subscription.expiresAt) {
     const expiresAt = new Date(subscription.expiresAt);
     if (expiresAt < new Date()) {
-      // Subscription expired, clear it
+      // Access expired, clear it
       await clearSubscription();
       return false;
     }
+  }
+  
+  // If expiresAt is null, it's lifetime access (one-time payment)
+  // If purchaseType is 'one-time' and no expiresAt, it's lifetime
+  if (subscription.purchaseType === 'one-time' && !subscription.expiresAt) {
+    return true; // Lifetime access
   }
   
   return true;

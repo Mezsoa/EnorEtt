@@ -5,7 +5,7 @@
 När du skapar webhook:en i Stripe Dashboard, välj följande **8 händelser**:
 
 ### Obligatoriska Events:
-1. **`checkout.session.completed`** - När en användare slutför betalning
+1. **`checkout.session.completed`** - När en användare slutför betalning -
 2. **`customer.subscription.created`** - När en prenumeration skapas
 3. **`customer.subscription.updated`** - När en prenumeration uppdateras (t.ex. planändring)
 4. **`customer.subscription.deleted`** - När en prenumeration avbryts
@@ -27,7 +27,7 @@ http://localhost:3000/api/subscription/webhook
 
 **Viktigt:** För lokal testning behöver du använda **Stripe CLI** för att tunnla webhooks:
 ```bash
-stripe listen --forward-to localhost:3000/api/subscription/webhook
+    stripe listen --forward-to localhost:3000/api/subscription/webhook
 ```
 
 ### För Produktion:
