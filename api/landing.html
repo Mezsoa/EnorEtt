@@ -281,7 +281,7 @@
                 <div class="price">30 kr</div>
                 <div class="price-period">Lifetime access</div>
                 
-                <button class="upgrade-btn" onclick="handleUpgrade()">
+                <button class="upgrade-btn" id="upgrade-button">
                     Upgrade to Pro
                 </button>
                 
@@ -303,46 +303,92 @@
     
     <script>
         async function handleUpgrade() {
+            console.log('handleUpgrade called');
+            
             const loading = document.getElementById('loading');
+            if (!loading) {
+                console.error('Loading element not found');
+                alert('Fel: Kunde inte hitta loading-element');
+                return;
+            }
+            
             loading.classList.add('active');
+            console.log('Loading overlay shown');
             
             try {
                 const urlParams = new URLSearchParams(window.location.search);
                 const extensionId = urlParams.get('extensionId') || 'enorett';
                 
                 const apiUrl = window.location.origin;
-                const response = await fetch(`${apiUrl}/api/subscription/create`, {
+                const requestUrl = `${apiUrl}/api/subscription/create`;
+                console.log('Making request to:', requestUrl);
+                
+                const requestBody = {
+                    extensionId: extensionId,
+                    returnUrl: window.location.href.split('?')[0] + '?success=true&session_id={CHECKOUT_SESSION_ID}',
+                    cancelUrl: window.location.href.split('?')[0] + '?canceled=true'
+                };
+                console.log('Request body:', requestBody);
+                
+                const response = await fetch(requestUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        extensionId: extensionId,
-                        returnUrl: window.location.href.split('?')[0] + '?success=true&session_id={CHECKOUT_SESSION_ID}',
-                        cancelUrl: window.location.href.split('?')[0] + '?canceled=true'
-                    })
+                    body: JSON.stringify(requestBody)
                 });
                 
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+                
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(errorData.error || 'Failed to create checkout session');
+                    const errorText = await response.text();
+                    console.error('Error response:', errorText);
+                    let errorData;
+                    try {
+                        errorData = JSON.parse(errorText);
+                    } catch (e) {
+                        errorData = { error: errorText || 'Unknown error' };
+                    }
+                    throw new Error(errorData.error || errorData.details || 'Failed to create checkout session');
                 }
                 
                 const data = await response.json();
+                console.log('Response data:', data);
                 
                 if (data.success && data.checkoutUrl) {
+                    console.log('Redirecting to:', data.checkoutUrl);
                     window.location.href = data.checkoutUrl;
                 } else {
-                    throw new Error('Invalid response from server');
+                    throw new Error(data.error || 'Invalid response from server');
                 }
             } catch (error) {
                 loading.classList.remove('active');
                 console.error('Upgrade error:', error);
-                alert('Kunde inte skapa checkout-session. Försök igen eller kontakta oss på hello@enorett.se');
+                console.error('Error stack:', error.stack);
+                alert('Kunde inte skapa checkout-session: ' + error.message + '\n\nFörsök igen eller kontakta oss på hello@enorett.se');
             }
         }
         
+        // Debug: Check if function is available
+        console.log('handleUpgrade function defined:', typeof handleUpgrade);
+        
+        // Setup button click listener (required since CSP blocks inline onclick)
         window.addEventListener('load', () => {
+            // Setup button click listener
+            const upgradeBtn = document.getElementById('upgrade-button');
+            if (upgradeBtn) {
+                console.log('Upgrade button found, adding click listener');
+                upgradeBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    console.log('Button clicked via event listener');
+                    handleUpgrade();
+                });
+            } else {
+                console.error('Upgrade button not found!');
+            }
+            
+            // Handle success/cancel redirects
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('success') === 'true') {
                 if (typeof chrome !== 'undefined' && chrome.runtime) {
@@ -362,11 +408,18 @@
                         <p style="font-size: 16px; color: #6B7280; margin-bottom: 24px;">
                             Din Pro-prenumeration är nu aktiv.
                         </p>
-                        <button onclick="window.close()" style="background: #4562e3; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                        <button id="close-button" style="background: #4562e3; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">
                             Stäng
                         </button>
                     </div>
                 `;
+                // Add event listener for close button
+                setTimeout(() => {
+                    const closeBtn = document.getElementById('close-button');
+                    if (closeBtn) {
+                        closeBtn.addEventListener('click', () => window.close());
+                    }
+                }, 100);
             } else if (urlParams.get('canceled') === 'true') {
                 const container = document.querySelector('.container');
                 const content = container.querySelector('.content');
