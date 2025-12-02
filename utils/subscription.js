@@ -102,27 +102,59 @@ async function syncSubscription(userId = null) {
       return null;
     }
     
-    // Fetch subscription status from API
-    const response = await fetch(`${API_ENDPOINT}/api/subscription/status?userId=${encodeURIComponent(userId)}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
+    // Try multiple API endpoints
+    const apiEndpoints = [
+      `${API_ENDPOINT}/api/subscription/status`,
+      'https://api.enorett.se/api/subscription/status',
+      'https://www.enorett.se/api/subscription/status',
+      'https://enorett.se/api/subscription/status'
+    ];
+    
+    let lastError = null;
+    
+    for (const endpoint of apiEndpoints) {
+      try {
+        const url = `${endpoint}?userId=${encodeURIComponent(userId)}`;
+        
+        // Add timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.subscription) {
+            await setSubscriptionStatus(data.subscription);
+            return data.subscription;
+          }
+          // No active subscription
+          await clearSubscription();
+          return null;
+        } else {
+          lastError = new Error(`API error: ${response.status}`);
+        }
+      } catch (error) {
+        lastError = error;
+        // Try next endpoint
+        continue;
       }
-    });
-    
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
     }
     
-    const data = await response.json();
-    
-    if (data.success && data.subscription) {
-      await setSubscriptionStatus(data.subscription);
-      return data.subscription;
+    // All endpoints failed
+    if (lastError) {
+      throw lastError;
     }
     
-    // No active subscription
-    await clearSubscription();
+    // Should never reach here, but just in case
     return null;
   } catch (error) {
     console.error('Error syncing subscription:', error);

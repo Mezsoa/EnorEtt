@@ -34,7 +34,8 @@
   
   "host_permissions": [
     "https://api.enorett.se/*",
-    "https://enorett.se/*"
+    "https://enorett.se/*",
+    "https://www.enorett.se/*"
   ],
   
   "commands": {

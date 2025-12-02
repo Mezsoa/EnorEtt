@@ -69,10 +69,17 @@ async function verifyProSubscription(req, res, next) {
     try {
       // Import here to avoid circular dependencies
       const Purchase = (await import('../models/Purchase.js')).default;
+      const User = (await import('../models/User.js')).default;
       const { connectDB } = await import('../db/connection.js');
       
       // Ensure database connection
       await connectDB();
+      
+      // Find or create user (to track usage)
+      const user = await User.findOrCreate(userId);
+      
+      // Update user's last seen (async, don't wait)
+      user.updateLastSeen().catch(() => {});
       
       // Check for active purchase in database
       const purchase = await Purchase.findActivePurchase(userId);

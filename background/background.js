@@ -259,33 +259,84 @@ async function initSubscriptionSync() {
         const userId = userData.enorett_userId;
         
         if (!userId) {
+          console.log('No userId found, skipping subscription sync');
           return;
         }
         
-        // Fetch subscription status from API
-        const response = await fetch(`https://api.enorett.se/api/subscription/status?userId=${encodeURIComponent(userId)}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
+        // API endpoint - try multiple endpoints if needed
+        const apiEndpoints = [
+          'https://api.enorett.se/api/subscription/status',
+          'https://www.enorett.se/api/subscription/status',
+          'https://enorett.se/api/subscription/status'
+        ];
         
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.subscription) {
-            await chrome.storage.local.set({
-              enorett_subscription: {
-                ...data.subscription,
-                lastSynced: new Date().toISOString()
-              }
+        let lastError = null;
+        
+        for (const endpoint of apiEndpoints) {
+          try {
+            const url = `${endpoint}?userId=${encodeURIComponent(userId)}`;
+            console.log('Syncing subscription from:', url);
+            
+            // Add timeout to fetch
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+            
+            const response = await fetch(url, {
+              method: 'GET',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              signal: controller.signal
             });
-          } else {
-            // No active subscription
-            await chrome.storage.local.remove(['enorett_subscription']);
+            
+            clearTimeout(timeoutId);
+            
+            if (response.ok) {
+              const data = await response.json();
+              if (data.success && data.subscription) {
+                await chrome.storage.local.set({
+                  enorett_subscription: {
+                    ...data.subscription,
+                    lastSynced: new Date().toISOString()
+                  }
+                });
+                console.log('✅ Subscription synced successfully');
+                return; // Success, exit function
+              } else {
+                // No active subscription
+                await chrome.storage.local.remove(['enorett_subscription']);
+                console.log('ℹ️ No active subscription found');
+                return;
+              }
+            } else {
+              console.warn(`API returned status ${response.status} from ${endpoint}`);
+              lastError = new Error(`HTTP ${response.status}`);
+            }
+          } catch (error) {
+            console.warn(`Error fetching from ${endpoint}:`, error.message);
+            lastError = error;
+            // Try next endpoint
+            continue;
           }
+        }
+        
+        // If we get here, all endpoints failed
+        if (lastError) {
+          throw lastError;
         }
       } catch (error) {
         console.error('Error syncing subscription:', error);
+        
+        // Don't spam errors - only log if it's been a while since last sync
+        chrome.storage.local.get(['enorett_subscription'], (result) => {
+          const subscription = result.enorett_subscription;
+          const lastSynced = subscription?.lastSynced;
+          
+          if (!lastSynced || new Date() - new Date(lastSynced) > 3600000) {
+            // Only log error if last sync was more than 1 hour ago
+            console.error('Failed to sync subscription after multiple attempts:', error.message);
+          }
+        });
       }
     };
     
@@ -328,14 +379,29 @@ async function handlePaymentSuccess(data) {
     
     // If sessionId is provided, fetch subscription details
     if (data.sessionId) {
-      const response = await fetch(`https://api.enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}&userId=${encodeURIComponent(userId)}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      // Try multiple endpoints
+      const endpoints = [
+        `https://api.enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}&userId=${encodeURIComponent(userId)}`,
+        `https://www.enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}&userId=${encodeURIComponent(userId)}`,
+        `https://enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}&userId=${encodeURIComponent(userId)}`
+      ];
       
-      if (response.ok) {
+      let response = null;
+      for (const url of endpoints) {
+        try {
+          response = await fetch(url, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          if (response.ok) break;
+        } catch (e) {
+          continue;
+        }
+      }
+      
+      if (response && response.ok) {
         const result = await response.json();
         if (result.success && result.subscription) {
           // Save subscription and userId

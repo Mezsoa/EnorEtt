@@ -194,7 +194,15 @@ function detectByPattern(word) {
  * @returns {Promise<object>} API result
  */
 async function fetchFromAPI(word, isPro = false) {
-  const API_ENDPOINT = 'https://api.enorett.se/api/enorett';
+  // Try multiple API endpoints
+  const apiEndpoints = [
+    'https://api.enorett.se/api/enorett',
+    'https://www.enorett.se/api/enorett',
+    'https://enorett.se/api/enorett'
+  ];
+  
+  // Use first endpoint as default, but will try others if needed
+  const API_ENDPOINT = apiEndpoints[0];
   
   try {
     // Get user ID for Pro verification

@@ -6,6 +6,7 @@
 import express from 'express';
 import Stripe from 'stripe';
 import Purchase from '../models/Purchase.js';
+import User from '../models/User.js';
 import { connectDB } from '../db/connection.js';
 
 const router = express.Router();
@@ -88,6 +89,9 @@ router.get('/status', async (req, res) => {
     
     // If userId is provided, look up from database first
     if (userId) {
+      // Find or create user
+      const user = await User.findOrCreate(userId);
+      
       const purchase = await Purchase.findActivePurchase(userId);
       
       if (purchase && purchase.isActive()) {
@@ -101,6 +105,11 @@ router.get('/status', async (req, res) => {
             stripeCustomerId: purchase.stripeCustomerId,
             stripePaymentIntentId: purchase.stripePaymentIntentId,
             purchaseType: purchase.purchaseType
+          },
+          user: {
+            userId: user.userId,
+            email: user.email,
+            stats: user.stats
           }
         });
       }
@@ -219,6 +228,16 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
           // Get userId from metadata, or use extensionId, or generate one
           const userId = session.metadata?.userId || session.metadata?.extensionId || session.customer || `user_${session.id}`;
           
+          // Find or create user
+          const user = await User.findOrCreate(userId, {
+            stripeCustomerId: session.customer,
+          });
+          
+          // Link Stripe customer if not already linked
+          if (session.customer && !user.stripeCustomerId) {
+            await user.linkStripeCustomer(session.customer);
+          }
+          
           // Check if purchase already exists
           const existingPurchase = await Purchase.findOne({ stripeSessionId: session.id });
           
@@ -243,6 +262,7 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
             
             await purchase.save();
             console.log('✅ Purchase saved to database:', purchase._id);
+            console.log('✅ User updated:', user.userId);
           } else {
             console.log('ℹ️ Purchase already exists for session:', session.id);
           }

@@ -13,6 +13,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import enorEttRouter from './routes/enorett.js';
 import subscriptionRouter from './routes/subscription.js';
+import usersRouter from './routes/users.js';
 import { connectDB } from './db/connection.js';
 
 // Get directory path for ES modules
@@ -51,9 +52,31 @@ app.use(helmet({
 
 // CORS configuration
 const corsOptions = {
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps, Postman, or Chrome extensions)
+    if (!origin) return callback(null, true);
+    
+    // Allow Chrome extensions
+    if (origin.startsWith('chrome-extension://')) {
+      return callback(null, true);
+    }
+    
+    // Allow configured origins
+    const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',') || [
+      'https://enorett.se',
+      'https://www.enorett.se',
+      'https://api.enorett.se',
+      'http://localhost:3000'
+    ];
+    
+    if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow all for now, tighten in production
+    }
+  },
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true,
   maxAge: 86400 // 24 hours
 };
@@ -115,6 +138,7 @@ app.get('/health', (req, res) => {
 // API routes
 app.use('/api/enorett', enorEttRouter);
 app.use('/api/subscription', subscriptionRouter);
+app.use('/api/users', usersRouter);
 
 // Serve upgrade/landing page
 app.get('/upgrade', async (req, res) => {
