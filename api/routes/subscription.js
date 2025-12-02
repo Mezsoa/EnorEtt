@@ -21,7 +21,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder'
  */
 router.post('/create', async (req, res) => {
   try {
-    const { extensionId, returnUrl, cancelUrl } = req.body;
+    const { extensionId, userId, returnUrl, cancelUrl } = req.body;
     
     if (!extensionId) {
       return res.status(400).json({
@@ -47,6 +47,7 @@ router.post('/create', async (req, res) => {
       cancel_url: cancelUrl || `${req.protocol}://${req.get('host')}/upgrade?canceled=true`,
       metadata: {
         extensionId: extensionId,
+        userId: userId || '',
         purchaseType: 'one-time'
       }
     });
@@ -215,8 +216,8 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
           // Ensure database connection
           await connectDB();
           
-          // Get userId from metadata or generate one
-          const userId = session.metadata?.extensionId || session.customer || `user_${session.id}`;
+          // Get userId from metadata, or use extensionId, or generate one
+          const userId = session.metadata?.userId || session.metadata?.extensionId || session.customer || `user_${session.id}`;
           
           // Check if purchase already exists
           const existingPurchase = await Purchase.findOne({ stripeSessionId: session.id });

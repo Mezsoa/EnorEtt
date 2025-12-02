@@ -426,11 +426,40 @@ function updateProUI() {
     // Update stats to show Pro dictionary count
     const statsText = statsInfo.querySelector('.stats-text');
     if (statsText) {
-      statsText.textContent = '📚 10,000+ ord i databasen (Pro)';
+      statsText.textContent = '📚 10,000+ ord i databasen (Premium)';
+      statsText.style.color = '#4562e3';
+      statsText.style.fontWeight = '600';
     }
+    
+    // Add Premium badge to header if not exists
+    const header = document.querySelector('.header');
+    if (header && !header.querySelector('.premium-badge')) {
+      const badge = document.createElement('div');
+      badge.className = 'premium-badge';
+      badge.textContent = '⭐ Premium';
+      badge.style.cssText = 'position: absolute; top: 8px; right: 8px; background: linear-gradient(135deg, #4562e3 0%, #764ba2 100%); color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 700;';
+      header.style.position = 'relative';
+      header.appendChild(badge);
+    }
+    
+    console.log('✅ Premium status active!');
   } else {
     // Show upgrade banner for free users
     proBanner.classList.remove('hidden');
+    
+    // Remove Premium badge if exists
+    const badge = document.querySelector('.premium-badge');
+    if (badge) {
+      badge.remove();
+    }
+    
+    // Reset stats text
+    const statsText = statsInfo.querySelector('.stats-text');
+    if (statsText) {
+      statsText.textContent = '📚 1,000+ ord i databasen';
+      statsText.style.color = '';
+      statsText.style.fontWeight = '';
+    }
   }
 }
 

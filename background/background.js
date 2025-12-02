@@ -222,10 +222,35 @@ chrome.runtime.onSuspend.addListener(() => {
 });
 
 /**
+ * Generate or get user ID
+ */
+async function getOrCreateUserId() {
+  try {
+    const userData = await chrome.storage.local.get(['enorett_userId']);
+    let userId = userData.enorett_userId;
+    
+    if (!userId) {
+      // Generate a unique user ID
+      userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      await chrome.storage.local.set({ enorett_userId: userId });
+      console.log('Generated new userId:', userId);
+    }
+    
+    return userId;
+  } catch (error) {
+    console.error('Error getting/creating userId:', error);
+    return null;
+  }
+}
+
+/**
  * Initialize subscription sync
  */
 async function initSubscriptionSync() {
   try {
+    // Ensure userId exists
+    await getOrCreateUserId();
+    
     // Sync subscription status periodically
     const syncSubscription = async () => {
       try {
@@ -281,6 +306,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'PAYMENT_SUCCESS') {
     handlePaymentSuccess(message.data);
     sendResponse({ success: true });
+  } else if (message.type === 'GET_USER_ID') {
+    // Return userId to caller
+    getOrCreateUserId().then(userId => {
+      sendResponse({ userId: userId });
+    }).catch(() => {
+      sendResponse({ userId: null });
+    });
+    return true; // Keep channel open for async response
   }
   return false;
 });
@@ -290,9 +323,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
  */
 async function handlePaymentSuccess(data) {
   try {
+    // Ensure userId exists
+    const userId = await getOrCreateUserId();
+    
     // If sessionId is provided, fetch subscription details
     if (data.sessionId) {
-      const response = await fetch(`https://api.enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}`, {
+      const response = await fetch(`https://api.enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}&userId=${encodeURIComponent(userId)}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -302,12 +338,17 @@ async function handlePaymentSuccess(data) {
       if (response.ok) {
         const result = await response.json();
         if (result.success && result.subscription) {
+          // Save subscription and userId
           await chrome.storage.local.set({
             enorett_subscription: {
               ...result.subscription,
+              userId: result.subscription.userId || userId,
               lastSynced: new Date().toISOString()
-            }
+            },
+            enorett_userId: result.subscription.userId || userId
           });
+          
+          console.log('✅ Premium purchase confirmed! Status saved.');
           
           // Notify all popups
           chrome.runtime.sendMessage({
@@ -316,6 +357,14 @@ async function handlePaymentSuccess(data) {
           }).catch(() => {
             // Popup might not be open, ignore
           });
+          
+          // Show success notification
+          chrome.notifications.create({
+            type: 'basic',
+            iconUrl: chrome.runtime.getURL('icons/icon-48.png'),
+            title: 'EnorEtt Premium',
+            message: 'Din Premium-prenumeration är nu aktiv! 🎉'
+          });
         }
       }
     } else if (data.subscription) {
@@ -323,8 +372,10 @@ async function handlePaymentSuccess(data) {
       await chrome.storage.local.set({
         enorett_subscription: {
           ...data.subscription,
+          userId: data.subscription.userId || userId,
           lastSynced: new Date().toISOString()
-        }
+        },
+        enorett_userId: data.subscription.userId || userId
       });
       
       // Notify all popups

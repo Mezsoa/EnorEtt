@@ -327,12 +327,26 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const extensionId = urlParams.get('extensionId') || 'enorett';
                 
+                // Try to get userId from extension if available
+                let userId = null;
+                if (typeof chrome !== 'undefined' && chrome.runtime) {
+                    try {
+                        const response = await chrome.runtime.sendMessage({
+                            type: 'GET_USER_ID'
+                        });
+                        userId = response?.userId || null;
+                    } catch (e) {
+                        console.log('Could not get userId from extension:', e);
+                    }
+                }
+                
                 const apiUrl = window.location.origin;
                 const requestUrl = `${apiUrl}/api/subscription/create`;
                 console.log('Making request to:', requestUrl);
                 
                 const requestBody = {
                     extensionId: extensionId,
+                    userId: userId,
                     returnUrl: window.location.href.split('?')[0] + '?success=true&session_id={CHECKOUT_SESSION_ID}',
                     cancelUrl: window.location.href.split('?')[0] + '?canceled=true'
                 };
