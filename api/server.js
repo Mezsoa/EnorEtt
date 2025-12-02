@@ -8,8 +8,15 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
+import { readFile } from 'fs/promises';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import enorEttRouter from './routes/enorett.js';
 import subscriptionRouter from './routes/subscription.js';
+
+// Get directory path for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Load environment variables
 dotenv.config();
@@ -93,6 +100,26 @@ app.get('/health', (req, res) => {
 app.use('/api/enorett', enorEttRouter);
 app.use('/api/subscription', subscriptionRouter);
 
+// Serve upgrade/landing page
+app.get('/upgrade', async (req, res) => {
+  try {
+    // Path to landing.html (in same directory as server.js)
+    const landingPath = join(__dirname, 'landing.html');
+    const landingHtml = await readFile(landingPath, 'utf-8');
+    
+    res.setHeader('Content-Type', 'text/html');
+    res.send(landingHtml);
+  } catch (error) {
+    console.error('Error serving landing page:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to load upgrade page',
+      errorSv: 'Kunde inte ladda uppgraderingssidan',
+      details: error.message
+    });
+  }
+});
+
 // ============================================
 // ERROR HANDLING
 // ============================================
@@ -126,26 +153,30 @@ app.use((err, req, res, next) => {
 // START SERVER
 // ============================================
 
-app.listen(PORT, () => {
-  console.log('=================================');
-  console.log('🇸🇪  EnorEtt API Server');
-  console.log('=================================');
-  console.log(`Environment: ${NODE_ENV}`);
-  console.log(`Port: ${PORT}`);
-  console.log(`URL: http://localhost:${PORT}`);
-  console.log('=================================');
-});
+// Only start server if not in Vercel serverless environment
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log('=================================');
+    console.log('🇸🇪  EnorEtt API Server');
+    console.log('=================================');
+    console.log(`Environment: ${NODE_ENV}`);
+    console.log(`Port: ${PORT}`);
+    console.log(`URL: http://localhost:${PORT}`);
+    console.log('=================================');
+  });
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully...');
-  process.exit(0);
-});
+  // Graceful shutdown
+  process.on('SIGTERM', () => {
+    console.log('SIGTERM received, shutting down gracefully...');
+    process.exit(0);
+  });
 
-process.on('SIGINT', () => {
-  console.log('SIGINT received, shutting down gracefully...');
-  process.exit(0);
-});
+  process.on('SIGINT', () => {
+    console.log('SIGINT received, shutting down gracefully...');
+    process.exit(0);
+  });
+}
 
+// Export for Vercel serverless functions
 export default app;
 
