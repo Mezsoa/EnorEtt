@@ -5,6 +5,8 @@
 
 import express from 'express';
 import Stripe from 'stripe';
+import Purchase from '../models/Purchase.js';
+import { connectDB } from '../db/connection.js';
 
 const router = express.Router();
 
@@ -80,25 +82,60 @@ router.get('/status', async (req, res) => {
       });
     }
     
-    // In production, you'd look up the user's purchase from your database
-    // For now, if sessionId is provided, verify it with Stripe
+    // Ensure database connection
+    await connectDB();
+    
+    // If userId is provided, look up from database first
+    if (userId) {
+      const purchase = await Purchase.findActivePurchase(userId);
+      
+      if (purchase && purchase.isActive()) {
+        return res.json({
+          success: true,
+          subscription: {
+            status: purchase.status,
+            plan: purchase.plan,
+            expiresAt: purchase.expiresAt ? purchase.expiresAt.toISOString() : null,
+            userId: purchase.userId,
+            stripeCustomerId: purchase.stripeCustomerId,
+            stripePaymentIntentId: purchase.stripePaymentIntentId,
+            purchaseType: purchase.purchaseType
+          }
+        });
+      }
+    }
+    
+    // If sessionId is provided, check database first, then fall back to Stripe
     if (sessionId) {
+      // Check database for purchase with this session ID
+      const purchase = await Purchase.findOne({ stripeSessionId: sessionId });
+      
+      if (purchase && purchase.isActive()) {
+        return res.json({
+          success: true,
+          subscription: {
+            status: purchase.status,
+            plan: purchase.plan,
+            expiresAt: purchase.expiresAt ? purchase.expiresAt.toISOString() : null,
+            userId: purchase.userId,
+            stripeCustomerId: purchase.stripeCustomerId,
+            stripePaymentIntentId: purchase.stripePaymentIntentId,
+            purchaseType: purchase.purchaseType
+          }
+        });
+      }
+      
+      // Fallback: verify with Stripe if not in database yet
       const session = await stripe.checkout.sessions.retrieve(sessionId);
       
       if (session.payment_status === 'paid') {
-        // For one-time payment, check if it's a payment or subscription
         if (session.mode === 'payment') {
-          // One-time payment - set lifetime access or expiry date
-          // You can set expiry date (e.g., 1 year from purchase) or make it lifetime
-          const expiresAt = new Date();
-          expiresAt.setFullYear(expiresAt.getFullYear() + 1); // 1 year from now (or set to null for lifetime)
-          
           return res.json({
             success: true,  
             subscription: {
               status: 'active',
               plan: 'Premium',
-              expiresAt: null, // Or null for lifetime
+              expiresAt: null, // Lifetime access
               userId: userId || session.metadata?.extensionId,
               stripeCustomerId: session.customer,
               stripePaymentIntentId: session.payment_intent,
@@ -126,19 +163,10 @@ router.get('/status', async (req, res) => {
       }
     }
     
-    // If userId is provided, look up from database
-    // TODO: Implement database lookup
-    if (userId) {
-      // Placeholder: return no subscription
-      return res.json({
-        success: true,
-        subscription: null
-      });
-    }
-    
-    res.json({
-      success: false,
-      error: 'Could not find subscription'
+    // No active subscription found
+    return res.json({
+      success: true,
+      subscription: null
     });
     
   } catch (error) {
@@ -182,8 +210,45 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
         console.log('💰 One-time payment successful');
         console.log('Payment Intent:', session.payment_intent);
         console.log('Amount total:', session.amount_total / 100, session.currency);
-        // TODO: Save one-time purchase to database
-        // Set expiry date (e.g., 1 year) or lifetime access
+        
+        try {
+          // Ensure database connection
+          await connectDB();
+          
+          // Get userId from metadata or generate one
+          const userId = session.metadata?.extensionId || session.customer || `user_${session.id}`;
+          
+          // Check if purchase already exists
+          const existingPurchase = await Purchase.findOne({ stripeSessionId: session.id });
+          
+          if (!existingPurchase) {
+            // Create new purchase record
+            // expiresAt is null for lifetime access (as per current setup)
+            const purchase = new Purchase({
+              userId: userId,
+              stripeCustomerId: session.customer,
+              stripeSessionId: session.id,
+              stripePaymentIntentId: session.payment_intent,
+              purchaseType: 'one-time',
+              plan: 'Premium',
+              status: 'active',
+              expiresAt: null, // Lifetime access
+              amount: session.amount_total / 100, // Convert from cents
+              currency: session.currency || 'sek',
+              extensionId: session.metadata?.extensionId || 'enorett',
+              metadata: session.metadata || {},
+              purchasedAt: new Date(),
+            });
+            
+            await purchase.save();
+            console.log('✅ Purchase saved to database:', purchase._id);
+          } else {
+            console.log('ℹ️ Purchase already exists for session:', session.id);
+          }
+        } catch (error) {
+          console.error('❌ Error saving purchase to database:', error);
+          // Don't fail the webhook - Stripe will retry if we return error
+        }
       } else if (session.subscription) {
         // Subscription payment (if you switch back)
         console.log('📅 Subscription:', session.subscription);
@@ -196,7 +261,24 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
       console.log('✅ Payment intent succeeded:', paymentIntent.id);
       console.log('Amount:', paymentIntent.amount / 100, paymentIntent.currency);
       console.log('Customer:', paymentIntent.customer);
-      // TODO: Confirm one-time purchase, grant Pro access
+      
+      try {
+        // Ensure database connection
+        await connectDB();
+        
+        // Find purchase by payment intent ID and ensure it's active
+        const purchase = await Purchase.findOne({ 
+          stripePaymentIntentId: paymentIntent.id 
+        });
+        
+        if (purchase && purchase.status !== 'active') {
+          purchase.status = 'active';
+          await purchase.save();
+          console.log('✅ Purchase status updated to active:', purchase._id);
+        }
+      } catch (error) {
+        console.error('❌ Error updating purchase status:', error);
+      }
       break;
       
     case 'payment_intent.payment_failed':

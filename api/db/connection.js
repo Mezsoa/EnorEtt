@@ -1,0 +1,85 @@
+/**
+ * MongoDB Connection
+ * Handles database connection for EnorEtt API
+ */
+
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+  console.warn('⚠️  MONGODB_URI not set. Database features will be disabled.');
+}
+
+let isConnected = false;
+
+/**
+ * Connect to MongoDB
+ */
+export async function connectDB() {
+  if (isConnected) {
+    return;
+  }
+
+  if (!MONGODB_URI) {
+    console.log('📦 Database connection skipped (MONGODB_URI not set)');
+    return;
+  }
+
+  try {
+    await mongoose.connect(MONGODB_URI, {
+      // These options are recommended for Mongoose 6+
+      // serverSelectionTimeoutMS: 5000,
+      // socketTimeoutMS: 45000,
+    });
+
+    isConnected = true;
+    console.log('✅ Connected to MongoDB');
+  } catch (error) {
+    console.error('❌ MongoDB connection error:', error);
+    isConnected = false;
+    throw error;
+  }
+}
+
+/**
+ * Disconnect from MongoDB
+ */
+export async function disconnectDB() {
+  if (!isConnected) {
+    return;
+  }
+
+  try {
+    await mongoose.disconnect();
+    isConnected = false;
+    console.log('📦 Disconnected from MongoDB');
+  } catch (error) {
+    console.error('❌ MongoDB disconnection error:', error);
+  }
+}
+
+// Handle connection events
+mongoose.connection.on('error', (err) => {
+  console.error('❌ MongoDB error:', err);
+  isConnected = false;
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.log('📦 MongoDB disconnected');
+  isConnected = false;
+});
+
+// Handle app termination
+process.on('SIGINT', async () => {
+  await disconnectDB();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  await disconnectDB();
+  process.exit(0);
+});

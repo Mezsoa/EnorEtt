@@ -13,6 +13,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import enorEttRouter from './routes/enorett.js';
 import subscriptionRouter from './routes/subscription.js';
+import { connectDB } from './db/connection.js';
 
 // Get directory path for ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -170,9 +171,15 @@ app.use((err, req, res, next) => {
 // START SERVER
 // ============================================
 
+// Connect to database
+connectDB().catch((error) => {
+  console.error('Failed to connect to database:', error);
+  // Don't exit - allow server to run without database
+});
+
 // Only start server if not in Vercel serverless environment
 if (process.env.VERCEL !== '1') {
-  app.listen(PORT, () => {
+  app.listen(PORT, async () => {
     console.log('=================================');
     console.log('🇸🇪  EnorEtt API Server');
     console.log('=================================');

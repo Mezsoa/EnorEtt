@@ -64,11 +64,29 @@ loadDictionary();
 async function verifyProSubscription(req, res, next) {
   const { pro, userId } = req.query;
   
+  // Only check if pro flag is set and userId is provided
   if (pro === 'true' && userId) {
-    // In production, verify subscription status from database
-    // For now, we'll allow it if userId is provided
-    // TODO: Implement actual subscription verification
-    req.isPro = true;
+    try {
+      // Import here to avoid circular dependencies
+      const Purchase = (await import('../models/Purchase.js')).default;
+      const { connectDB } = await import('../db/connection.js');
+      
+      // Ensure database connection
+      await connectDB();
+      
+      // Check for active purchase in database
+      const purchase = await Purchase.findActivePurchase(userId);
+      
+      if (purchase && purchase.isActive()) {
+        req.isPro = true;
+      } else {
+        req.isPro = false;
+      }
+    } catch (error) {
+      console.error('Error verifying Pro subscription:', error);
+      // On error, default to false for security
+      req.isPro = false;
+    }
   } else {
     req.isPro = false;
   }
