@@ -147,9 +147,15 @@ app.get('/upgrade', async (req, res) => {
     const landingPath = join(__dirname, 'landing.html');
     const landingHtml = await readFile(landingPath, 'utf-8');
     
-    // Set CSP header that allows inline scripts for this page
-    res.setHeader('Content-Type', 'text/html');
-    res.setHeader('Content-Security-Policy', "script-src 'self' 'unsafe-inline' 'unsafe-eval'; script-src-attr 'unsafe-inline'; style-src 'self' 'unsafe-inline';");
+    // Set CSP header that allows Tailwind CDN and inline scripts
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Content-Security-Policy', 
+      "default-src 'self'; " +
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; " +
+      "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; " +
+      "font-src 'self' data:; " +
+      "img-src 'self' data: https:;"
+    );
     res.send(landingHtml);
   } catch (error) {
     console.error('Error serving landing page:', error);
