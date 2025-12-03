@@ -4,309 +4,161 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EnorEtt Pro - Master Swedish Grammar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4562e3',
+                        secondary: '#764ba2',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, sans-serif;
-            background: linear-gradient(135deg, #4562e3 0%, #764ba2 100%);
-            height: 100vh;
-            overflow-y: auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        
-        .container {
-            background: white;
-            border-radius: 20px;
-            padding: 0;
-            max-width: 520px;
-            max-height: calc(100vh - 40px);
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #4562e3 0%, #764ba2 100%);
-            padding: 32px;
-            text-align: center;
-            color: white;
-            flex-shrink: 0;
-        }
-        
-        .logo {
-            font-size: 48px;
-            font-weight: 800;
-            margin-bottom: 12px;
-            letter-spacing: -1px;
-        }
-        
-        .header h1 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-        
-        .header .subtitle {
-            font-size: 16px;
-            opacity: 0.95;
-        }
-        
-        .content {
-            padding: 32px;
-            overflow-y: auto;
-            flex: 1;
-            min-height: 0;
-        }
-        
-        .features {
-            margin-bottom: 24px;
-        }
-        
-        .features-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #1F2937;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        .feature {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            margin-bottom: 8px;
-            background: #F9FAFB;
-            border-radius: 12px;
-            border: 1px solid #E5E7EB;
-        }
-        
-        .feature-icon {
-            font-size: 24px;
-            margin-right: 16px;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #4562e3 0%, #764ba2 100%);
-            border-radius: 10px;
-            flex-shrink: 0;
-        }
-        
-        .feature-text {
-            font-size: 15px;
-            color: #374151;
-            font-weight: 500;
-        }
-        
-        .pricing {
-            background: #F9FAFB;
-            border-radius: 16px;
-            padding: 24px;
-            border: 2px solid #E5E7EB;
-            margin-bottom: 24px;
-            text-align: center;
-        }
-        
-        .price-label {
-            font-size: 13px;
-            color: #6B7280;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        
-        .price {
-            font-size: 48px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #4562e3 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1;
-            margin-bottom: 8px;
-        }
-        
-        .price-period {
-            font-size: 15px;
-            color: #6B7280;
-            margin-bottom: 24px;
-        }
-        
-        .upgrade-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #4562e3 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 16px 32px;
-            border-radius: 12px;
-            font-size: 17px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(69, 98, 227, 0.4);
-        }
-        
-        .upgrade-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(69, 98, 227, 0.5);
-        }
-        
-        .upgrade-btn:active {
-            transform: translateY(0);
-        }
-        
-        .guarantee {
-            text-align: center;
-            margin-top: 16px;
-            font-size: 13px;
-            color: #6B7280;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-        
-        .guarantee-icon {
-            color: #10B981;
-        }
-        
-        .footer-note {
-            text-align: center;
-            font-size: 14px;
-            color: #9CA3AF;
-            margin-top: 24px;
-        }
-        
-        .loading {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .loading.active {
-            display: flex;
-        }
-        
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
+        /* Fallback styles if Tailwind doesn't load */
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
         
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        
-        @media (max-width: 640px) {
-            .container {
-                border-radius: 16px;
-                max-height: calc(100vh - 20px);
-            }
-            
-            .header {
-                padding: 24px;
-            }
-            
-            .logo {
-                font-size: 40px;
-            }
-            
-            .header h1 {
-                font-size: 24px;
-            }
-            
-            .content {
-                padding: 24px;
-            }
-            
-            .price {
-                font-size: 40px;
-            }
+        .spinner {
+            animation: spin 0.8s linear infinite;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Unlock EnorEtt Premium</h1>
-            <p class="subtitle">Master Swedish grammar faster</p>
-        </div>
-        
-        <div class="content">
-            <div class="features">
-                <h2 class="features-title">Premium Features</h2>
-                
-                <div class="feature">
-                    <div class="feature-icon">⚡</div>
-                    <div class="feature-text">API Access - Lookup words not in local dictionary</div>
-                </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">💬</div>
-                    <div class="feature-text">Example Sentences - See words in context</div>
-                </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">🔊</div>
-                    <div class="feature-text">Pronunciation Guides - Learn correct pronunciation</div>
-                </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">🌐</div>
-                    <div class="feature-text">Expanded Coverage - Access to online dictionary</div>
-                </div>
-                
-                <div class="feature">
-                    <div class="feature-icon">✨</div>
-                    <div class="feature-text">Enhanced Results - More detailed word information</div>
-                </div>
+<body class="font-sans antialiased min-h-screen bg-gradient-to-br from-primary via-secondary to-primary">
+    <!-- Background decoration -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-white/10 rounded-full blur-3xl"></div>
+    </div>
+
+    <!-- Main container -->
+    <div class="relative z-10 min-h-screen flex items-center justify-center p-4 md:p-6">
+        <div class="w-full max-w-lg bg-white/95 backdrop-blur-lg rounded-2xl md:rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh] md:max-h-[90vh]">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-primary to-secondary px-5 py-5 text-center text-white flex-shrink-0">
+                <h1 class="text-lg md:text-xl font-bold mb-1">Unlock EnorEtt Premium</h1>
+                <p class="text-xs md:text-sm opacity-95">Master Swedish grammar faster</p>
             </div>
             
-            <div class="pricing">
-                <div class="price-label">One-Time Payment</div>
-                <div class="price">30 kr</div>
-                <div class="price-period">Lifetime access</div>
-                
-                <button class="upgrade-btn" id="upgrade-button">
-                    Upgrade to Premium
-                </button>
-                
-                <div class="guarantee">
-                    <span class="guarantee-icon">✓</span>
-                    <span>30-day money-back guarantee</span>
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto px-5 py-3">
+                <!-- Features -->
+                <div class="mb-3">
+                    <h2 class="text-base font-bold text-gray-800 mb-2 text-center">Premium Features</h2>
+                    
+                    <div class="space-y-1.5">
+                        <div class="flex items-center gap-3 p-2.5 bg-gray-50 rounded-lg border border-gray-200 hover:border-primary/30 transition-colors">
+                            <div class="flex-shrink-0 w-9 h-9 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center text-lg">
+                                ⚡
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-gray-800 font-semibold text-xs md:text-sm mb-0.5">
+                                    API-åtkomst för alla ord
+                                </div>
+                                <div class="text-gray-600 text-xs leading-tight">
+                                    Sök även ord som inte finns i den lokala ordboken via online-API
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-3 p-2.5 bg-gray-50 rounded-lg border border-gray-200 hover:border-primary/30 transition-colors">
+                            <div class="flex-shrink-0 w-9 h-9 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center text-lg">
+                                💬
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-gray-800 font-semibold text-xs md:text-sm mb-0.5">
+                                    Exempel meningar
+                                </div>
+                                <div class="text-gray-600 text-xs leading-tight">
+                                    Se hur ordet används i praktiken med riktiga exempel
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-3 p-2.5 bg-gray-50 rounded-lg border border-gray-200 hover:border-primary/30 transition-colors">
+                            <div class="flex-shrink-0 w-9 h-9 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center text-lg">
+                                🔊
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-gray-800 font-semibold text-xs md:text-sm mb-0.5">
+                                    Uttalsguide
+                                </div>
+                                <div class="text-gray-600 text-xs leading-tight">
+                                    Lär dig korrekt uttal med fonetisk transkription
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-3 p-2.5 bg-gray-50 rounded-lg border border-gray-200 hover:border-primary/30 transition-colors">
+                            <div class="flex-shrink-0 w-9 h-9 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center text-lg">
+                                📚
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-gray-800 font-semibold text-xs md:text-sm mb-0.5">
+                                    Utökad ordbok
+                                </div>
+                                <div class="text-gray-600 text-xs leading-tight">
+                                    Tillgång till online-ordbok för fler ord än den lokala versionen
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-3 p-2.5 bg-gray-50 rounded-lg border border-gray-200 hover:border-primary/30 transition-colors">
+                            <div class="flex-shrink-0 w-9 h-9 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center text-lg">
+                                ✨
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-gray-800 font-semibold text-xs md:text-sm mb-0.5">
+                                    Premium-badge
+                                </div>
+                                <div class="text-gray-600 text-xs leading-tight">
+                                    Visa din Premium-status direkt i extensionen
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="footer-note">
-                Join 1,000+ Swedish learners
+                
+                <!-- Pricing -->
+                <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border-2 border-gray-200 mb-3">
+                    <div class="text-center">
+                        <div class="text-xs uppercase tracking-wider text-gray-600 font-semibold mb-1">
+                            One-Time Payment
+                        </div>
+                        <div class="text-4xl md:text-5xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-1 leading-none">
+                            30 kr
+                        </div>
+                        <div class="text-gray-600 text-sm mb-4">
+                            Lifetime access
+                        </div>
+                        
+                        <button id="upgrade-button" class="w-full bg-gradient-to-r from-primary to-secondary text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 text-base">
+                            Upgrade to Premium
+                        </button>
+                        
+                        <div class="flex items-center justify-center gap-1.5 mt-3 text-xs text-gray-600">
+                            <span class="text-green-600 font-semibold">✓</span>
+                            <span>30-day money-back guarantee</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Footer note -->
+                <div class="text-center text-xs text-gray-500">
+                    Join 1,000+ Swedish learners
+                </div>
             </div>
         </div>
     </div>
     
-    <div class="loading" id="loading">
-        <div class="spinner"></div>
+    <!-- Loading overlay -->
+    <div id="loading" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div class="w-12 h-12 border-4 border-white/30 border-t-white rounded-full spinner"></div>
     </div>
     
     <script>
@@ -320,7 +172,7 @@
                 return;
             }
             
-            loading.classList.add('active');
+            loading.classList.remove('hidden');
             console.log('Loading overlay shown');
             
             try {
@@ -385,7 +237,7 @@
                     throw new Error(data.error || 'Invalid response from server');
                 }
             } catch (error) {
-                loading.classList.remove('active');
+                loading.classList.add('hidden');
                 console.error('Upgrade error:', error);
                 console.error('Error stack:', error.stack);
                 alert('Kunde inte skapa checkout-session: ' + error.message + '\n\nFörsök igen eller kontakta oss på johnmessoa@gmail.com');
@@ -422,15 +274,15 @@
                     }).catch(() => {});
                 }
                 
-                const container = document.querySelector('.container');
+                const container = document.querySelector('.max-w-lg');
                 container.innerHTML = `
-                    <div style="padding: 60px 40px; text-align: center;">
-                        <div style="font-size: 56px; margin-bottom: 20px;">✅</div>
-                        <h1 style="font-size: 28px; color: #10B981; margin-bottom: 12px;">Betalning lyckades!</h1>
-                        <p style="font-size: 16px; color: #6B7280; margin-bottom: 24px;">
+                    <div class="flex flex-col items-center justify-center p-12 md:p-16 text-center min-h-[400px]">
+                        <div class="text-7xl mb-6">✅</div>
+                        <h1 class="text-3xl md:text-4xl font-bold text-green-600 mb-4">Betalning lyckades!</h1>
+                        <p class="text-lg text-gray-600 mb-8 max-w-md">
                             Din Premium-prenumeration är nu aktiv.
                         </p>
-                        <button id="close-button" style="background: #4562e3; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                        <button id="close-button" class="bg-gradient-to-r from-primary to-secondary text-white font-semibold py-3 px-8 rounded-xl hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200">
                             Stäng
                         </button>
                     </div>
@@ -443,11 +295,10 @@
                     }
                 }, 100);
             } else if (urlParams.get('canceled') === 'true') {
-                const container = document.querySelector('.container');
-                const content = container.querySelector('.content');
+                const content = document.querySelector('.flex-1');
                 content.insertAdjacentHTML('afterbegin', `
-                    <div style="padding: 16px; background: #FEF3C7; border-left: 4px solid #F59E0B; border-radius: 8px; margin-bottom: 24px;">
-                        <p style="color: #92400E; font-weight: 600; font-size: 14px;">Betalning avbruten</p>
+                    <div class="p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-lg mb-6">
+                        <p class="text-yellow-800 font-semibold text-sm">Betalning avbruten</p>
                     </div>
                 `);
             }
