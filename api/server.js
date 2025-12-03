@@ -162,6 +162,171 @@ app.get('/upgrade', async (req, res) => {
   }
 });
 
+// Serve privacy policy page
+app.get('/privacy', async (req, res) => {
+  try {
+    // Path to PRIVACY.md (in parent directory)
+    const privacyPath = join(__dirname, '..', 'PRIVACY.md');
+    const privacyMarkdown = await readFile(privacyPath, 'utf-8');
+    
+    // Convert markdown to HTML (simple conversion)
+    const privacyHtml = convertMarkdownToHtml(privacyMarkdown);
+    
+    // Set headers
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(privacyHtml);
+  } catch (error) {
+    console.error('Error serving privacy policy:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to load privacy policy',
+      errorSv: 'Kunde inte ladda integritetspolicyn',
+      details: error.message
+    });
+  }
+});
+
+/**
+ * Simple markdown to HTML converter for privacy policy
+ */
+function convertMarkdownToHtml(markdown) {
+  let html = markdown;
+  
+  // Split into lines for processing
+  const lines = html.split('\n');
+  const processedLines = [];
+  let inList = false;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    
+    // Headers
+    if (line.startsWith('# ')) {
+      if (inList) {
+        processedLines.push('</ul>');
+        inList = false;
+      }
+      processedLines.push(`<h1>${line.substring(2)}</h1>`);
+    } else if (line.startsWith('## ')) {
+      if (inList) {
+        processedLines.push('</ul>');
+        inList = false;
+      }
+      processedLines.push(`<h2>${line.substring(3)}</h2>`);
+    } else if (line.startsWith('### ')) {
+      if (inList) {
+        processedLines.push('</ul>');
+        inList = false;
+      }
+      processedLines.push(`<h3>${line.substring(4)}</h3>`);
+    } else if (line.startsWith('- ')) {
+      // List item
+      if (!inList) {
+        processedLines.push('<ul>');
+        inList = true;
+      }
+      processedLines.push(`<li>${line.substring(2)}</li>`);
+    } else if (line === '---') {
+      // Horizontal rule
+      if (inList) {
+        processedLines.push('</ul>');
+        inList = false;
+      }
+      processedLines.push('<hr>');
+    } else if (line === '') {
+      // Empty line - close list if open, add paragraph break
+      if (inList) {
+        processedLines.push('</ul>');
+        inList = false;
+      }
+      processedLines.push('');
+    } else {
+      // Regular paragraph
+      if (inList) {
+        processedLines.push('</ul>');
+        inList = false;
+      }
+      // Convert bold text
+      let processedLine = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      // Convert email links
+      processedLine = processedLine.replace(/([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/g, '<a href="mailto:$1">$1</a>');
+      processedLines.push(`<p>${processedLine}</p>`);
+    }
+  }
+  
+  // Close any open list
+  if (inList) {
+    processedLines.push('</ul>');
+  }
+  
+  // Join all lines
+  html = processedLines.join('\n');
+  
+  // Wrap in proper HTML structure
+  return `<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integritetspolicy - EnorEtt</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            color: #333;
+        }
+        h1 {
+            color: #4562e3;
+            border-bottom: 3px solid #4562e3;
+            padding-bottom: 10px;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #764ba2;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        h3 {
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        ul {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+        li {
+            margin: 8px 0;
+        }
+        p {
+            margin: 15px 0;
+        }
+        strong {
+            color: #4562e3;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 30px 0;
+        }
+        a {
+            color: #4562e3;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    ${html}
+</body>
+</html>`;
+}
+
 // ============================================
 // ERROR HANDLING
 // ============================================
