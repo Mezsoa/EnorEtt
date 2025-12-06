@@ -404,37 +404,55 @@ router.get('/status', async (req, res) => {
  */
 router.post('/recover', async (req, res) => {
   try {
-    const { email, stripeCustomerId, sessionId } = req.body;
+    const { email, stripeCustomerId, sessionId, paymentIntentId } = req.body;
     
-    if (!email && !stripeCustomerId && !sessionId) {
+    if (!email && !stripeCustomerId && !sessionId && !paymentIntentId) {
       return res.status(400).json({
         success: false,
-        error: 'Missing email, stripeCustomerId, or sessionId'
+        error: 'Missing email, stripeCustomerId, sessionId, or paymentIntentId'
+      });
+    }
+    
+    // Check if Stripe is configured
+    if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY === 'sk_test_placeholder') {
+      return res.status(500).json({
+        success: false,
+        error: 'Stripe not configured. Please set STRIPE_SECRET_KEY in environment variables.'
       });
     }
     
     await connectDB();
+    
+    console.log('Recover request:', { email, stripeCustomerId, sessionId, paymentIntentId });
     
     let customer = null;
     let sessions = [];
     
     // Find customer by email or customer ID
     if (email) {
-      const customers = await stripe.customers.list({
-        email: email,
-        limit: 10
-      });
-      if (customers.data.length > 0) {
-        customer = customers.data[0]; // Use first match
-      }
-    } else if (stripeCustomerId) {
       try {
-        // Try to retrieve customer (works for both regular and guest customers)
-        customer = await stripe.customers.retrieve(stripeCustomerId);
+        const customers = await stripe.customers.list({
+          email: email,
+          limit: 10
+        });
+        if (customers.data.length > 0) {
+          customer = customers.data[0]; // Use first match
+          console.log('Found customer by email:', customer.id);
+        } else {
+          console.log('No customer found with email:', email);
+        }
       } catch (e) {
-        // Customer not found or is a guest customer
-        // Guest customers (gcus_*) can't be retrieved directly
-        // We'll search for sessions by customer ID instead
+        console.error('Error searching for customer by email:', e);
+      }
+    }
+    
+    // Also try to get customer by ID if provided (but guest customers can't be retrieved)
+    if (stripeCustomerId && !stripeCustomerId.startsWith('gcus_')) {
+      try {
+        customer = await stripe.customers.retrieve(stripeCustomerId);
+        console.log('Retrieved customer by ID:', customer.id);
+      } catch (e) {
+        console.warn('Could not retrieve customer:', e.message);
       }
     }
     
@@ -447,32 +465,80 @@ router.post('/recover', async (req, res) => {
       sessions = allSessions.data.filter(s => 
         s.payment_status === 'paid' && s.mode === 'payment'
       );
-    } else if (stripeCustomerId && stripeCustomerId.startsWith('gcus_')) {
-      // Guest customer - search for sessions by customer_email instead
-      if (email) {
-        try {
-          // Search for sessions with this email (more efficient than listing all)
+    }
+    
+    // For guest customers or if no customer found, search all sessions
+    if (sessions.length === 0 && (email || (stripeCustomerId && stripeCustomerId.startsWith('gcus_')))) {
+      try {
+        console.log('Searching all sessions for guest customer...');
+        // List all recent sessions (Stripe doesn't support filtering guest customers directly)
+        const allSessions = await stripe.checkout.sessions.list({
+          limit: 100
+        });
+        console.log(`Total sessions found: ${allSessions.data.length}`);
+        
+        sessions = allSessions.data.filter(s => {
+          const isPaid = s.payment_status === 'paid' && s.mode === 'payment';
+          const matchesEmail = email && s.customer_email && s.customer_email.toLowerCase() === email.toLowerCase();
+          const matchesCustomer = stripeCustomerId && s.customer === stripeCustomerId;
+          return isPaid && (matchesEmail || matchesCustomer);
+        });
+        console.log(`Filtered to ${sessions.length} paid sessions matching criteria`);
+      } catch (e) {
+        console.error('Error listing sessions:', e);
+        // Continue with empty sessions array
+      }
+    }
+    
+    // If paymentIntentId is provided, find session from payment intent
+    if (paymentIntentId) {
+      try {
+        console.log('Looking up session from payment intent:', paymentIntentId);
+        const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+        console.log('Payment intent found:', paymentIntent.id, 'Status:', paymentIntent.status);
+        
+        // Payment intents don't have direct session reference, so we need to search
+        // But we can use the metadata or search all sessions
+        if (paymentIntent.status === 'succeeded') {
+          // Search for session with this payment intent
           const allSessions = await stripe.checkout.sessions.list({
             limit: 100
           });
-          sessions = allSessions.data.filter(s => 
+          const matchingSession = allSessions.data.find(s => 
+            s.payment_intent === paymentIntentId && 
             s.payment_status === 'paid' && 
-            s.mode === 'payment' &&
-            (s.customer_email === email || s.customer === stripeCustomerId)
+            s.mode === 'payment'
           );
-        } catch (e) {
-          console.error('Error listing sessions for guest customer:', e);
-          // Continue with empty sessions array
+          
+          if (matchingSession) {
+            sessions = [matchingSession];
+            console.log('Found session from payment intent:', matchingSession.id);
+            if (matchingSession.customer) {
+              try {
+                customer = await stripe.customers.retrieve(matchingSession.customer);
+              } catch (e) {
+                // Guest customer, can't retrieve
+              }
+            }
+          }
         }
+      } catch (e) {
+        console.error('Error retrieving payment intent:', e);
       }
-    } else if (sessionId) {
+    }
+    
+    if (sessionId) {
       // Try to get session directly
       try {
         const session = await stripe.checkout.sessions.retrieve(sessionId);
         if (session.payment_status === 'paid' && session.mode === 'payment') {
           sessions = [session];
           if (session.customer) {
-            customer = await stripe.customers.retrieve(session.customer);
+            try {
+              customer = await stripe.customers.retrieve(session.customer);
+            } catch (e) {
+              // Guest customer, can't retrieve
+            }
           }
         }
       } catch (e) {
