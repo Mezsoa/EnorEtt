@@ -5,6 +5,7 @@
 
 import express from 'express';
 import Stripe from 'stripe';
+import mongoose from 'mongoose';
 import Purchase from '../models/Purchase.js';
 import User from '../models/User.js';
 import { connectDB } from '../db/connection.js';
@@ -85,94 +86,111 @@ router.get('/status', async (req, res) => {
       });
     }
     
-    // Ensure database connection
-    await connectDB();
+    // Ensure database connection (but don't fail if it doesn't work)
+    try {
+      await connectDB();
+    } catch (dbError) {
+      console.warn('Database connection failed, continuing without DB:', dbError.message);
+    }
+    
+    const dbAvailable = mongoose.connection.readyState === 1;
     
     // Strategy: Try to find user first, then find their purchase
     let user = null;
     let purchase = null;
     
-    // Find user by different methods
-    if (userId) {
-      user = await User.findOne({ userId });
-    } else if (email) {
-      user = await User.findOne({ email });
-    } else if (stripeCustomerId) {
-      user = await User.findOne({ stripeCustomerId });
-    }
-    
-    // If we found a user, get their active purchase
-    if (user) {
-      purchase = await Purchase.findActivePurchase(user.userId);
-      
-      if (purchase && purchase.isActive()) {
-        return res.json({
-          success: true,
-          subscription: {
-            status: purchase.status,
-            plan: purchase.plan,
-            expiresAt: purchase.expiresAt ? purchase.expiresAt.toISOString() : null,
-            userId: purchase.userId,
-            stripeCustomerId: purchase.stripeCustomerId,
-            stripePaymentIntentId: purchase.stripePaymentIntentId,
-            purchaseType: purchase.purchaseType
-          },
-          user: {
-            userId: user.userId,
-            email: user.email,
-            stats: user.stats
-          }
-        });
-      }
-    }
-    
-    // If userId was provided but no user found, try direct purchase lookup
-    if (userId && !user) {
-      purchase = await Purchase.findActivePurchase(userId);
-      
-      if (purchase && purchase.isActive()) {
-        // Create user record if purchase exists but user doesn't
-        user = await User.findOrCreate(userId);
+    // Only try database queries if available
+    if (dbAvailable) {
+      try {
+        // Find user by different methods
+        if (userId) {
+          user = await User.findOne({ userId });
+        } else if (email) {
+          user = await User.findOne({ email });
+        } else if (stripeCustomerId) {
+          user = await User.findOne({ stripeCustomerId });
+        }
         
-        return res.json({
-          success: true,
-          subscription: {
-            status: purchase.status,
-            plan: purchase.plan,
-            expiresAt: purchase.expiresAt ? purchase.expiresAt.toISOString() : null,
-            userId: purchase.userId,
-            stripeCustomerId: purchase.stripeCustomerId,
-            stripePaymentIntentId: purchase.stripePaymentIntentId,
-            purchaseType: purchase.purchaseType
-          },
-          user: {
-            userId: user.userId,
-            email: user.email,
-            stats: user.stats
+        // If we found a user, get their active purchase
+        if (user) {
+          purchase = await Purchase.findActivePurchase(user.userId);
+          
+          if (purchase && purchase.isActive()) {
+            return res.json({
+              success: true,
+              subscription: {
+                status: purchase.status,
+                plan: purchase.plan,
+                expiresAt: purchase.expiresAt ? purchase.expiresAt.toISOString() : null,
+                userId: purchase.userId,
+                stripeCustomerId: purchase.stripeCustomerId,
+                stripePaymentIntentId: purchase.stripePaymentIntentId,
+                purchaseType: purchase.purchaseType
+              },
+              user: {
+                userId: user.userId,
+                email: user.email,
+                stats: user.stats
+              }
+            });
           }
-        });
+        }
+        
+        // If userId was provided but no user found, try direct purchase lookup
+        if (userId && !user) {
+          purchase = await Purchase.findActivePurchase(userId);
+          
+          if (purchase && purchase.isActive()) {
+            // Create user record if purchase exists but user doesn't
+            user = await User.findOrCreate(userId);
+            
+            return res.json({
+              success: true,
+              subscription: {
+                status: purchase.status,
+                plan: purchase.plan,
+                expiresAt: purchase.expiresAt ? purchase.expiresAt.toISOString() : null,
+                userId: purchase.userId,
+                stripeCustomerId: purchase.stripeCustomerId,
+                stripePaymentIntentId: purchase.stripePaymentIntentId,
+                purchaseType: purchase.purchaseType
+              },
+              user: {
+                userId: user.userId,
+                email: user.email,
+                stats: user.stats
+              }
+            });
+          }
+        }
+        
+        // If sessionId is provided, check database first
+        if (sessionId) {
+          const sessionPurchase = await Purchase.findOne({ stripeSessionId: sessionId });
+          
+          if (sessionPurchase && sessionPurchase.isActive()) {
+            return res.json({
+              success: true,
+              subscription: {
+                status: sessionPurchase.status,
+                plan: sessionPurchase.plan,
+                expiresAt: sessionPurchase.expiresAt ? sessionPurchase.expiresAt.toISOString() : null,
+                userId: sessionPurchase.userId,
+                stripeCustomerId: sessionPurchase.stripeCustomerId,
+                stripePaymentIntentId: sessionPurchase.stripePaymentIntentId,
+                purchaseType: sessionPurchase.purchaseType
+              }
+            });
+          }
+        }
+      } catch (dbError) {
+        console.warn('Database query failed:', dbError.message);
+        // Continue to Stripe recovery
       }
     }
     
-    // If sessionId is provided, check database first, then fall back to Stripe
+    // If sessionId is provided and not found in DB, fall back to Stripe
     if (sessionId) {
-      // Check database for purchase with this session ID
-      const purchase = await Purchase.findOne({ stripeSessionId: sessionId });
-      
-      if (purchase && purchase.isActive()) {
-        return res.json({
-          success: true,
-          subscription: {
-            status: purchase.status,
-            plan: purchase.plan,
-            expiresAt: purchase.expiresAt ? purchase.expiresAt.toISOString() : null,
-            userId: purchase.userId,
-            stripeCustomerId: purchase.stripeCustomerId,
-            stripePaymentIntentId: purchase.stripePaymentIntentId,
-            purchaseType: purchase.purchaseType
-          }
-        });
-      }
       
       // Fallback: verify with Stripe if not in database yet
       const session = await stripe.checkout.sessions.retrieve(sessionId);
@@ -266,60 +284,93 @@ router.get('/status', async (req, res) => {
                              customer?.id || 
                              `user_${session.id}`;
           
-          // Create user and purchase records
-          const user = await User.findOrCreate(foundUserId, {
-            email: sessionEmail,
-            stripeCustomerId: customer?.id || session.customer
-          });
+          // Create user and purchase records (only if DB is available)
+          let recoveredUser = null;
+          let recoveredPurchase = null;
           
-          if (sessionEmail && !user.email) {
-            user.email = sessionEmail;
-            await user.save();
+          if (dbAvailable) {
+            try {
+              recoveredUser = await User.findOrCreate(foundUserId, {
+                email: sessionEmail,
+                stripeCustomerId: customer?.id || session.customer
+              });
+              
+              if (sessionEmail && !recoveredUser.email) {
+                recoveredUser.email = sessionEmail;
+                await recoveredUser.save();
+              }
+              
+              if ((customer?.id || session.customer) && !recoveredUser.stripeCustomerId) {
+                recoveredUser.stripeCustomerId = customer?.id || session.customer;
+                await recoveredUser.save();
+              }
+              
+              // Check if purchase already exists
+              recoveredPurchase = await Purchase.findOne({ stripeSessionId: session.id });
+              
+              if (!recoveredPurchase) {
+                recoveredPurchase = new Purchase({
+                  userId: recoveredUser.userId,
+                  stripeCustomerId: customer?.id || session.customer,
+                  stripeSessionId: session.id,
+                  stripePaymentIntentId: session.payment_intent,
+                  purchaseType: 'one-time',
+                  plan: 'Premium',
+                  status: 'active',
+                  expiresAt: null,
+                  amount: session.amount_total ? session.amount_total / 100 : 30,
+                  currency: session.currency || 'sek',
+                  extensionId: session.metadata?.extensionId || 'enorett',
+                  purchasedAt: new Date(session.created * 1000)
+                });
+                await recoveredPurchase.save();
+                console.log('✅ Auto-recovered purchase from Stripe:', recoveredPurchase.id);
+              }
+            } catch (dbSaveError) {
+              console.warn('Failed to save recovered purchase to database:', dbSaveError.message);
+              // Continue - return subscription data anyway
+            }
           }
           
-          if ((customer?.id || session.customer) && !user.stripeCustomerId) {
-            user.stripeCustomerId = customer?.id || session.customer;
-            await user.save();
-          }
-          
-          // Check if purchase already exists
-          let purchase = await Purchase.findOne({ stripeSessionId: session.id });
-          
-          if (!purchase) {
-            purchase = new Purchase({
-              userId: user.userId,
-              stripeCustomerId: customer?.id || session.customer,
-              stripeSessionId: session.id,
-              stripePaymentIntentId: session.payment_intent,
-              purchaseType: 'one-time',
-              plan: 'Premium',
-              status: 'active',
-              expiresAt: null,
-              amount: session.amount_total ? session.amount_total / 100 : 30,
-              currency: session.currency || 'sek',
-              extensionId: session.metadata?.extensionId || 'enorett',
-              purchasedAt: new Date(session.created * 1000)
-            });
-            await purchase.save();
-            console.log('✅ Auto-recovered purchase from Stripe:', purchase.id);
-          }
-          
-          if (purchase && purchase.isActive()) {
+          // Return subscription data even if we couldn't save to DB
+          if (recoveredPurchase && recoveredPurchase.isActive()) {
             return res.json({
               success: true,
               subscription: {
-                status: purchase.status,
-                plan: purchase.plan,
-                expiresAt: purchase.expiresAt ? purchase.expiresAt.toISOString() : null,
-                userId: purchase.userId,
-                stripeCustomerId: purchase.stripeCustomerId,
-                stripePaymentIntentId: purchase.stripePaymentIntentId,
-                purchaseType: purchase.purchaseType
+                status: recoveredPurchase.status,
+                plan: recoveredPurchase.plan,
+                expiresAt: recoveredPurchase.expiresAt ? recoveredPurchase.expiresAt.toISOString() : null,
+                userId: recoveredPurchase.userId,
+                stripeCustomerId: recoveredPurchase.stripeCustomerId,
+                stripePaymentIntentId: recoveredPurchase.stripePaymentIntentId,
+                purchaseType: recoveredPurchase.purchaseType
               },
-              user: {
-                userId: user.userId,
-                email: user.email,
-                stats: user.stats
+              user: recoveredUser ? {
+                userId: recoveredUser.userId,
+                email: recoveredUser.email,
+                stats: recoveredUser.stats
+              } : null
+            });
+          } else if (session) {
+            // Return subscription from Stripe session even if DB save failed
+            return res.json({
+              success: true,
+              subscription: {
+                status: 'active',
+                plan: 'Premium',
+                expiresAt: null,
+                userId: foundUserId,
+                stripeCustomerId: customer?.id || session.customer,
+                stripePaymentIntentId: session.payment_intent,
+                purchaseType: 'one-time'
+              },
+              user: recoveredUser ? {
+                userId: recoveredUser.userId,
+                email: recoveredUser.email,
+                stats: recoveredUser.stats
+              } : {
+                userId: foundUserId,
+                email: sessionEmail
               }
             });
           }
