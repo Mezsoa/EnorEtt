@@ -30,7 +30,14 @@ export async function connectDB() {
   }
 
   try {
-    await mongoose.connect(MONGODB_URI, {
+    // Add database name if not present in URI
+    let uri = MONGODB_URI;
+    if (!uri.includes('/?') && !uri.match(/\/[^\/\?]+(\?|$)/)) {
+      // No database name specified, add one
+      uri = uri.replace(/\?/, '/enorett?').replace(/\/$/, '/enorett');
+    }
+    
+    await mongoose.connect(uri, {
       // These options are recommended for Mongoose 6+
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,

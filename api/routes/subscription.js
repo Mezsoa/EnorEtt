@@ -582,12 +582,18 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
   const sig = req.headers['stripe-signature'];
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || 'whsec_placeholder';
   
+  // Log webhook received
+  console.log('📥 Webhook received');
+  console.log('Signature present:', !!sig);
+  console.log('Webhook secret configured:', webhookSecret !== 'whsec_placeholder');
+  
   let event;
   
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+    console.log('✅ Webhook verified. Event type:', event.type);
   } catch (err) {
-    console.error('Webhook signature verification failed:', err.message);
+    console.error('❌ Webhook signature verification failed:', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
   
@@ -671,7 +677,17 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
           }
         } catch (error) {
           console.error('❌ Error saving purchase to database:', error);
-          // Don't fail the webhook - Stripe will retry if we return error
+          console.error('Error details:', {
+            message: error.message,
+            stack: error.stack,
+            sessionId: session.id,
+            userId: session.metadata?.userId
+          });
+          // Return 500 so Stripe retries the webhook
+          return res.status(500).json({
+            error: 'Failed to save purchase',
+            message: error.message
+          });
         }
       } else if (session.subscription) {
         // Subscription payment (if you switch back)
