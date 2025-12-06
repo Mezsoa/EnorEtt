@@ -122,13 +122,19 @@ app.get('/', async (req, res) => {
     const homepageHtml = await readFile(homepagePath, 'utf-8');
     
     // Set CSP header that allows Tailwind CDN and inline scripts
+    // Includes all security directives from global helmet config
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Content-Security-Policy', 
       "default-src 'self'; " +
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; " +
+      "script-src-attr \'unsafe-inline\'; " +
       "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; " +
       "font-src 'self' data:; " +
-      "img-src 'self' data: https:;"
+      "img-src 'self' data: https:; " +
+      "connect-src 'self'; " +
+      "object-src 'none'; " +
+      "media-src 'self'; " +
+      "frame-src 'none';"
     );
     res.send(homepageHtml);
   } catch (error) {
@@ -167,13 +173,19 @@ app.get('/upgrade', async (req, res) => {
     const landingHtml = await readFile(landingPath, 'utf-8');
     
     // Set CSP header that allows Tailwind CDN and inline scripts
+    // Includes all security directives from global helmet config
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Content-Security-Policy', 
       "default-src 'self'; " +
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; " +
+      "script-src-attr \'unsafe-inline\'; " +
       "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; " +
       "font-src 'self' data:; " +
-      "img-src 'self' data: https:;"
+      "img-src 'self' data: https:; " +
+      "connect-src 'self'; " +
+      "object-src 'none'; " +
+      "media-src 'self'; " +
+      "frame-src 'none';"
     );
     res.send(landingHtml);
   } catch (error) {
@@ -243,13 +255,19 @@ const fallbackPrivacyHTML = `<!DOCTYPE html>
 // Serve privacy policy page - ALWAYS returns HTML, even on error
 app.get('/privacy', async (req, res) => {
   // Always set HTML headers first
+  // Includes all security directives from global helmet config
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.setHeader('Content-Security-Policy', 
     "default-src 'self'; " +
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; " +
+    "script-src-attr 'unsafe-inline'; " +
     "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; " +
+    "img-src 'self' data: https:; " +
+    "connect-src 'self'; " +
     "font-src 'self' data:; " +
-    "img-src 'self' data: https:;"
+    "object-src 'none'; " +
+    "media-src 'self'; " +
+    "frame-src 'none';"
   );
   
   try {
@@ -329,4 +347,3 @@ if (process.env.VERCEL !== '1') {
 
 // Export for Vercel serverless functions
 export default app;
-
