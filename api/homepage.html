@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnorEtt - Din svenska grammatikassistent</title>
+    <meta name="description" content="EnorEtt hjälper dig att snabbt kolla om ett ord tar 'en' eller 'ett'. Perfekt för svenska språkinlärare och studenter.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4562e3',
+                        secondary: '#764ba2',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    </style>
+</head>
+<body class="font-sans antialiased bg-gray-50">
+    <!-- Hero Section -->
+    <div class="bg-gradient-to-br from-primary via-secondary to-primary text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
+            <div class="text-center">
+                <h1 class="text-5xl md:text-7xl font-black mb-6">
+                    <span class="text-white">en</span>
+                    <span class="text-white/80">/</span>
+                    <span class="text-white">ett</span>
+                </h1>
+                <p class="text-2xl md:text-3xl font-bold mb-4">EnorEtt</p>
+                <p class="text-xl md:text-2xl text-white/90 mb-8">Din svenska grammatikassistent</p>
+                <p class="text-lg md:text-xl text-white/80 max-w-2xl mx-auto mb-10">
+                    Kolla snabbt om ett ord tar 'en' eller 'ett'. Perfekt för svenska språkinlärare, 
+                    SFI-studenter och alla som vill skriva korrekt svenska.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <a href="https://chrome.google.com/webstore/detail/enorett/your-store-id" 
+                       class="bg-white text-primary font-bold py-4 px-8 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200 text-lg">
+                        Installera Chrome Extension
+                    </a>
+                    <a href="/upgrade" 
+                       class="bg-white/10 backdrop-blur-sm text-white border-2 border-white/30 font-bold py-4 px-8 rounded-lg hover:bg-white/20 transition-all duration-200 text-lg">
+                        Uppgradera till Premium
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Varför EnorEtt?</h2>
+            <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                Den snabbaste och enklaste vägen att kolla svenska grammatik direkt där du arbetar
+            </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+                <div class="text-4xl mb-4">⚡</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Snabbt som blixten</h3>
+                <p class="text-gray-600">
+                    Få svar på under en sekund. Inga långsamma ordböcker eller webbsökningar.
+                </p>
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+                <div class="text-4xl mb-4">📚</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">1000+ ord offline</h3>
+                <p class="text-gray-600">
+                    Omfattande ordbok som fungerar helt offline. Inget internet behövs.
+                </p>
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+                <div class="text-4xl mb-4">🖱️</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Högerklick var som helst</h3>
+                <p class="text-gray-600">
+                    Högerklicka på vilket ord som helst på vilken webbsida som helst för snabb kontroll.
+                </p>
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+                <div class="text-4xl mb-4">🎯</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Mönsterigenkänning</h3>
+                <p class="text-gray-600">
+                    Förstå varför ord tar en eller ett med intelligenta mönster och förklaringar.
+                </p>
+            </div>
+
+            <!-- Feature 5 -->
+            <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+                <div class="text-4xl mb-4">🔒</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">100% privat</h3>
+                <p class="text-gray-600">
+                    Ingen datainsamling, ingen spårning, inga annonser. Allt sker lokalt på din enhet.
+                </p>
+            </div>
+
+            <!-- Feature 6 -->
+            <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
+                <div class="text-4xl mb-4">🆓</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Gratis för alltid</h3>
+                <p class="text-gray-600">
+                    Kärnfunktionerna är helt gratis för alltid. Premium ger dig ännu mer.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="bg-white py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Så fungerar det</h2>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+                    Tre enkla steg till korrekt svenska grammatik
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                <div class="text-center">
+                    <div class="bg-gradient-to-br from-primary to-secondary w-16 h-16 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
+                        1
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Klicka på ikonen</h3>
+                    <p class="text-gray-600">
+                        Öppna EnorEtt från Chrome-toolbar eller använd kortkommandot Ctrl+Shift+E
+                    </p>
+                </div>
+
+                <div class="text-center">
+                    <div class="bg-gradient-to-br from-primary to-secondary w-16 h-16 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
+                        2
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Skriv ett ord</h3>
+                    <p class="text-gray-600">
+                        Skriv in ett svenskt substantiv som "bil", "hus" eller "bok"
+                    </p>
+                </div>
+
+                <div class="text-center">
+                    <div class="bg-gradient-to-br from-primary to-secondary w-16 h-16 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">
+                        3
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Få svar direkt</h3>
+                    <p class="text-gray-600">
+                        Få omedelbart svar med konfidensgrad och förklaringar
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Premium CTA -->
+    <div class="bg-gradient-to-r from-primary to-secondary py-20">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold text-white mb-4">Redo för Premium?</h2>
+            <p class="text-xl text-white/90 mb-8">
+                Få tillgång till 10,000+ ord, API-åtkomst, exempel meningar och uttalsguide
+            </p>
+            <a href="/upgrade" 
+               class="inline-block bg-white text-primary font-bold py-4 px-8 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200 text-lg">
+                Uppgradera till Premium - 30 kr
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-2xl font-bold mb-4">EnorEtt</h3>
+                    <p class="text-gray-400">
+                        Din svenska grammatikassistent. Made in Sweden 🇸🇪
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">Produkt</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="/upgrade" class="hover:text-white transition-colors">Premium</a></li>
+                        <li><a href="https://chrome.google.com/webstore" class="hover:text-white transition-colors">Chrome Extension</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">Juridik</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="/privacy" class="hover:text-white transition-colors">Integritetspolicy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold mb-4">Kontakt</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="mailto:johnmessoa@gmail.com" class="hover:text-white transition-colors">johnmessoa@gmail.com</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 EnorEtt. Alla rättigheter förbehållna.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
