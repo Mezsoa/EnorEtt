@@ -32,8 +32,9 @@ export async function connectDB() {
   try {
     await mongoose.connect(MONGODB_URI, {
       // These options are recommended for Mongoose 6+
-      // serverSelectionTimeoutMS: 5000,
-      // socketTimeoutMS: 45000,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      connectTimeoutMS: 10000,
     });
 
     isConnected = true;
@@ -41,7 +42,7 @@ export async function connectDB() {
   } catch (error) {
     console.error('❌ MongoDB connection error:', error);
     isConnected = false;
-    throw error;
+    return;
   }
 }
 
