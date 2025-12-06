@@ -281,48 +281,47 @@ router.get('/status', async (req, res) => {
             user.stripeCustomerId = customer?.id || session.customer;
             await user.save();
           }
-            
-            // Check if purchase already exists
-            let purchase = await Purchase.findOne({ stripeSessionId: session.id });
-            
-            if (!purchase) {
-              purchase = new Purchase({
+          
+          // Check if purchase already exists
+          let purchase = await Purchase.findOne({ stripeSessionId: session.id });
+          
+          if (!purchase) {
+            purchase = new Purchase({
+              userId: user.userId,
+              stripeCustomerId: customer?.id || session.customer,
+              stripeSessionId: session.id,
+              stripePaymentIntentId: session.payment_intent,
+              purchaseType: 'one-time',
+              plan: 'Premium',
+              status: 'active',
+              expiresAt: null,
+              amount: session.amount_total ? session.amount_total / 100 : 30,
+              currency: session.currency || 'sek',
+              extensionId: session.metadata?.extensionId || 'enorett',
+              purchasedAt: new Date(session.created * 1000)
+            });
+            await purchase.save();
+            console.log('✅ Auto-recovered purchase from Stripe:', purchase.id);
+          }
+          
+          if (purchase && purchase.isActive()) {
+            return res.json({
+              success: true,
+              subscription: {
+                status: purchase.status,
+                plan: purchase.plan,
+                expiresAt: purchase.expiresAt ? purchase.expiresAt.toISOString() : null,
+                userId: purchase.userId,
+                stripeCustomerId: purchase.stripeCustomerId,
+                stripePaymentIntentId: purchase.stripePaymentIntentId,
+                purchaseType: purchase.purchaseType
+              },
+              user: {
                 userId: user.userId,
-                stripeCustomerId: customer?.id || session.customer,
-                stripeSessionId: session.id,
-                stripePaymentIntentId: session.payment_intent,
-                purchaseType: 'one-time',
-                plan: 'Premium',
-                status: 'active',
-                expiresAt: null,
-                amount: session.amount_total ? session.amount_total / 100 : 30,
-                currency: session.currency || 'sek',
-                extensionId: session.metadata?.extensionId || 'enorett',
-                purchasedAt: new Date(session.created * 1000)
-              });
-              await purchase.save();
-              console.log('✅ Auto-recovered purchase from Stripe:', purchase.id);
-            }
-            
-            if (purchase && purchase.isActive()) {
-              return res.json({
-                success: true,
-                subscription: {
-                  status: purchase.status,
-                  plan: purchase.plan,
-                  expiresAt: purchase.expiresAt ? purchase.expiresAt.toISOString() : null,
-                  userId: purchase.userId,
-                  stripeCustomerId: purchase.stripeCustomerId,
-                  stripePaymentIntentId: purchase.stripePaymentIntentId,
-                  purchaseType: purchase.purchaseType
-                },
-                user: {
-                  userId: user.userId,
-                  email: user.email,
-                  stats: user.stats
-                }
-              });
-            }
+                email: user.email,
+                stats: user.stats
+              }
+            });
           }
         }
       } catch (recoveryError) {
@@ -400,14 +399,20 @@ router.post('/recover', async (req, res) => {
     } else if (stripeCustomerId && stripeCustomerId.startsWith('gcus_')) {
       // Guest customer - search for sessions by customer_email instead
       if (email) {
-        const allSessions = await stripe.checkout.sessions.list({
-          limit: 100
-        });
-        sessions = allSessions.data.filter(s => 
-          s.payment_status === 'paid' && 
-          s.mode === 'payment' &&
-          (s.customer_email === email || s.customer === stripeCustomerId)
-        );
+        try {
+          // Search for sessions with this email (more efficient than listing all)
+          const allSessions = await stripe.checkout.sessions.list({
+            limit: 100
+          });
+          sessions = allSessions.data.filter(s => 
+            s.payment_status === 'paid' && 
+            s.mode === 'payment' &&
+            (s.customer_email === email || s.customer === stripeCustomerId)
+          );
+        } catch (e) {
+          console.error('Error listing sessions for guest customer:', e);
+          // Continue with empty sessions array
+        }
       }
     } else if (sessionId) {
       // Try to get session directly
