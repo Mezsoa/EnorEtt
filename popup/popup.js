@@ -28,6 +28,43 @@ let currentWord = '';
 let lastResult = null;
 let isPro = false;
 
+// API fallback configuration
+const API_BASES = [
+  'https://www.enorett.se',
+  'https://api.enorett.se',
+  'https://enorett.se'
+];
+const FETCH_TIMEOUT_MS = 8000;
+
+/**
+ * Fetch helper with domain fallback and timeout
+ * @param {string} path - Relative (/api/...) or absolute URL
+ * @param {object} options - fetch options
+ * @returns {Promise<{response: Response, base: string}>}
+ */
+async function fetchWithFallback(path, options = {}) {
+  let lastError = null;
+  
+  for (const base of API_BASES) {
+    const url = path.startsWith('http') ? path : `${base}${path}`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+    try {
+      const response = await fetch(url, { ...options, signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (response.ok) {
+        return { response, base };
+      }
+      lastError = new Error(`HTTP ${response.status} at ${url}`);
+    } catch (e) {
+      clearTimeout(timeoutId);
+      lastError = e;
+    }
+  }
+  
+  throw lastError || new Error('No endpoint reachable');
+}
+
 /**
  * Initialize the popup
  */
@@ -97,59 +134,50 @@ async function syncAuthFromLocalStorage() {
     
     if (userId) {
       // Try to get fresh auth from backend using userId
-      // Use subscription/status endpoint instead since it's more reliable
-      const endpoints = [
-        'https://www.enorett.se/api/subscription/status',
-        'https://api.enorett.se/api/subscription/status',
-        'https://enorett.se/api/subscription/status'
-      ];
+    // Use subscription/status endpoint instead since it's more reliable
+    try {
+      const { response } = await fetchWithFallback(
+        `/api/subscription/status?userId=${encodeURIComponent(userId)}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Id': userId
+          }
+        }
+      );
       
-      for (const endpoint of endpoints) {
-        try {
-          const response = await fetch(`${endpoint}?userId=${encodeURIComponent(userId)}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-User-Id': userId
+      const data = await response.json();
+      if (data.success && data.user) {
+        // Save auth to extension storage
+        await chrome.storage.local.set({
+          enorett_auth: {
+            user: data.user,
+            subscription: data.subscription,
+            token: null
+          },
+          enorett_userId: data.user.userId,
+          enorett_userEmail: data.user.email
+        });
+        
+        // Also save subscription if available
+        if (data.subscription) {
+          await chrome.storage.local.set({
+            enorett_subscription: {
+              ...data.subscription,
+              lastSynced: new Date().toISOString()
             }
           });
-          
-          if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.user) {
-              // Save auth to extension storage
-              await chrome.storage.local.set({
-                enorett_auth: {
-                  user: data.user,
-                  subscription: data.subscription,
-                  token: null
-                },
-                enorett_userId: data.user.userId,
-                enorett_userEmail: data.user.email
-              });
-              
-              // Also save subscription if available
-              if (data.subscription) {
-                await chrome.storage.local.set({
-                  enorett_subscription: {
-                    ...data.subscription,
-                    lastSynced: new Date().toISOString()
-                  }
-                });
-              }
-              
-              console.log('✅ Synced auth from backend');
-              return; // Success, exit
-            }
-          }
-        } catch (e) {
-          // Try next endpoint
-          console.warn(`Failed to sync from ${endpoint}:`, e.message);
-          continue;
         }
+        
+        console.log('✅ Synced auth from backend');
+        return; // Success, exit
       }
-      
-      console.warn('Could not sync auth from any endpoint');
+    } catch (e) {
+      console.warn('Could not sync auth from backend:', e.message);
+    }
+    
+    console.warn('Could not sync auth from any endpoint');
     }
   } catch (error) {
     console.warn('Error syncing auth:', error);
@@ -547,52 +575,36 @@ async function checkSubscriptionStatus() {
     const auth = authData.enorett_auth;
     
     if (auth && auth.user) {
-      // User is logged in, sync subscription from backend
-      // Try multiple endpoints
-      const endpoints = [
-        'https://www.enorett.se/api/subscription/status',
-        'https://api.enorett.se/api/subscription/status',
-        'https://enorett.se/api/subscription/status'
-      ];
-      
-      let synced = false;
-      for (const endpoint of endpoints) {
-        try {
-          const response = await fetch(`${endpoint}?userId=${encodeURIComponent(auth.user.userId)}`, {
+      // User is logged in, sync subscription from backend with fallback
+      try {
+        const { response } = await fetchWithFallback(
+          `/api/subscription/status?userId=${encodeURIComponent(auth.user.userId)}`,
+          {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
               'X-User-Id': auth.user.userId
             }
-          });
-          
-          if (response.ok) {
-            const data = await response.json();
-            if (data.success && data.subscription) {
-              // Save subscription
-              await chrome.storage.local.set({
-                enorett_subscription: {
-                  ...data.subscription,
-                  lastSynced: new Date().toISOString()
-                }
-              });
-              synced = true;
-              break; // Success, exit loop
-            } else if (data.success && !data.subscription) {
-              // No subscription, clear it
-              await chrome.storage.local.remove(['enorett_subscription']);
-              synced = true;
-              break;
-            }
           }
-        } catch (e) {
-          // Try next endpoint
-          continue;
+        );
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.subscription) {
+            // Save subscription
+            await chrome.storage.local.set({
+              enorett_subscription: {
+                ...data.subscription,
+                lastSynced: new Date().toISOString()
+              }
+            });
+          } else if (data.success && !data.subscription) {
+            // No subscription, clear it
+            await chrome.storage.local.remove(['enorett_subscription']);
+          }
         }
-      }
-      
-      if (!synced) {
-        console.warn('Could not sync subscription from any endpoint');
+      } catch (e) {
+        console.warn('Could not sync subscription from backend:', e.message);
       }
     }
     
