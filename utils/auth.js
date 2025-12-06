@@ -2,8 +2,32 @@
  * Authentication utilities for EnorEtt extension
  */
 
-const API_BASE = 'https://api.enorett.se';
+const API_BASES = [
+  'https://www.enorett.se',
+  'https://api.enorett.se',
+  'https://enorett.se'
+];
 const AUTH_STORAGE_KEY = 'enorett_auth';
+
+/**
+ * Fetch helper with domain fallback
+ */
+async function fetchWithFallback(path, options) {
+  let lastError = null;
+  for (const base of API_BASES) {
+    const url = `${base}${path}`;
+    try {
+      const response = await fetch(url, options);
+      if (response.ok) {
+        return { response, base };
+      }
+      lastError = new Error(`HTTP ${response.status} at ${url}`);
+    } catch (e) {
+      lastError = e;
+    }
+  }
+  throw lastError || new Error('No endpoint reachable');
+}
 
 /**
  * Get current auth token and user info
@@ -49,7 +73,7 @@ async function clearAuth() {
  */
 async function register(email, password) {
   try {
-    const response = await fetch(`${API_BASE}/api/auth/register`, {
+    const { response } = await fetchWithFallback('/api/auth/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -90,7 +114,7 @@ async function register(email, password) {
  */
 async function login(email, password) {
   try {
-    const response = await fetch(`${API_BASE}/api/auth/login`, {
+    const { response } = await fetchWithFallback('/api/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -137,7 +161,7 @@ async function getCurrentUser() {
     }
     
     // Try to get fresh user info
-    const response = await fetch(`${API_BASE}/api/auth/me`, {
+    const { response } = await fetchWithFallback('/api/auth/me', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
