@@ -11,20 +11,17 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    index: true,
   },
   
   // User information
   email: {
     type: String,
-    index: true,
     sparse: true, // Allow null but ensure uniqueness when set
   },
   
   // Stripe customer ID
   stripeCustomerId: {
     type: String,
-    index: true,
     sparse: true,
   },
   

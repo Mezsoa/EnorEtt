@@ -16,7 +16,6 @@ const purchaseSchema = new mongoose.Schema({
   // Stripe information
   stripeCustomerId: {
     type: String,
-    index: true,
   },
   
   stripeSessionId: {
