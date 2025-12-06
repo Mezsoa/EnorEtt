@@ -36,18 +36,40 @@ export async function connectDB() {
     
     // Parse MongoDB URI to extract parts
     // Format: mongodb+srv://user:pass@host/dbname?options
-    const uriMatch = uri.match(/^(mongodb\+srv?:\/\/[^\/]+)(\/[^?]*)?(\?.*)?$/);
+    // Handle cases:
+    // - mongodb+srv://...@host/dbname?options (has dbname)
+    // - mongodb+srv://...@host/?options (has / but no dbname)  
+    // - mongodb+srv://...@host?options (no /, no dbname)
     
-    if (!uriMatch) {
-      throw new Error('Invalid MongoDB URI format');
+    // Split URI at ? to separate query string
+    const queryIndex = uri.indexOf('?');
+    const uriWithoutQuery = queryIndex > -1 ? uri.substring(0, queryIndex) : uri;
+    const queryString = queryIndex > -1 ? uri.substring(queryIndex) : '';
+    
+    // Remove trailing slashes from URI without query
+    const cleanUri = uriWithoutQuery.replace(/\/+$/, '');
+    
+    // Find the last / after @ (which separates host from dbname)
+    const atIndex = cleanUri.indexOf('@');
+    if (atIndex === -1) {
+      throw new Error('Invalid MongoDB URI: missing @');
     }
     
-    const baseUri = uriMatch[1]; // mongodb+srv://user:pass@host
-    const dbPath = uriMatch[2] || ''; // /dbname or empty
-    const queryString = uriMatch[3] || ''; // ?options or empty
+    const afterAt = cleanUri.substring(atIndex + 1);
+    const slashIndex = afterAt.indexOf('/');
     
-    // Extract database name from path (remove leading slash)
-    let dbName = dbPath.replace(/^\/+/, '').split('/')[0] || '';
+    let dbName = '';
+    let baseUri = '';
+    
+    if (slashIndex > -1) {
+      // Has / after @, extract dbname
+      baseUri = cleanUri.substring(0, atIndex + 1 + slashIndex);
+      dbName = afterAt.substring(slashIndex + 1);
+    } else {
+      // No / after @, no dbname
+      baseUri = cleanUri;
+      dbName = '';
+    }
     
     // If no database name or it's "test", use "enorett"
     if (!dbName || dbName === 'test') {
