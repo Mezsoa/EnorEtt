@@ -125,14 +125,26 @@
           }
           
           // Save auth to extension storage if available
+          // Try multiple times in case extension isn't ready
           if (typeof chrome !== 'undefined' && chrome.runtime) {
-            try {
-              await chrome.runtime.sendMessage({
-                type: 'AUTH_LOGIN',
-                data: data
-              });
-            } catch (e) {
-              console.log('Could not send to extension:', e);
+            let retries = 3;
+            while (retries > 0) {
+              try {
+                const response = await chrome.runtime.sendMessage({
+                  type: 'AUTH_LOGIN',
+                  data: data
+                });
+                if (response && response.success) {
+                  console.log('✅ Auth saved to extension');
+                  break;
+                }
+              } catch (e) {
+                console.log(`Could not send to extension (${retries} retries left):`, e);
+                retries--;
+                if (retries > 0) {
+                  await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms before retry
+                }
+              }
             }
           }
           
