@@ -97,45 +97,59 @@ async function syncAuthFromLocalStorage() {
     
     if (userId) {
       // Try to get fresh auth from backend using userId
-      try {
-        const response = await fetch('https://api.enorett.se/api/auth/me', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-User-Id': userId
-          }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.user) {
-            // Save auth to extension storage
-            await chrome.storage.local.set({
-              enorett_auth: {
-                user: data.user,
-                subscription: data.subscription,
-                token: null
-              },
-              enorett_userId: data.user.userId,
-              enorett_userEmail: data.user.email
-            });
-            
-            // Also save subscription if available
-            if (data.subscription) {
-              await chrome.storage.local.set({
-                enorett_subscription: {
-                  ...data.subscription,
-                  lastSynced: new Date().toISOString()
-                }
-              });
+      // Use subscription/status endpoint instead since it's more reliable
+      const endpoints = [
+        'https://api.enorett.se/api/subscription/status',
+        'https://www.enorett.se/api/subscription/status',
+        'https://enorett.se/api/subscription/status'
+      ];
+      
+      for (const endpoint of endpoints) {
+        try {
+          const response = await fetch(`${endpoint}?userId=${encodeURIComponent(userId)}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-User-Id': userId
             }
-            
-            console.log('✅ Synced auth from backend');
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.user) {
+              // Save auth to extension storage
+              await chrome.storage.local.set({
+                enorett_auth: {
+                  user: data.user,
+                  subscription: data.subscription,
+                  token: null
+                },
+                enorett_userId: data.user.userId,
+                enorett_userEmail: data.user.email
+              });
+              
+              // Also save subscription if available
+              if (data.subscription) {
+                await chrome.storage.local.set({
+                  enorett_subscription: {
+                    ...data.subscription,
+                    lastSynced: new Date().toISOString()
+                  }
+                });
+              }
+              
+              console.log('✅ Synced auth from backend');
+              return; // Success, exit
+            }
           }
+        } catch (e) {
+          // Try next endpoint
+          console.warn(`Failed to sync from ${endpoint}:`, e.message);
+          continue;
         }
-      } catch (e) {
-        console.warn('Could not sync auth from backend:', e);
       }
+      
+      console.warn('Could not sync auth from any endpoint');
     }
   } catch (error) {
     console.warn('Error syncing auth:', error);
@@ -534,32 +548,51 @@ async function checkSubscriptionStatus() {
     
     if (auth && auth.user) {
       // User is logged in, sync subscription from backend
-      try {
-        const response = await fetch(`https://api.enorett.se/api/subscription/status`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-User-Id': auth.user.userId
+      // Try multiple endpoints
+      const endpoints = [
+        'https://api.enorett.se/api/subscription/status',
+        'https://www.enorett.se/api/subscription/status',
+        'https://enorett.se/api/subscription/status'
+      ];
+      
+      let synced = false;
+      for (const endpoint of endpoints) {
+        try {
+          const response = await fetch(`${endpoint}?userId=${encodeURIComponent(auth.user.userId)}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-User-Id': auth.user.userId
+            }
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.subscription) {
+              // Save subscription
+              await chrome.storage.local.set({
+                enorett_subscription: {
+                  ...data.subscription,
+                  lastSynced: new Date().toISOString()
+                }
+              });
+              synced = true;
+              break; // Success, exit loop
+            } else if (data.success && !data.subscription) {
+              // No subscription, clear it
+              await chrome.storage.local.remove(['enorett_subscription']);
+              synced = true;
+              break;
+            }
           }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.subscription) {
-            // Save subscription
-            await chrome.storage.local.set({
-              enorett_subscription: {
-                ...data.subscription,
-                lastSynced: new Date().toISOString()
-              }
-            });
-          } else {
-            // No subscription, clear it
-            await chrome.storage.local.remove(['enorett_subscription']);
-          }
+        } catch (e) {
+          // Try next endpoint
+          continue;
         }
-      } catch (e) {
-        console.warn('Could not sync subscription:', e);
+      }
+      
+      if (!synced) {
+        console.warn('Could not sync subscription from any endpoint');
       }
     }
     
