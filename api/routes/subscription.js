@@ -113,9 +113,28 @@ router.get('/status', async (req, res) => {
         
         // If we found a user, get their active purchase
         if (user) {
+          // Try to find purchase by userId first
           purchase = await Purchase.findActivePurchase(user.userId);
           
+          // If not found, try to find by stripeCustomerId (in case userId mismatch)
+          if (!purchase && user.stripeCustomerId) {
+            purchase = await Purchase.findOne({
+              stripeCustomerId: user.stripeCustomerId,
+              status: { $in: ['active', 'trialing'] },
+              $or: [
+                { expiresAt: null },
+                { expiresAt: { $gt: new Date() } }
+              ]
+            }).sort({ purchasedAt: -1 });
+          }
+          
           if (purchase && purchase.isActive()) {
+            // Update purchase userId if it doesn't match (fixes mismatched userIds)
+            if (purchase.userId !== user.userId) {
+              purchase.userId = user.userId;
+              await purchase.save();
+            }
+            
             return res.json({
               success: true,
               subscription: {
@@ -278,9 +297,10 @@ router.get('/status', async (req, res) => {
           // Get most recent paid session
           const session = paidSessions.sort((a, b) => b.created - a.created)[0];
           const sessionEmail = session.customer_email || customer?.email || email;
+          // Prioritize email-based userId for better user identification
           const foundUserId = session.metadata?.userId || 
-                             session.metadata?.extensionId || 
                              (sessionEmail ? `user_${sessionEmail.replace(/[^a-zA-Z0-9]/g, '_')}` : null) ||
+                             session.metadata?.extensionId || 
                              customer?.id || 
                              `user_${session.id}`;
           
@@ -564,9 +584,10 @@ router.post('/recover', async (req, res) => {
     const sessionEmail = session.customer_email || customer?.email || email;
     
     // Get userId from metadata or generate one based on email
+    // Prioritize email-based userId for better user identification
     const userId = session.metadata?.userId || 
-                   session.metadata?.extensionId || 
                    (sessionEmail ? `user_${sessionEmail.replace(/[^a-zA-Z0-9]/g, '_')}` : null) ||
+                   session.metadata?.extensionId || 
                    customer?.id || 
                    `user_${session.id}`;
     
