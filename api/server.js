@@ -187,31 +187,61 @@ app.get('/privacy.jpg', async (req, res) => {
   }
 });
 
-// Serve privacy policy page
+// Fallback HTML for privacy policy if file cannot be read
+const fallbackPrivacyHTML = `<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - EnorEtt</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        h1 { color: #4562e3; }
+        h2 { color: #764ba2; margin-top: 30px; }
+    </style>
+</head>
+<body>
+    <h1>Privacy Policy - EnorEtt Chrome Extension</h1>
+    <p><strong>Last Updated:</strong> December 6, 2025</p>
+    
+    <h2>Overview</h2>
+    <p>EnorEtt respects your privacy. We collect personal data only when you upgrade to Pro.</p>
+    
+    <h2>Data Collection</h2>
+    <p><strong>Free Users:</strong> No data is collected. All data remains local on your device.</p>
+    <p><strong>Pro Users:</strong> We collect User ID, email address, word lookup data, usage statistics, and subscription information.</p>
+    
+    <h2>Local Storage</h2>
+    <p>EnorEtt stores word lookup history, favorite words, and settings locally on your device only.</p>
+    
+    <h2>Contact</h2>
+    <p>Questions about privacy: <a href="mailto:johnmessoa@gmail.com">johnmessoa@gmail.com</a></p>
+    
+    <p>For the complete privacy policy, please visit: <a href="https://enorett.se/privacy">https://enorett.se/privacy</a></p>
+</body>
+</html>`;
+
+// Serve privacy policy page - ALWAYS returns HTML, even on error
 app.get('/privacy', async (req, res) => {
+  // Always set HTML headers first
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('Content-Security-Policy', 
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; " +
+    "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; " +
+    "font-src 'self' data:; " +
+    "img-src 'self' data: https:;"
+  );
+  
   try {
     // Path to privacy.html (in same directory as server.js)
     const privacyPath = join(__dirname, 'privacy.html');
     const privacyHtml = await readFile(privacyPath, 'utf-8');
-    
-    // Set headers with CSP that allows Tailwind CDN
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Content-Security-Policy', 
-      "default-src 'self'; " +
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; " +
-      "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; " +
-      "font-src 'self' data:; " +
-      "img-src 'self' data: https:;"
-    );
     res.send(privacyHtml);
   } catch (error) {
     console.error('Error serving privacy policy:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to load privacy policy',
-      errorSv: 'Kunde inte ladda integritetspolicyn',
-      details: error.message
-    });
+    // Return fallback HTML instead of JSON - Chrome Web Store requires HTML
+    res.status(200).send(fallbackPrivacyHTML);
   }
 });
 
