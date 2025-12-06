@@ -23,11 +23,33 @@ async function getSubscriptionStatus() {
 
 /**
  * Check if user has active Pro subscription/purchase
+ * Automatically syncs from backend if no local subscription found
  * @returns {Promise<boolean>} True if user has active Pro access
  */
 async function isProUser() {
-  const subscription = await getSubscriptionStatus();
+  // First, check local storage (fast path)
+  let subscription = await getSubscriptionStatus();
   
+  // If no subscription found locally, try to sync from backend
+  if (!subscription) {
+    // Get userId and email from storage
+    const userData = await chrome.storage.local.get(['enorett_userId', 'enorett_userEmail']);
+    const userId = userData.enorett_userId;
+    const email = userData.enorett_userEmail;
+    
+    // If we have a userId or email, try to sync subscription from backend
+    if (userId || email) {
+      console.log('No local subscription found, syncing from backend...');
+      try {
+        subscription = await syncSubscription(userId, email);
+      } catch (error) {
+        console.warn('Failed to sync subscription from backend:', error);
+        // Continue with null subscription
+      }
+    }
+  }
+  
+  // Still no subscription after sync attempt
   if (!subscription) {
     return false;
   }
@@ -87,18 +109,20 @@ async function clearSubscription() {
 /**
  * Sync subscription status with backend API
  * @param {string} userId - Optional user ID (if available)
+ * @param {string} email - Optional email (for recovery if userId is lost)
  * @returns {Promise<object|null>} Updated subscription status or null
  */
-async function syncSubscription(userId = null) {
+async function syncSubscription(userId = null, email = null) {
   try {
-    // Get user ID from storage if not provided
-    if (!userId) {
-      const userData = await chrome.storage.local.get(['enorett_userId']);
-      userId = userData.enorett_userId;
+    // Get user ID and email from storage if not provided
+    if (!userId || !email) {
+      const userData = await chrome.storage.local.get(['enorett_userId', 'enorett_userEmail']);
+      userId = userId || userData.enorett_userId;
+      email = email || userData.enorett_userEmail;
     }
     
-    // If no user ID, user is not logged in/subscribed
-    if (!userId) {
+    // If no user ID and no email, user is not logged in/subscribed
+    if (!userId && !email) {
       return null;
     }
     
@@ -113,12 +137,23 @@ async function syncSubscription(userId = null) {
     let lastError = null;
     
     for (const endpoint of apiEndpoints) {
+      let timeoutId = null;
+      let controller = null;
+      
       try {
-        const url = `${endpoint}?userId=${encodeURIComponent(userId)}`;
+        // Build query string with available identifiers
+        const params = new URLSearchParams();
+        if (userId) params.append('userId', userId);
+        if (email) params.append('email', email);
+        const url = `${endpoint}?${params.toString()}`;
         
         // Add timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        controller = new AbortController();
+        timeoutId = setTimeout(() => {
+          if (controller) {
+            controller.abort();
+          }
+        }, 10000);
         
         const response = await fetch(url, {
           method: 'GET',
@@ -128,12 +163,26 @@ async function syncSubscription(userId = null) {
           signal: controller.signal
         });
         
-        clearTimeout(timeoutId);
+        // Clear timeout on success
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
         
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.subscription) {
+            // Save subscription and also update userId/email if returned
             await setSubscriptionStatus(data.subscription);
+            
+            // Update userId and email if returned from backend
+            if (data.user) {
+              await chrome.storage.local.set({
+                enorett_userId: data.user.userId,
+                ...(data.user.email && { enorett_userEmail: data.user.email })
+              });
+            }
+            
             return data.subscription;
           }
           // No active subscription
@@ -143,7 +192,17 @@ async function syncSubscription(userId = null) {
           lastError = new Error(`API error: ${response.status}`);
         }
       } catch (error) {
-        lastError = error;
+        // Always clear timeout on error
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+        
+        // Don't treat AbortError as a real error if it's just a timeout
+        if (error.name === 'AbortError') {
+          lastError = new Error('Request timeout');
+        } else {
+          lastError = error;
+        }
         // Try next endpoint
         continue;
       }
