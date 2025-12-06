@@ -20,6 +20,10 @@
       "dest": "/server.js"
     },
     {
+      "src": "/privacy.jpg",
+      "dest": "/server.js"
+    },
+    {
       "src": "/(.*)",
       "dest": "/server.js"
     }
