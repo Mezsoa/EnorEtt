@@ -544,14 +544,28 @@ async function handleProUpgrade() {
 }
 
 /**
- * Listen for subscription updates
+ * Listen for subscription updates and auth updates
  */
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'SUBSCRIPTION_UPDATED') {
     checkSubscriptionStatus();
     sendResponse({ success: true });
+  } else if (message.type === 'AUTH_UPDATED') {
+    // Auth was updated (login/logout), refresh UI
+    checkAuthStatus();
+    checkSubscriptionStatus();
+    sendResponse({ success: true });
   }
   return false;
+});
+
+// Listen for storage changes (when auth is updated in another tab/context)
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName === 'local' && (changes.enorett_auth || changes.enorett_userId)) {
+    // Auth changed, refresh UI
+    checkAuthStatus();
+    checkSubscriptionStatus();
+  }
 });
 
 document.addEventListener('DOMContentLoaded', init);

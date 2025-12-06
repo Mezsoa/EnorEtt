@@ -61,6 +61,21 @@ async function register(email, password) {
     
     if (data.success) {
       await setAuth(data);
+      
+      // Also save subscription if returned
+      if (data.subscription && typeof chrome !== 'undefined' && chrome.storage) {
+        try {
+          await chrome.storage.local.set({
+            enorett_subscription: {
+              ...data.subscription,
+              lastSynced: new Date().toISOString()
+            }
+          });
+        } catch (e) {
+          console.warn('Could not save subscription:', e);
+        }
+      }
+      
       return { success: true, data };
     } else {
       return { success: false, error: data.error };
@@ -87,6 +102,21 @@ async function login(email, password) {
     
     if (data.success) {
       await setAuth(data);
+      
+      // Also save subscription if returned
+      if (data.subscription && typeof chrome !== 'undefined' && chrome.storage) {
+        try {
+          await chrome.storage.local.set({
+            enorett_subscription: {
+              ...data.subscription,
+              lastSynced: new Date().toISOString()
+            }
+          });
+        } catch (e) {
+          console.warn('Could not save subscription:', e);
+        }
+      }
+      
       return { success: true, data };
     } else {
       return { success: false, error: data.error };
@@ -120,6 +150,21 @@ async function getCurrentUser() {
     if (data.success) {
       // Update stored auth
       await setAuth({ ...auth, user: data.user, subscription: data.subscription });
+      
+      // Also save subscription separately if returned
+      if (data.subscription && typeof chrome !== 'undefined' && chrome.storage) {
+        try {
+          await chrome.storage.local.set({
+            enorett_subscription: {
+              ...data.subscription,
+              lastSynced: new Date().toISOString()
+            }
+          });
+        } catch (e) {
+          console.warn('Could not save subscription:', e);
+        }
+      }
+      
       return data.user;
     }
     

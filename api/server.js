@@ -15,6 +15,7 @@ import enorEttRouter from './routes/enorett.js';
 import subscriptionRouter from './routes/subscription.js';
 import usersRouter from './routes/users.js';
 import authRouter from './routes/auth.js';
+import adminRouter from './routes/admin.js';
 import { connectDB } from './db/connection.js';
 
 // Get directory path for ES modules
@@ -166,6 +167,7 @@ app.use('/api/auth', authRouter);
 app.use('/api/enorett', enorEttRouter);
 app.use('/api/subscription', subscriptionRouter);
 app.use('/api/users', usersRouter);
+app.use('/api/admin', adminRouter); // WARNING: Protect this in production!
 
 // Serve login page
 app.get('/login', async (req, res) => {
