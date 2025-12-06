@@ -20,54 +20,55 @@ let isConnected = false;
  * Connect to MongoDB
  */
 export async function connectDB() {
-  if (isConnected) {
+  if (isConnected && mongoose.connection.readyState === 1) {
     return;
   }
 
   if (!MONGODB_URI) {
-    console.log('📦 Database connection skipped (MONGODB_URI not set)');
-    return;
+    const error = new Error('MONGODB_URI not set');
+    console.warn('⚠️  MONGODB_URI not set. Database features will be disabled.');
+    throw error;
   }
 
   try {
     // Add database name if not present in URI
-    let uri = MONGODB_URI;
+    let uri = MONGODB_URI.trim();
     
-    // MongoDB Atlas format examples:
-    // mongodb+srv://user:pass@cluster.net/?options  -> needs /enorett
-    // mongodb+srv://user:pass@cluster.net/enorett?options  -> already has it
-    // mongodb+srv://user:pass@cluster.net  -> needs /enorett
+    // Parse MongoDB URI to extract parts
+    // Format: mongodb+srv://user:pass@host/dbname?options
+    const uriMatch = uri.match(/^(mongodb\+srv?:\/\/[^\/]+)(\/[^?]*)?(\?.*)?$/);
     
-    // Parse the URI to check if database name exists
-    // Pattern: @hostname/dbname?options or @hostname/dbname
-    // We want to avoid adding /enorett if it already exists
-    const dbNameMatch = uri.match(/@[^\/\?]+\/([^\/\?]+)(\?|$)/);
-    
-    if (!dbNameMatch) {
-      // No database name found - add /enorett
-      if (uri.includes('?')) {
-        // Has query params: insert /enorett before ?
-        uri = uri.replace(/\?/, '/enorett?');
-      } else {
-        // No query params: append /enorett
-        uri = uri + (uri.endsWith('/') ? 'enorett' : '/enorett');
-      }
-      console.log('📝 Added database name "enorett" to connection string');
-    } else {
-      const dbName = dbNameMatch[1];
-      console.log('📝 Using existing database:', dbName);
-      // If database is "test", replace with "enorett"
-      if (dbName === 'test') {
-        uri = uri.replace('/test', '/enorett');
-        console.log('📝 Changed database from "test" to "enorett"');
-      }
+    if (!uriMatch) {
+      throw new Error('Invalid MongoDB URI format');
     }
+    
+    const baseUri = uriMatch[1]; // mongodb+srv://user:pass@host
+    const dbPath = uriMatch[2] || ''; // /dbname or empty
+    const queryString = uriMatch[3] || ''; // ?options or empty
+    
+    // Extract database name from path (remove leading slash)
+    let dbName = dbPath.replace(/^\/+/, '').split('/')[0] || '';
+    
+    // If no database name or it's "test", use "enorett"
+    if (!dbName || dbName === 'test') {
+      dbName = 'enorett';
+      console.log('📝 Using database name: enorett');
+    } else {
+      console.log('📝 Using existing database:', dbName);
+    }
+    
+    // Reconstruct URI with correct database name
+    uri = `${baseUri}/${dbName}${queryString}`;
+    
+    console.log('📝 Final MongoDB URI (masked):', uri.replace(/\/\/[^:]+:[^@]+@/, '//***:***@'));
     
     await mongoose.connect(uri, {
       // These options are recommended for Mongoose 6+
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 10000, // Increased timeout for production
       socketTimeoutMS: 45000,
       connectTimeoutMS: 10000,
+      maxPoolSize: 10,
+      retryWrites: true,
     });
 
     isConnected = true;
@@ -75,7 +76,8 @@ export async function connectDB() {
   } catch (error) {
     console.error('❌ MongoDB connection error:', error);
     isConnected = false;
-    return;
+    // Re-throw error so calling code can handle it
+    throw error;
   }
 }
 
