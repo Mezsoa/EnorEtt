@@ -113,6 +113,17 @@
         const data = await response.json();
         
         if (data.success) {
+          // Save auth to localStorage (for browser pages)
+          try {
+            localStorage.setItem('enorett_auth', JSON.stringify(data));
+            localStorage.setItem('enorett_userId', data.user.userId);
+            if (data.user.email) {
+              localStorage.setItem('enorett_userEmail', data.user.email);
+            }
+          } catch (e) {
+            console.warn('Could not save to localStorage:', e);
+          }
+          
           // Save auth to extension storage if available
           if (typeof chrome !== 'undefined' && chrome.runtime) {
             try {

@@ -124,10 +124,10 @@ async function syncSubscription(userId = null, email = null) {
       email = auth.user.email;
     } else {
       // Fallback to old method
-      if (!userId || !email) {
-        const userData = await chrome.storage.local.get(['enorett_userId', 'enorett_userEmail']);
-        userId = userId || userData.enorett_userId;
-        email = email || userData.enorett_userEmail;
+    if (!userId || !email) {
+      const userData = await chrome.storage.local.get(['enorett_userId', 'enorett_userEmail']);
+      userId = userId || userData.enorett_userId;
+      email = email || userData.enorett_userEmail;
       }
     }
     

@@ -153,23 +153,23 @@ router.get('/status', async (req, res) => {
             }
             
             if (purchase && purchase.isActive()) {
-              return res.json({
-                success: true,
-                subscription: {
-                  status: purchase.status,
-                  plan: purchase.plan,
-                  expiresAt: purchase.expiresAt ? purchase.expiresAt.toISOString() : null,
-                  userId: purchase.userId,
-                  stripeCustomerId: purchase.stripeCustomerId,
-                  purchaseType: purchase.purchaseType
-                },
-                user: {
-                  userId: user.userId,
+            return res.json({
+              success: true,
+              subscription: {
+                status: purchase.status,
+                plan: purchase.plan,
+                expiresAt: purchase.expiresAt ? purchase.expiresAt.toISOString() : null,
+                userId: purchase.userId,
+                stripeCustomerId: purchase.stripeCustomerId,
+                purchaseType: purchase.purchaseType
+              },
+              user: {
+                userId: user.userId,
                   email: user.email
-                }
-              });
-            }
+              }
+            });
           }
+        }
         }
       } catch (e) {
         console.warn('Error processing sessionId:', e);
@@ -181,19 +181,19 @@ router.get('/status', async (req, res) => {
       const user = await User.findOne({ userId });
       if (user) {
         const purchase = await Purchase.findActivePurchase(user.userId);
-        
-        if (purchase && purchase.isActive()) {
-          return res.json({
-            success: true,
-            subscription: {
-              status: purchase.status,
-              plan: purchase.plan,
-              expiresAt: purchase.expiresAt ? purchase.expiresAt.toISOString() : null,
-              userId: purchase.userId,
-              purchaseType: purchase.purchaseType
-            },
-            user: {
-              userId: user.userId,
+          
+          if (purchase && purchase.isActive()) {
+            return res.json({
+              success: true,
+              subscription: {
+                status: purchase.status,
+                plan: purchase.plan,
+                expiresAt: purchase.expiresAt ? purchase.expiresAt.toISOString() : null,
+                userId: purchase.userId,
+                purchaseType: purchase.purchaseType
+              },
+              user: {
+                userId: user.userId,
               email: user.email
             }
           });

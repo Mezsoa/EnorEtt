@@ -229,17 +229,33 @@
       }
 
       async function checkAuth() {
-        // Check if user is logged in via extension
+        // First, try to get auth from extension storage
         if (typeof chrome !== "undefined" && chrome.runtime) {
           try {
             const response = await chrome.runtime.sendMessage({
               type: "GET_AUTH",
             });
-            return response?.auth || null;
+            if (response?.auth) {
+              return response.auth;
+            }
           } catch (e) {
             console.log("Could not get auth from extension:", e);
           }
         }
+        
+        // Fallback: check localStorage (for browser pages)
+        try {
+          const authStr = localStorage.getItem('enorett_auth');
+          if (authStr) {
+            const auth = JSON.parse(authStr);
+            if (auth && auth.user) {
+              return auth;
+            }
+          }
+        } catch (e) {
+          console.warn("Could not get auth from localStorage:", e);
+        }
+        
         return null;
       }
 

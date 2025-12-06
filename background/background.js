@@ -301,7 +301,7 @@ async function initSubscriptionSync() {
         if (auth && auth.user) {
           userId = auth.user.userId;
         } else {
-          const userData = await chrome.storage.local.get(['enorett_userId']);
+        const userData = await chrome.storage.local.get(['enorett_userId']);
           userId = userData.enorett_userId;
         }
         
