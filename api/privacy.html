@@ -6,7 +6,6 @@
     <title>Integritetspolicy - EnorEtt</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-
         tailwind.config = {
             theme: {
                 extend: {
@@ -19,102 +18,480 @@
         }
     </script>
     <style>
-        /* Fallback styles if Tailwind doesn't load */
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        .language-toggle { cursor: pointer; }
+        .hidden { display: none; }
     </style>
 </head>
 <body class="font-sans antialiased bg-gray-50 z-[-2]">
     <main class="relative z-[1] flex flex-col items-start justify-center">
         <img src="/privacy.jpg" alt="EnorEtt Logo" class="absolute top-0 left-0 w-full h-full object-cover z-[-1] blur-[8px] min-h-[200vh]">
     <div class="max-w-3xl mx-auto rounded-xl px-5 py-10 md:px-8 md:py-8 z-[1] bg-white/90 backdrop-blur-sm flex flex-col items-start justify-center">
-        <h1 class="text-4xl font-bold text-primary border-b-4 border-primary pb-3 mb-8">
-            Privacy Policy - EnorEtt Chrome Extension
-        </h1>
-        
-        <p class="text-gray-700 mb-8">
-            <strong class="text-primary">Last Updated:</strong> October 2025
-        </p>
-        
-        <section class="mb-10">
-            <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">OVERVIEW</h2>
-            <p class="text-gray-700 leading-relaxed">
-                EnorEtt respects your privacy. We do not collect, store, or transmit any personal data.
+        <!-- Language Toggle -->
+        <div class="mb-4 self-end">
+            <button onclick="toggleLanguage()" class="text-primary hover:text-secondary underline text-sm">
+                <span id="lang-en">Switch to Swedish</span>
+                <span id="lang-sv" class="hidden">Växla till engelska</span>
+            </button>
+        </div>
+
+        <!-- English Version -->
+        <div id="content-en">
+            <h1 class="text-4xl font-bold text-primary border-b-4 border-primary pb-3 mb-8">
+                Privacy Policy - EnorEtt Chrome Extension
+            </h1>
+            
+            <p class="text-gray-700 mb-8">
+                <strong class="text-primary">Last Updated:</strong> December 3, 2025
             </p>
-        </section>
-        
-        <section class="mb-10">
-            <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">DATA COLLECTION</h2>
-            <p class="text-gray-700 mb-4">EnorEtt does NOT collect:</p>
-            <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
-                <li>Personal information</li>
-                <li>Browsing history</li>
-                <li>Search queries</li>
-                <li>Usage statistics</li>
-                <li>Any other data</li>
-            </ul>
-        </section>
-        
-        <section class="mb-10">
-            <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">LOCAL STORAGE</h2>
-            <p class="text-gray-700 mb-4">EnorEtt stores the following data LOCALLY on your device only:</p>
-            <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
-                <li>Your word lookup history (optional, can be cleared)</li>
-                <li>Favorite words (optional)</li>
-                <li>Extension settings/preferences</li>
-            </ul>
-            <p class="text-gray-700 mt-4 font-medium">
-                This data NEVER leaves your device.
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">PROMINENT DISCLOSURE</h2>
+                <div class="bg-blue-50 border-l-4 border-primary p-4 mb-4">
+                    <p class="text-gray-800 font-semibold mb-2">IMPORTANT: Data Collection Disclosure</p>
+                    <p class="text-gray-700 leading-relaxed">
+                        EnorEtt collects and processes personal data <strong>only when you choose to upgrade to Pro</strong>. 
+                        Free users' data remains entirely local on your device. This policy clearly explains what data we collect, 
+                        how we use it, and your rights regarding your data.
+                    </p>
+                </div>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">OVERVIEW</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    EnorEtt we respect your privacy and is committed to protecting your personal information. 
+                    This Privacy Policy explains how we collect, use, store, and protect your data when you use the EnorEtt Chrome Extension.
+                </p>
+                <p class="text-gray-700 leading-relaxed">
+                    By installing and using EnorEtt, you consent to the data practices described in this policy. 
+                    If you do not agree with this policy, please do not use our extension.
+                </p>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">DATA COLLECTION AND USE</h2>
+                
+                <h3 class="text-xl font-semibold text-primary mt-6 mb-3">Free Users (No Data Collection)</h3>
+                <p class="text-gray-700 mb-4">
+                    If you use EnorEtt without upgrading to Pro, <strong>we do not collect, transmit, or store any personal data</strong>. 
+                    All data remains stored locally on your device only.
+                </p>
+                
+                <h3 class="text-xl font-semibold text-primary mt-6 mb-3">Pro Users (Data Collection)</h3>
+                <p class="text-gray-700 mb-4">
+                    When you upgrade to EnorEtt Pro, we collect and process the following personal data:
+                </p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4 mb-4">
+                    <li><strong>User ID:</strong> A unique identifier generated by the extension to identify your account</li>
+                    <li><strong>Email Address:</strong> Collected when you purchase Pro access (required for account management and support)</li>
+                    <li><strong>Word Lookup Data:</strong> Words you look up using the Pro API feature (processed to provide grammar checking)</li>
+                    <li><strong>Usage Statistics:</strong> Total number of lookups, first seen date, last seen date</li>
+                    <li><strong>Subscription Information:</strong> Purchase type (one-time or subscription), plan details, payment status, expiry dates</li>
+                    <li><strong>Stripe Customer ID:</strong> Identifier used for payment processing (stored securely)</li>
+                    <li><strong>Preferences:</strong> Language preferences and extension settings</li>
+                </ul>
+                
+                <h3 class="text-xl font-semibold text-primary mt-6 mb-3">Purpose of Data Collection</h3>
+                <p class="text-gray-700 mb-4">We collect this data to:</p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                    <li>Provide and maintain Pro features and services</li>
+                    <li>Process payments and manage subscriptions</li>
+                    <li>Verify Pro access and subscription status</li>
+                    <li>Provide customer support</li>
+                    <li>Improve our services (anonymized usage statistics)</li>
+                </ul>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">LOCAL STORAGE (All Users)</h2>
+                <p class="text-gray-700 mb-4">
+                    EnorEtt stores the following data <strong>locally on your device only</strong>:
+                </p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                    <li>Word lookup history (optional, can be cleared from extension settings)</li>
+                    <li>Favorite words (optional)</li>
+                    <li>Extension settings and preferences</li>
+                    <li>User ID (for Pro users, used to sync with server)</li>
+                    <li>Subscription status cache (for Pro users)</li>
+                </ul>
+                <p class="text-gray-700 mt-4 font-medium">
+                    This local data <strong>never leaves your device</strong> unless you are a Pro user and choose to use Pro features.
+                </p>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">DATA STORAGE AND SECURITY</h2>
+                <p class="text-gray-700 mb-4">
+                    Data collected from Pro users is stored securely on our servers using industry-standard security measures:
+                </p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                    <li>Data is encrypted in transit using HTTPS/TLS</li>
+                    <li>Servers are secured and regularly updated</li>
+                    <li>Access to personal data is restricted to authorized personnel only</li>
+                    <li>Payment information is processed securely through Stripe (we do not store credit card details)</li>
+                </ul>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">DATA RETENTION</h2>
+                <p class="text-gray-700 leading-relaxed">
+                    We retain your personal data only for as long as necessary to provide our services and comply with legal obligations. 
+                    If you cancel your Pro subscription, we will retain your data for a reasonable period to handle any support requests 
+                    or disputes, after which it will be deleted or anonymized.
+                </p>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">DATA SHARING</h2>
+                <p class="text-gray-700 mb-4">
+                    We do <strong>not sell, rent, or share</strong> your personal data with third parties except:
+                </p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                    <li><strong>Stripe:</strong> Payment processing (subject to Stripe's privacy policy)</li>
+                    <li><strong>Legal Requirements:</strong> When required by law or to protect our rights</li>
+                </ul>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">API ACCESS AND USAGE</h2>
+                <p class="text-gray-700 mb-4">
+                    EnorEtt uses our API service (api.enorett.se) to provide enhanced features:
+                </p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4 mb-4">
+                    <li><strong>Public API Access:</strong> Our API endpoints are publicly accessible. Basic word lookups can be performed without authentication and do not collect any personal data.</li>
+                    <li><strong>Pro API Features:</strong> When Pro users use the API with their User ID, we collect word lookup data and usage statistics to provide enhanced features (examples, pronunciation, etc.).</li>
+                    <li><strong>API Endpoints:</strong> The extension accesses <code class="bg-gray-100 px-2 py-1 rounded">api.enorett.se</code> for word lookups, subscription status checks, and user account management.</li>
+                </ul>
+                <p class="text-gray-700 mt-4">
+                    <strong>Note:</strong> Anyone can access our public API endpoints directly. However, Pro features require authentication 
+                    and subscription verification. When you use Pro features through the extension, your User ID and lookup data are collected 
+                    as described in the "Pro Users (Data Collection)" section above.
+                </p>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">PERMISSIONS EXPLAINED</h2>
+                <p class="text-gray-700 mb-4">EnorEtt requires the following permissions:</p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                    <li><strong class="text-primary">"storage"</strong> - To save your settings, history, and preferences locally on your device</li>
+                    <li><strong class="text-primary">"contextMenus"</strong> - To add right-click functionality for quick word lookups</li>
+                    <li><strong class="text-primary">"notifications"</strong> - To notify you about subscription status updates (optional)</li>
+                    <li><strong class="text-primary">Host Permissions</strong> - To access our API (api.enorett.se) for Pro features and subscription management</li>
+                </ul>
+                <p class="text-gray-700 mt-4">
+                    <strong>Important:</strong> EnorEtt does NOT have access to your browsing history or the content of websites you visit. 
+                    We only access our own API endpoints (api.enorett.se, enorett.se, www.enorett.se) for extension functionality.
+                </p>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">THIRD-PARTY SERVICES</h2>
+                <p class="text-gray-700 mb-4">
+                    EnorEtt uses the following third-party services:
+                </p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                    <li><strong>Stripe:</strong> Payment processing for Pro subscriptions (see <a href="https://stripe.com/privacy" target="_blank" class="text-primary hover:underline">Stripe's Privacy Policy</a>)</li>
+                    <li><strong>Tailwind CSS CDN:</strong> Used only for styling our privacy policy and landing pages (no data collection)</li>
+                </ul>
+                <p class="text-gray-700 mt-4">
+                    We do not use any analytics, tracking, or advertising services.
+                </p>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">YOUR RIGHTS</h2>
+                <p class="text-gray-700 mb-4">You have the right to:</p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                    <li>Access your personal data</li>
+                    <li>Request correction of inaccurate data</li>
+                    <li>Request deletion of your data</li>
+                    <li>Opt out of data collection by canceling your Pro subscription</li>
+                    <li>Clear local storage data from within the extension settings</li>
+                </ul>
+                <p class="text-gray-700 mt-4">
+                    To exercise these rights, please contact us at <a href="mailto:johnmessoa@gmail.com" class="text-primary hover:underline">johnmessoa@gmail.com</a>.
+                </p>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">CHILDREN'S PRIVACY</h2>
+                <p class="text-gray-700 leading-relaxed">
+                    EnorEtt is not intended for children under 13 years of age. We do not knowingly collect personal information 
+                    from children under 13. If you are a parent or guardian and believe your child has provided us with personal 
+                    information, please contact us immediately.
+                </p>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">CHANGES TO THIS POLICY</h2>
+                <p class="text-gray-700 leading-relaxed">
+                    We may update this Privacy Policy from time to time. We will notify users of any material changes via extension 
+                    updates or by posting the updated policy on this page with a new "Last Updated" date. Your continued use of 
+                    EnorEtt after changes become effective constitutes acceptance of the updated policy.
+                </p>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">CONTACT US</h2>
+                <p class="text-gray-700 leading-relaxed mb-2">
+                    If you have questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:
+                </p>
+                <p class="text-gray-700 leading-relaxed">
+                    <strong>Email:</strong> <a href="mailto:johnmessoa@gmail.com" class="text-primary hover:text-secondary hover:underline transition-colors">johnmessoa@gmail.com</a>
+                </p>
+            </section>
+            
+            <hr class="border-t border-gray-300 my-8">
+            
+            <p class="text-gray-700 leading-relaxed font-medium">
+                By using EnorEtt, you acknowledge that you have read and understood this Privacy Policy and agree to the collection 
+                and use of your information as described herein.
             </p>
-        </section>
-        
-        <section class="mb-10">
-            <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">PERMISSIONS EXPLAINED</h2>
-            <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
-                <li><strong class="text-primary">"storage"</strong> - To save your settings and history locally</li>
-                <li><strong class="text-primary">"contextMenus"</strong> - To add right-click functionality</li>
-                <li><strong class="text-primary">No website access</strong> - We cannot see what websites you visit</li>
-            </ul>
-        </section>
-        
-        <section class="mb-10">
-            <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">THIRD-PARTY SERVICES</h2>
-            <p class="text-gray-700 leading-relaxed">
-                EnorEtt does not use any third-party analytics, tracking, or advertising services.
+        </div>
+
+        <!-- Swedish Version -->
+        <div id="content-sv" class="hidden">
+            <h1 class="text-4xl font-bold text-primary border-b-4 border-primary pb-3 mb-8">
+                Integritetspolicy - EnorEtt Chrome-tillägg
+            </h1>
+            
+            <p class="text-gray-700 mb-8">
+                <strong class="text-primary">Senast uppdaterad:</strong> 3 december 2025
             </p>
-        </section>
-        
-        <section class="mb-10">
-            <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">OPTIONAL API ACCESS (Pro Users)</h2>
-            <p class="text-gray-700 mb-4">Pro users who choose to use our API may have their word lookups processed by our servers. This data is:</p>
-            <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
-                <li>Not linked to your identity</li>
-                <li>Not stored longer than necessary for processing</li>
-                <li>Not shared with third parties</li>
-                <li>Encrypted in transit</li>
-            </ul>
-        </section>
-        
-        <section class="mb-10">
-            <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">CHANGES TO POLICY</h2>
-            <p class="text-gray-700 leading-relaxed">
-                We will notify users of any material changes to this privacy policy via extension updates.
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">TYDLIG REDOVISNING</h2>
+                <div class="bg-blue-50 border-l-4 border-primary p-4 mb-4">
+                    <p class="text-gray-800 font-semibold mb-2">VIKTIGT: Redovisning av datainsamling</p>
+                    <p class="text-gray-700 leading-relaxed">
+                        EnorEtt samlar in och behandlar personuppgifter <strong>endast när du väljer att uppgradera till Pro</strong>. 
+                        Gratis användares data förblir helt lokalt på din enhet. Denna policy förklarar tydligt vilka data vi samlar in, 
+                        hur vi använder dem och dina rättigheter gällande dina data.
+                    </p>
+                </div>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">ÖVERSIKT</h2>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    EnorEtt vi respekterar din integritet och är åtaget att skydda dina personuppgifter. 
+                    Denna integritetspolicy förklarar hur vi samlar in, använder, lagrar och skyddar dina data när du använder 
+                    EnorEtt Chrome-tillägget.
+                </p>
+                <p class="text-gray-700 leading-relaxed">
+                    Genom att installera och använda EnorEtt samtycker du till de datapraxis som beskrivs i denna policy. 
+                    Om du inte håller med om denna policy, vänligen använd inte vårt tillägg.
+                </p>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">DATAINSAMLING OCH ANVÄNDNING</h2>
+                
+                <h3 class="text-xl font-semibold text-primary mt-6 mb-3">Gratis användare (Ingen datainsamling)</h3>
+                <p class="text-gray-700 mb-4">
+                    Om du använder EnorEtt utan att uppgradera till Pro <strong>samlar vi inte in, överför eller lagrar några personuppgifter</strong>. 
+                    All data förblir lagrad lokalt på din enhet endast.
+                </p>
+                
+                <h3 class="text-xl font-semibold text-primary mt-6 mb-3">Pro-användare (Datainsamling)</h3>
+                <p class="text-gray-700 mb-4">
+                    När du uppgraderar till EnorEtt Pro samlar vi in och behandlar följande personuppgifter:
+                </p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4 mb-4">
+                    <li><strong>Användar-ID:</strong> En unik identifierare som genereras av tillägget för att identifiera ditt konto</li>
+                    <li><strong>E-postadress:</strong> Samlas in när du köper Pro-åtkomst (krävs för kontohantering och support)</li>
+                    <li><strong>Ordsökningsdata:</strong> Ord du söker efter med Pro API-funktionen (behandlas för att tillhandahålla grammatikkontroll)</li>
+                    <li><strong>Användningsstatistik:</strong> Totalt antal sökningar, första syn-datum, senaste syn-datum</li>
+                    <li><strong>Prenumerationsinformation:</strong> Köptyp (engångsbetaling eller prenumeration), plandetaljer, betalningsstatus, utgångsdatum</li>
+                    <li><strong>Stripe-kund-ID:</strong> Identifierare som används för betalningshantering (lagras säkert)</li>
+                    <li><strong>Inställningar:</strong> Språkpreferenser och tilläggsinställningar</li>
+                </ul>
+                
+                <h3 class="text-xl font-semibold text-primary mt-6 mb-3">Syfte med datainsamling</h3>
+                <p class="text-gray-700 mb-4">Vi samlar in dessa data för att:</p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                    <li>Tillhandahålla och underhålla Pro-funktioner och tjänster</li>
+                    <li>Bearbeta betalningar och hantera prenumerationer</li>
+                    <li>Verifiera Pro-åtkomst och prenumerationsstatus</li>
+                    <li>Tillhandahålla kundsupport</li>
+                    <li>Förbättra våra tjänster (anonymiserad användningsstatistik)</li>
+                </ul>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">LOKAL LAGRING (Alla användare)</h2>
+                <p class="text-gray-700 mb-4">
+                    EnorEtt lagrar följande data <strong>lokalt på din enhet endast</strong>:
+                </p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                    <li>Ordsökningshistorik (valfritt, kan rensas från tilläggsinställningar)</li>
+                    <li>Favoritord (valfritt)</li>
+                    <li>Tilläggsinställningar och preferenser</li>
+                    <li>Användar-ID (för Pro-användare, används för att synka med servern)</li>
+                    <li>Prenumerationsstatus cache (för Pro-användare)</li>
+                </ul>
+                <p class="text-gray-700 mt-4 font-medium">
+                    Denna lokala data <strong>lämnar aldrig din enhet</strong> om du inte är Pro-användare och väljer att använda Pro-funktioner.
+                </p>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">DATALAGRING OCH SÄKERHET</h2>
+                <p class="text-gray-700 mb-4">
+                    Data som samlas in från Pro-användare lagras säkert på våra servrar med branschstandard säkerhetsåtgärder:
+                </p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                    <li>Data krypteras under överföring med HTTPS/TLS</li>
+                    <li>Servrar är säkrade och uppdateras regelbundet</li>
+                    <li>Åtkomst till personuppgifter är begränsad till endast auktoriserad personal</li>
+                    <li>Betalningsinformation behandlas säkert via Stripe (vi lagrar inte kreditkortsuppgifter)</li>
+                </ul>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">DATABEHÅLLNING</h2>
+                <p class="text-gray-700 leading-relaxed">
+                    Vi behåller dina personuppgifter endast så länge som nödvändigt för att tillhandahålla våra tjänster och följa 
+                    juridiska skyldigheter. Om du avbryter din Pro-prenumeration kommer vi att behålla dina data under en rimlig period 
+                    för att hantera eventuella supportförfrågningar eller tvister, varefter de raderas eller anonymiseras.
+                </p>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">DATADELNING</h2>
+                <p class="text-gray-700 mb-4">
+                    Vi <strong>säljer, hyr ut eller delar inte</strong> dina personuppgifter med tredje parter utom:
+                </p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                    <li><strong>Stripe:</strong> Betalningshantering (enligt <a href="https://stripe.com/privacy" target="_blank" class="text-primary hover:underline">Stripes integritetspolicy</a>)</li>
+                    <li><strong>Juridiska krav:</strong> När det krävs enligt lag eller för att skydda våra rättigheter</li>
+                </ul>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">API-ÅTKOMST OCH ANVÄNDNING</h2>
+                <p class="text-gray-700 mb-4">
+                    EnorEtt använder vår API-tjänst (api.enorett.se) för att tillhandahålla förbättrade funktioner:
+                </p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4 mb-4">
+                    <li><strong>Offentlig API-åtkomst:</strong> Våra API-endpunkter är offentligt tillgängliga. Grundläggande ordsökningar kan utföras utan autentisering och samlar inte in några personuppgifter.</li>
+                    <li><strong>Pro API-funktioner:</strong> När Pro-användare använder API:et med sitt Användar-ID samlar vi in ordsökningsdata och användningsstatistik för att tillhandahålla förbättrade funktioner (exempel, uttal, etc.).</li>
+                    <li><strong>API-endpunkter:</strong> Tillägget kommer åt <code class="bg-gray-100 px-2 py-1 rounded">api.enorett.se</code> för ordsökningar, prenumerationsstatuskontroller och användarkontohantering.</li>
+                </ul>
+                <p class="text-gray-700 mt-4">
+                    <strong>Obs:</strong> Vem som helst kan komma åt våra offentliga API-endpunkter direkt. Pro-funktioner kräver dock autentisering 
+                    och prenumerationsverifiering. När du använder Pro-funktioner via tillägget samlas ditt Användar-ID och sökningsdata in 
+                    enligt beskrivningen i avsnittet "Pro-användare (Datainsamling)" ovan.
+                </p>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">BEHÖRIGHETER FÖRKLARADE</h2>
+                <p class="text-gray-700 mb-4">EnorEtt kräver följande behörigheter:</p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                    <li><strong class="text-primary">"storage"</strong> - För att spara dina inställningar, historik och preferenser lokalt på din enhet</li>
+                    <li><strong class="text-primary">"contextMenus"</strong> - För att lägga till högerklicksfunktionalitet för snabba ordsökningar</li>
+                    <li><strong class="text-primary">"notifications"</strong> - För att meddela dig om prenumerationsstatusuppdateringar (valfritt)</li>
+                    <li><strong class="text-primary">Värdbehörigheter</strong> - För att komma åt vårt API (api.enorett.se) för Pro-funktioner och prenumerationshantering</li>
+                </ul>
+                <p class="text-gray-700 mt-4">
+                    <strong>Viktigt:</strong> EnorEtt har INTE tillgång till din surfhistorik eller innehållet på webbplatser du besöker. 
+                    Vi kommer endast åt våra egna API-endpunkter (api.enorett.se, enorett.se, www.enorett.se) för tilläggsfunktionalitet.
+                </p>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">TJÄNSTER FRÅN TREDJE PART</h2>
+                <p class="text-gray-700 mb-4">
+                    EnorEtt använder följande tjänster från tredje part:
+                </p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                    <li><strong>Stripe:</strong> Betalningshantering för Pro-prenumerationer (se <a href="https://stripe.com/privacy" target="_blank" class="text-primary hover:underline">Stripes integritetspolicy</a>)</li>
+                    <li><strong>Tailwind CSS CDN:</strong> Används endast för att styla vår integritetspolicy och landningssidor (ingen datainsamling)</li>
+                </ul>
+                <p class="text-gray-700 mt-4">
+                    Vi använder inga analys-, spårnings- eller annonstjänster.
+                </p>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">DINA RÄTTIGHETER</h2>
+                <p class="text-gray-700 mb-4">Du har rätt att:</p>
+                <ul class="list-disc list-inside space-y-2 text-gray-700 ml-4">
+                    <li>Få tillgång till dina personuppgifter</li>
+                    <li>Begära korrigering av felaktiga data</li>
+                    <li>Begära radering av dina data</li>
+                    <li>Välja bort datainsamling genom att avbryta din Pro-prenumeration</li>
+                    <li>Rensa lokal lagringsdata från tilläggsinställningarna</li>
+                </ul>
+                <p class="text-gray-700 mt-4">
+                    För att utöva dessa rättigheter, vänligen kontakta oss på <a href="mailto:johnmessoa@gmail.com" class="text-primary hover:underline">johnmessoa@gmail.com</a>.
+                </p>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">BARNENS INTEGRITET</h2>
+                <p class="text-gray-700 leading-relaxed">
+                    EnorEtt är inte avsett för barn under 13 år. Vi samlar inte medvetet in personuppgifter från barn under 13. 
+                    Om du är förälder eller vårdnadshavare och tror att ditt barn har lämnat personuppgifter till oss, 
+                    vänligen kontakta oss omedelbart.
+                </p>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">ÄNDRINGAR I DENNA POLICY</h2>
+                <p class="text-gray-700 leading-relaxed">
+                    Vi kan uppdatera denna integritetspolicy från tid till annan. Vi kommer att meddela användare om eventuella 
+                    väsentliga ändringar via tilläggsuppdateringar eller genom att publicera den uppdaterade policyn på denna sida 
+                    med ett nytt "Senast uppdaterad"-datum. Ditt fortsatta användande av EnorEtt efter att ändringar trätt i kraft 
+                    innebär acceptans av den uppdaterade policyn.
+                </p>
+            </section>
+            
+            <section class="mb-10">
+                <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">KONTAKTA OSS</h2>
+                <p class="text-gray-700 leading-relaxed mb-2">
+                    Om du har frågor, funderingar eller förfrågningar gällande denna integritetspolicy eller våra datapraxis, 
+                    vänligen kontakta oss:
+                </p>
+                <p class="text-gray-700 leading-relaxed">
+                    <strong>E-post:</strong> <a href="mailto:johnmessoa@gmail.com" class="text-primary hover:text-secondary hover:underline transition-colors">johnmessoa@gmail.com</a>
+                </p>
+            </section>
+            
+            <hr class="border-t border-gray-300 my-8">
+            
+            <p class="text-gray-700 leading-relaxed font-medium">
+                Genom att använda EnorEtt erkänner du att du har läst och förstått denna integritetspolicy och samtycker till 
+                insamling och användning av din information enligt beskrivningen här.
             </p>
-        </section>
-        
-        <section class="mb-10">
-            <h2 class="text-2xl font-semibold text-secondary mt-8 mb-4">CONTACT</h2>
-            <p class="text-gray-700 leading-relaxed">
-                Questions about privacy: <a href="mailto:privacy@enorett.se" class="text-primary hover:text-secondary hover:underline transition-colors">privacy@enorett.se</a>
-            </p>
-        </section>
-        
-        <hr class="border-t border-gray-300 my-8">
-        
-        <p class="text-gray-700 leading-relaxed">
-            By using EnorEtt, you agree to this privacy policy.
-        </p>
+        </div>
     </div>
     </main>
+    
+    <script>
+        function toggleLanguage() {
+            const enContent = document.getElementById('content-en');
+            const svContent = document.getElementById('content-sv');
+            const enLang = document.getElementById('lang-en');
+            const svLang = document.getElementById('lang-sv');
+            
+            if (enContent.classList.contains('hidden')) {
+                // Switch to English
+                enContent.classList.remove('hidden');
+                svContent.classList.add('hidden');
+                enLang.classList.add('hidden');
+                svLang.classList.remove('hidden');
+            } else {
+                // Switch to Swedish
+                enContent.classList.add('hidden');
+                svContent.classList.remove('hidden');
+                enLang.classList.remove('hidden');
+                svLang.classList.add('hidden');
+            }
+        }
+    </script>
 </body>
 </html>
 
