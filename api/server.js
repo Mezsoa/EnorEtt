@@ -14,6 +14,7 @@ import { dirname, join } from 'path';
 import enorEttRouter from './routes/enorett.js';
 import subscriptionRouter from './routes/subscription.js';
 import usersRouter from './routes/users.js';
+import authRouter from './routes/auth.js';
 import { connectDB } from './db/connection.js';
 
 // Get directory path for ES modules
@@ -76,7 +77,7 @@ const corsOptions = {
     }
   },
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-User-Id'],
   credentials: true,
   maxAge: 86400 // 24 hours
 };
@@ -161,6 +162,7 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
+app.use('/api/auth', authRouter);
 app.use('/api/enorett', enorEttRouter);
 app.use('/api/subscription', subscriptionRouter);
 app.use('/api/users', usersRouter);

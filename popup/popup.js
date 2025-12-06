@@ -17,6 +17,11 @@ const statsInfo = document.getElementById('statsInfo');
 const loadingIndicator = document.getElementById('loadingIndicator');
 const proBanner = document.getElementById('proBanner');
 const proUpgradeBtn = document.getElementById('proUpgradeBtn');
+const loginSection = document.getElementById('loginSection');
+const userSection = document.getElementById('userSection');
+const userEmail = document.getElementById('userEmail');
+const loginBtn = document.getElementById('loginBtn');
+const logoutBtn = document.getElementById('logoutBtn');
 
 // State
 let currentWord = '';
@@ -53,13 +58,18 @@ function init() {
   // Pro upgrade button
   proUpgradeBtn.addEventListener('click', handleProUpgrade);
   
+  // Login/logout buttons
+  loginBtn.addEventListener('click', handleLogin);
+  logoutBtn.addEventListener('click', handleLogout);
+  
   // Focus input on load
   wordInput.focus();
   
   // Load stats
   updateStats();
   
-  // Check subscription status
+  // Check auth status and subscription
+  checkAuthStatus();
   checkSubscriptionStatus();
   
   // Check if there's a word from context menu
@@ -401,6 +411,52 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 // Initialize on load
+/**
+ * Check auth status and update UI
+ */
+async function checkAuthStatus() {
+  try {
+    const loggedIn = await isLoggedIn();
+    if (loggedIn) {
+      const user = await getCurrentUser();
+      if (user) {
+        userEmail.textContent = user.email;
+        loginSection.classList.add('hidden');
+        userSection.classList.remove('hidden');
+      } else {
+        loginSection.classList.remove('hidden');
+        userSection.classList.add('hidden');
+      }
+    } else {
+      loginSection.classList.remove('hidden');
+      userSection.classList.add('hidden');
+    }
+  } catch (error) {
+    console.error('Error checking auth status:', error);
+    loginSection.classList.remove('hidden');
+    userSection.classList.add('hidden');
+  }
+}
+
+/**
+ * Handle login button click
+ */
+function handleLogin() {
+  // Open login page in new tab
+  chrome.tabs.create({
+    url: 'https://enorett.se/login'
+  });
+}
+
+/**
+ * Handle logout button click
+ */
+async function handleLogout() {
+  await clearAuth();
+  await checkAuthStatus();
+  await checkSubscriptionStatus();
+}
+
 /**
  * Check subscription status and update UI
  */
