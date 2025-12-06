@@ -404,15 +404,22 @@ async function handlePaymentSuccess(data) {
       if (response && response.ok) {
         const result = await response.json();
         if (result.success && result.subscription) {
-          // Save subscription and userId
-          await chrome.storage.local.set({
+          // Save subscription, userId, and email
+          const storageData = {
             enorett_subscription: {
               ...result.subscription,
               userId: result.subscription.userId || userId,
               lastSynced: new Date().toISOString()
             },
             enorett_userId: result.subscription.userId || userId
-          });
+          };
+          
+          // Save email if available
+          if (result.user && result.user.email) {
+            storageData.enorett_userEmail = result.user.email;
+          }
+          
+          await chrome.storage.local.set(storageData);
           
           console.log('✅ Premium purchase confirmed! Status saved.');
           
@@ -435,14 +442,21 @@ async function handlePaymentSuccess(data) {
       }
     } else if (data.subscription) {
       // Direct subscription data provided
-      await chrome.storage.local.set({
+      const storageData = {
         enorett_subscription: {
           ...data.subscription,
           userId: data.subscription.userId || userId,
           lastSynced: new Date().toISOString()
         },
         enorett_userId: data.subscription.userId || userId
-      });
+      };
+      
+      // Save email if available
+      if (data.user && data.user.email) {
+        storageData.enorett_userEmail = data.user.email;
+      }
+      
+      await chrome.storage.local.set(storageData);
       
       // Notify all popups
       chrome.runtime.sendMessage({
