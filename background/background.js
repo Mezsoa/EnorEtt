@@ -112,11 +112,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     case 'AUTH_LOGIN':
       // Save auth data from login page
       if (message.data && message.data.user) {
-        chrome.storage.local.set({
+        const storageData = {
           enorett_auth: message.data,
           enorett_userId: message.data.user.userId,
           enorett_userEmail: message.data.user.email
-        }).then(() => {
+        };
+        
+        // Also save subscription if provided
+        if (message.data.subscription) {
+          storageData.enorett_subscription = {
+            ...message.data.subscription,
+            lastSynced: new Date().toISOString()
+          };
+        }
+        
+        chrome.storage.local.set(storageData).then(() => {
+          console.log('✅ Auth saved to extension storage:', message.data.user.userId);
+          
           // Notify all popups that auth was updated
           chrome.runtime.sendMessage({
             type: 'AUTH_UPDATED',
@@ -125,7 +137,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             // Popup might not be open, ignore
           });
           sendResponse({ success: true });
-        }).catch(() => {
+        }).catch((error) => {
+          console.error('Error saving auth:', error);
           sendResponse({ success: false });
         });
         return true;

@@ -69,11 +69,77 @@ function init() {
   updateStats();
   
   // Check auth status and subscription
+  // Also check if auth exists in localStorage (from browser login) and sync it
+  syncAuthFromLocalStorage();
   checkAuthStatus();
   checkSubscriptionStatus();
   
   // Check if there's a word from context menu
   checkForContextMenuWord();
+}
+
+/**
+ * Sync auth from backend to extension storage
+ * This handles the case when user logs in via browser
+ */
+async function syncAuthFromLocalStorage() {
+  try {
+    // First check if we already have auth in extension storage
+    const authData = await chrome.storage.local.get(['enorett_auth']);
+    if (authData.enorett_auth && authData.enorett_auth.user) {
+      return; // Already have auth
+    }
+    
+    // If no auth in extension storage, check if we have userId/email
+    const userData = await chrome.storage.local.get(['enorett_userId', 'enorett_userEmail']);
+    const userId = userData.enorett_userId;
+    const email = userData.enorett_userEmail;
+    
+    if (userId) {
+      // Try to get fresh auth from backend using userId
+      try {
+        const response = await fetch('https://api.enorett.se/api/auth/me', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Id': userId
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.user) {
+            // Save auth to extension storage
+            await chrome.storage.local.set({
+              enorett_auth: {
+                user: data.user,
+                subscription: data.subscription,
+                token: null
+              },
+              enorett_userId: data.user.userId,
+              enorett_userEmail: data.user.email
+            });
+            
+            // Also save subscription if available
+            if (data.subscription) {
+              await chrome.storage.local.set({
+                enorett_subscription: {
+                  ...data.subscription,
+                  lastSynced: new Date().toISOString()
+                }
+              });
+            }
+            
+            console.log('✅ Synced auth from backend');
+          }
+        }
+      } catch (e) {
+        console.warn('Could not sync auth from backend:', e);
+      }
+    }
+  } catch (error) {
+    console.warn('Error syncing auth:', error);
+  }
 }
 
 /**
@@ -462,6 +528,42 @@ async function handleLogout() {
  */
 async function checkSubscriptionStatus() {
   try {
+    // First sync subscription from backend to ensure we have latest data
+    const authData = await chrome.storage.local.get(['enorett_auth']);
+    const auth = authData.enorett_auth;
+    
+    if (auth && auth.user) {
+      // User is logged in, sync subscription from backend
+      try {
+        const response = await fetch(`https://api.enorett.se/api/subscription/status`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-Id': auth.user.userId
+          }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.subscription) {
+            // Save subscription
+            await chrome.storage.local.set({
+              enorett_subscription: {
+                ...data.subscription,
+                lastSynced: new Date().toISOString()
+              }
+            });
+          } else {
+            // No subscription, clear it
+            await chrome.storage.local.remove(['enorett_subscription']);
+          }
+        }
+      } catch (e) {
+        console.warn('Could not sync subscription:', e);
+      }
+    }
+    
+    // Now check if user is Pro
     isPro = await isProUser();
     updateProUI();
   } catch (error) {
