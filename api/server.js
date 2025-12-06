@@ -114,21 +114,40 @@ if (NODE_ENV === 'development') {
 // ROUTES
 // ============================================
 
+// Serve homepage at root route
+app.get('/', async (req, res) => {
+  try {
+    // Path to homepage.html (in same directory as server.js)
+    const homepagePath = join(__dirname, 'homepage.html');
+    const homepageHtml = await readFile(homepagePath, 'utf-8');
+    
+    // Set CSP header that allows Tailwind CDN and inline scripts
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Content-Security-Policy', 
+      "default-src 'self'; " +
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; " +
+      "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; " +
+      "font-src 'self' data:; " +
+      "img-src 'self' data: https:;"
+    );
+    res.send(homepageHtml);
+  } catch (error) {
+    console.error('Error serving homepage:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to load homepage',
+      errorSv: 'Kunde inte ladda startsidan',
+      details: error.message
+    });
+  }
+});
+
 // Health check endpoint
-app.get('/', (req, res) => {
+app.get('/health', (req, res) => {
   res.json({
     success: true,
     service: 'EnorEtt API',
     version: '1.0.0',
-    status: 'healthy',
-    timestamp: new Date().toISOString()
-  });
-});
-
-// Health check
-app.get('/health', (req, res) => {
-  res.json({
-    success: true,
     status: 'healthy',
     uptime: process.uptime(),
     timestamp: new Date().toISOString()
