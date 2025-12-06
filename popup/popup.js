@@ -442,9 +442,9 @@ async function checkAuthStatus() {
  * Handle login button click
  */
 function handleLogin() {
-  // Open login page in new tab
+  // Open login page in new tab with redirect parameter
   chrome.tabs.create({
-    url: 'https://enorett.se/login'
+    url: 'https://enorett.se/login?redirect=/upgrade'
   });
 }
 

@@ -65,7 +65,7 @@ export async function connectDB() {
       // Has / after @, extract dbname
       baseUri = cleanUri.substring(0, atIndex + 1 + slashIndex);
       dbName = afterAt.substring(slashIndex + 1);
-    } else {
+      } else {
       // No / after @, no dbname
       baseUri = cleanUri;
       dbName = '';
