@@ -522,7 +522,18 @@ function updateProUI() {
 /**
  * Handle Pro upgrade button click
  */
-function handleProUpgrade() {
+async function handleProUpgrade() {
+  // Check if user is logged in
+  const loggedIn = await isLoggedIn();
+  
+  if (!loggedIn) {
+    // Redirect to login first
+    chrome.tabs.create({
+      url: 'https://enorett.se/login?redirect=/upgrade'
+    });
+    return;
+  }
+  
   // Open landing page in new tab
   chrome.tabs.create({
     url: 'https://enorett.se/upgrade'

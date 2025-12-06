@@ -114,11 +114,21 @@ async function clearSubscription() {
  */
 async function syncSubscription(userId = null, email = null) {
   try {
-    // Get user ID and email from storage if not provided
-    if (!userId || !email) {
-      const userData = await chrome.storage.local.get(['enorett_userId', 'enorett_userEmail']);
-      userId = userId || userData.enorett_userId;
-      email = email || userData.enorett_userEmail;
+    // Get auth data first (preferred method)
+    const authData = await chrome.storage.local.get(['enorett_auth']);
+    const auth = authData.enorett_auth;
+    
+    // If logged in, use auth userId
+    if (auth && auth.user) {
+      userId = auth.user.userId;
+      email = auth.user.email;
+    } else {
+      // Fallback to old method
+      if (!userId || !email) {
+        const userData = await chrome.storage.local.get(['enorett_userId', 'enorett_userEmail']);
+        userId = userId || userData.enorett_userId;
+        email = email || userData.enorett_userEmail;
+      }
     }
     
     // If no user ID and no email, user is not logged in/subscribed
@@ -147,6 +157,14 @@ async function syncSubscription(userId = null, email = null) {
         if (email) params.append('email', email);
         const url = `${endpoint}?${params.toString()}`;
         
+        // Build headers with auth if available
+        const headers = {
+          'Content-Type': 'application/json'
+        };
+        if (userId) {
+          headers['X-User-Id'] = userId;
+        }
+        
         // Add timeout
         controller = new AbortController();
         timeoutId = setTimeout(() => {
@@ -157,9 +175,7 @@ async function syncSubscription(userId = null, email = null) {
         
         const response = await fetch(url, {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: headers,
           signal: controller.signal
         });
         
