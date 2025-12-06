@@ -17,6 +17,13 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     sparse: true, // Allow null but ensure uniqueness when set
+    unique: true,
+  },
+  
+  // Password (hashed)
+  password: {
+    type: String,
+    select: false, // Don't return password by default
   },
   
   // Stripe customer ID
