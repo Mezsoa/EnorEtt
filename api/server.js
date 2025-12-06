@@ -167,6 +167,68 @@ app.use('/api/enorett', enorEttRouter);
 app.use('/api/subscription', subscriptionRouter);
 app.use('/api/users', usersRouter);
 
+// Serve login page
+app.get('/login', async (req, res) => {
+  try {
+    const loginPath = join(__dirname, 'login.html');
+    const loginHtml = await readFile(loginPath, 'utf-8');
+    
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Content-Security-Policy', 
+      "default-src 'self'; " +
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; " +
+      "script-src-attr 'unsafe-inline'; " +
+      "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; " +
+      "font-src 'self' data:; " +
+      "img-src 'self' data: https:; " +
+      "connect-src 'self'; " +
+      "object-src 'none'; " +
+      "media-src 'self'; " +
+      "frame-src 'none';"
+    );
+    res.send(loginHtml);
+  } catch (error) {
+    console.error('Error serving login page:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to load login page',
+      errorSv: 'Kunde inte ladda inloggningssidan',
+      details: error.message
+    });
+  }
+});
+
+// Serve register page
+app.get('/register', async (req, res) => {
+  try {
+    const registerPath = join(__dirname, 'register.html');
+    const registerHtml = await readFile(registerPath, 'utf-8');
+    
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Content-Security-Policy', 
+      "default-src 'self'; " +
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; " +
+      "script-src-attr 'unsafe-inline'; " +
+      "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; " +
+      "font-src 'self' data:; " +
+      "img-src 'self' data: https:; " +
+      "connect-src 'self'; " +
+      "object-src 'none'; " +
+      "media-src 'self'; " +
+      "frame-src 'none';"
+    );
+    res.send(registerHtml);
+  } catch (error) {
+    console.error('Error serving register page:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to load register page',
+      errorSv: 'Kunde inte ladda registreringssidan',
+      details: error.message
+    });
+  }
+});
+
 // Serve upgrade/landing page
 app.get('/upgrade', async (req, res) => {
   try {

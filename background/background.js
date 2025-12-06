@@ -93,6 +93,44 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
       return true; // Keep channel open for async response
       
+    case 'GET_USER_ID':
+      getOrCreateUserId().then(userId => {
+        sendResponse({ userId: userId });
+      }).catch(() => {
+        sendResponse({ userId: null });
+      });
+      return true; // Keep channel open for async response
+      
+    case 'GET_AUTH':
+      chrome.storage.local.get(['enorett_auth']).then(result => {
+        sendResponse({ auth: result.enorett_auth || null });
+      }).catch(() => {
+        sendResponse({ auth: null });
+      });
+      return true; // Keep channel open for async response
+      
+    case 'AUTH_LOGIN':
+      // Save auth data from login page
+      if (message.data && message.data.user) {
+        chrome.storage.local.set({
+          enorett_auth: message.data,
+          enorett_userId: message.data.user.userId,
+          enorett_userEmail: message.data.user.email
+        }).then(() => {
+          sendResponse({ success: true });
+        }).catch(() => {
+          sendResponse({ success: false });
+        });
+        return true;
+      }
+      sendResponse({ success: false });
+      break;
+      
+    case 'PAYMENT_SUCCESS':
+      handlePaymentSuccess(message.data);
+      sendResponse({ success: true });
+      break;
+      
     default:
       sendResponse({ success: false, error: 'Unknown message type' });
   }
@@ -254,9 +292,18 @@ async function initSubscriptionSync() {
     // Sync subscription status periodically
     const syncSubscription = async () => {
       try {
-        // Get user ID from storage
-        const userData = await chrome.storage.local.get(['enorett_userId']);
-        const userId = userData.enorett_userId;
+        // Get auth data first (preferred method)
+        const authData = await chrome.storage.local.get(['enorett_auth']);
+        const auth = authData.enorett_auth;
+        
+        // Get user ID from auth or fallback to old method
+        let userId = null;
+        if (auth && auth.user) {
+          userId = auth.user.userId;
+        } else {
+          const userData = await chrome.storage.local.get(['enorett_userId']);
+          userId = userData.enorett_userId;
+        }
         
         if (!userId) {
           console.log('No userId found, skipping subscription sync');
@@ -277,15 +324,19 @@ async function initSubscriptionSync() {
             const url = `${endpoint}?userId=${encodeURIComponent(userId)}`;
             console.log('Syncing subscription from:', url);
             
+            // Build headers with auth
+            const headers = {
+              'Content-Type': 'application/json',
+              'X-User-Id': userId
+            };
+            
             // Add timeout to fetch
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
             
             const response = await fetch(url, {
               method: 'GET',
-              headers: {
-                'Content-Type': 'application/json'
-              },
+              headers: headers,
               signal: controller.signal
             });
             
@@ -350,50 +401,47 @@ async function initSubscriptionSync() {
   }
 }
 
-/**
- * Handle payment success callback
- */
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === 'PAYMENT_SUCCESS') {
-    handlePaymentSuccess(message.data);
-    sendResponse({ success: true });
-  } else if (message.type === 'GET_USER_ID') {
-    // Return userId to caller
-    getOrCreateUserId().then(userId => {
-      sendResponse({ userId: userId });
-    }).catch(() => {
-      sendResponse({ userId: null });
-    });
-    return true; // Keep channel open for async response
-  }
-  return false;
-});
+// This listener is now merged with the main message handler above
 
 /**
  * Handle payment success
  */
 async function handlePaymentSuccess(data) {
   try {
-    // Ensure userId exists
-    const userId = await getOrCreateUserId();
+    // Get auth data first (preferred method)
+    const authData = await chrome.storage.local.get(['enorett_auth']);
+    const auth = authData.enorett_auth;
+    
+    // Get userId from auth or fallback
+    let userId = null;
+    if (auth && auth.user) {
+      userId = auth.user.userId;
+    } else {
+      userId = await getOrCreateUserId();
+    }
     
     // If sessionId is provided, fetch subscription details
     if (data.sessionId) {
       // Try multiple endpoints
       const endpoints = [
-        `https://api.enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}&userId=${encodeURIComponent(userId)}`,
-        `https://www.enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}&userId=${encodeURIComponent(userId)}`,
-        `https://enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}&userId=${encodeURIComponent(userId)}`
+        `https://api.enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}`,
+        `https://www.enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}`,
+        `https://enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}`
       ];
       
       let response = null;
       for (const url of endpoints) {
         try {
+          const headers = {
+            'Content-Type': 'application/json'
+          };
+          if (userId) {
+            headers['X-User-Id'] = userId;
+          }
+          
           response = await fetch(url, {
             method: 'GET',
-            headers: {
-              'Content-Type': 'application/json'
-            }
+            headers: headers
           });
           if (response.ok) break;
         } catch (e) {
