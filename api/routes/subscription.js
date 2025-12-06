@@ -119,9 +119,27 @@ router.get('/status', async (req, res) => {
         if (session.payment_status === 'paid' && session.mode === 'payment') {
           const sessionUserId = session.metadata?.userId;
           
+          // Security: If userId header is provided, verify it matches session metadata
+          if (userId && sessionUserId && userId !== sessionUserId) {
+            return res.status(403).json({
+              success: false,
+              error: 'Session does not belong to logged in user'
+            });
+          }
+          
+          // Use userId from header if provided (logged in user), otherwise from session metadata
+          const finalUserId = userId || sessionUserId;
+          
+          if (!finalUserId) {
+            return res.status(400).json({
+              success: false,
+              error: 'Could not determine user ID'
+            });
+          }
+          
           if (dbAvailable) {
-            // Find or create user
-            const user = await User.findOrCreate(sessionUserId, {
+            // Find or create user with the correct userId
+            const user = await User.findOrCreate(finalUserId, {
               email: session.customer_email
             });
             
@@ -248,10 +266,11 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
           
           if (!userId) {
             console.error('No userId in session metadata');
-            return res.status(400).json({ error: 'Missing userId' });
+            return res.status(400).json({ error: 'Missing userId in session metadata' });
           }
           
-          // Find or create user
+          // Find or create user with userId from session metadata
+          // This ensures purchase is linked to the user who made the payment
           const user = await User.findOrCreate(userId, {
             email: email
           });

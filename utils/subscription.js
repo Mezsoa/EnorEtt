@@ -32,10 +32,23 @@ async function isProUser() {
   
   // If no subscription found locally, try to sync from backend
   if (!subscription) {
-    // Get userId and email from storage
-    const userData = await chrome.storage.local.get(['enorett_userId', 'enorett_userEmail']);
-    const userId = userData.enorett_userId;
-    const email = userData.enorett_userEmail;
+    // Get auth data first (preferred method)
+    const authData = await chrome.storage.local.get(['enorett_auth']);
+    const auth = authData.enorett_auth;
+    
+    // Get userId and email from auth or fallback to old method
+    let userId = null;
+    let email = null;
+    
+    if (auth && auth.user) {
+      userId = auth.user.userId;
+      email = auth.user.email;
+    } else {
+      // Fallback to old method
+      const userData = await chrome.storage.local.get(['enorett_userId', 'enorett_userEmail']);
+      userId = userData.enorett_userId;
+      email = userData.enorett_userEmail;
+    }
     
     // If we have a userId or email, try to sync subscription from backend
     if (userId || email) {

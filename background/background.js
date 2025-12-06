@@ -117,6 +117,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           enorett_userId: message.data.user.userId,
           enorett_userEmail: message.data.user.email
         }).then(() => {
+          // Notify all popups that auth was updated
+          chrome.runtime.sendMessage({
+            type: 'AUTH_UPDATED',
+            auth: message.data
+          }).catch(() => {
+            // Popup might not be open, ignore
+          });
           sendResponse({ success: true });
         }).catch(() => {
           sendResponse({ success: false });
