@@ -35,8 +35,6 @@ function generateToken(userId) {
  */
 router.post('/register', async (req, res) => {
   try {
-    await connectDB();
-    
     const { email, password } = req.body;
     
     if (!email || !password) {
@@ -52,6 +50,35 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({
         success: false,
         error: 'Invalid email format'
+      });
+    }
+    
+    // Validate password length
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: 'Password must be at least 6 characters'
+      });
+    }
+    
+    // Try to connect to database
+    try {
+      await connectDB();
+    } catch (dbError) {
+      console.error('Database connection failed:', dbError);
+      return res.status(500).json({
+        success: false,
+        error: 'Database connection failed. Please try again later.',
+        details: process.env.NODE_ENV === 'development' ? dbError.message : undefined
+      });
+    }
+    
+    // Check if database is available
+    const mongoose = (await import('mongoose')).default;
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(500).json({
+        success: false,
+        error: 'Database not available. Please try again later.'
       });
     }
     
@@ -93,10 +120,19 @@ router.post('/register', async (req, res) => {
     
   } catch (error) {
     console.error('Error registering user:', error);
+    
+    // Handle specific MongoDB errors
+    if (error.name === 'MongoServerError' && error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        error: 'User with this email already exists'
+      });
+    }
+    
     res.status(500).json({
       success: false,
       error: 'Failed to register user',
-      details: error.message
+      details: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
     });
   }
 });
@@ -107,14 +143,33 @@ router.post('/register', async (req, res) => {
  */
 router.post('/login', async (req, res) => {
   try {
-    await connectDB();
-    
     const { email, password } = req.body;
     
     if (!email || !password) {
       return res.status(400).json({
         success: false,
         error: 'Email and password are required'
+      });
+    }
+    
+    // Try to connect to database
+    try {
+      await connectDB();
+    } catch (dbError) {
+      console.error('Database connection failed:', dbError);
+      return res.status(500).json({
+        success: false,
+        error: 'Database connection failed. Please try again later.',
+        details: process.env.NODE_ENV === 'development' ? dbError.message : undefined
+      });
+    }
+    
+    // Check if database is available
+    const mongoose = (await import('mongoose')).default;
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(500).json({
+        success: false,
+        error: 'Database not available. Please try again later.'
       });
     }
     
@@ -140,7 +195,13 @@ router.post('/login', async (req, res) => {
     const token = generateToken(user.userId);
     
     // Get active subscription
-    const purchase = await Purchase.findActivePurchase(user.userId);
+    let purchase = null;
+    try {
+      purchase = await Purchase.findActivePurchase(user.userId);
+    } catch (purchaseError) {
+      console.warn('Error fetching purchase:', purchaseError);
+      // Continue without purchase info
+    }
     
     res.json({
       success: true,
@@ -164,7 +225,7 @@ router.post('/login', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to login',
-      details: error.message
+      details: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
     });
   }
 });
@@ -175,8 +236,6 @@ router.post('/login', async (req, res) => {
  */
 router.get('/me', async (req, res) => {
   try {
-    await connectDB();
-    
     const token = req.headers.authorization?.replace('Bearer ', '');
     const userId = req.headers['x-user-id']; // Simple auth for now
     
@@ -184,6 +243,27 @@ router.get('/me', async (req, res) => {
       return res.status(401).json({
         success: false,
         error: 'Authentication required'
+      });
+    }
+    
+    // Try to connect to database
+    try {
+      await connectDB();
+    } catch (dbError) {
+      console.error('Database connection failed:', dbError);
+      return res.status(500).json({
+        success: false,
+        error: 'Database connection failed. Please try again later.',
+        details: process.env.NODE_ENV === 'development' ? dbError.message : undefined
+      });
+    }
+    
+    // Check if database is available
+    const mongoose = (await import('mongoose')).default;
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(500).json({
+        success: false,
+        error: 'Database not available. Please try again later.'
       });
     }
     
@@ -197,7 +277,13 @@ router.get('/me', async (req, res) => {
     }
     
     // Get active subscription
-    const purchase = await Purchase.findActivePurchase(user.userId);
+    let purchase = null;
+    try {
+      purchase = await Purchase.findActivePurchase(user.userId);
+    } catch (purchaseError) {
+      console.warn('Error fetching purchase:', purchaseError);
+      // Continue without purchase info
+    }
     
     res.json({
       success: true,
@@ -220,7 +306,7 @@ router.get('/me', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to fetch user',
-      details: error.message
+      details: process.env.NODE_ENV === 'development' ? error.message : 'Please try again later'
     });
   }
 });
