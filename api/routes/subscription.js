@@ -613,10 +613,14 @@ router.post('/recover', async (req, res) => {
     let purchase = await Purchase.findOne({ stripeSessionId: session.id });
     
     if (!purchase) {
+      // Get customer ID (works for both regular and guest customers)
+      const customerId = customer?.id || session.customer || null;
+      console.log('Creating purchase with customerId:', customerId, 'userId:', user.userId);
+      
       // Create purchase record
       purchase = new Purchase({
         userId: user.userId,
-        stripeCustomerId: customer?.id || session.customer,
+        stripeCustomerId: customerId,
         stripeSessionId: session.id,
         stripePaymentIntentId: session.payment_intent,
         purchaseType: 'one-time',
@@ -629,7 +633,29 @@ router.post('/recover', async (req, res) => {
         purchasedAt: new Date(session.created * 1000)
       });
       await purchase.save();
-      console.log('✅ Recovered purchase from Stripe:', purchase.id);
+      console.log('✅ Recovered purchase from Stripe:', purchase.id, 'customerId:', purchase.stripeCustomerId);
+    } else {
+      // Update existing purchase if customerId is missing
+      if (!purchase.stripeCustomerId && (customer?.id || session.customer)) {
+        purchase.stripeCustomerId = customer?.id || session.customer;
+        await purchase.save();
+        console.log('✅ Updated purchase with customerId:', purchase.stripeCustomerId);
+      }
+    }
+    
+    // Ensure purchase has correct userId and customerId
+    let purchaseUpdated = false;
+    if (purchase.userId !== user.userId) {
+      purchase.userId = user.userId;
+      purchaseUpdated = true;
+    }
+    if (!purchase.stripeCustomerId && (customer?.id || session.customer)) {
+      purchase.stripeCustomerId = customer?.id || session.customer;
+      purchaseUpdated = true;
+    }
+    if (purchaseUpdated) {
+      await purchase.save();
+      console.log('✅ Updated purchase with correct userId and customerId');
     }
     
     return res.json({

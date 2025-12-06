@@ -32,9 +32,29 @@ export async function connectDB() {
   try {
     // Add database name if not present in URI
     let uri = MONGODB_URI;
-    if (!uri.includes('/?') && !uri.match(/\/[^\/\?]+(\?|$)/)) {
-      // No database name specified, add one
-      uri = uri.replace(/\?/, '/enorett?').replace(/\/$/, '/enorett');
+    
+    // MongoDB Atlas format examples:
+    // mongodb+srv://user:pass@cluster.net/?options  -> needs /enorett
+    // mongodb+srv://user:pass@cluster.net/enorett?options  -> already has it
+    // mongodb+srv://user:pass@cluster.net  -> needs /enorett
+    
+    // Parse the URI to check if database name exists
+    // Pattern: @hostname/ or @hostname? or @hostname$
+    const hasDatabaseName = uri.match(/@[^\/\?]+\/([^\/\?]+)/);
+    
+    if (!hasDatabaseName) {
+      // No database name found - add /enorett
+      if (uri.includes('?')) {
+        // Has query params: insert /enorett before ?
+        uri = uri.replace(/\?/, '/enorett?');
+      } else {
+        // No query params: append /enorett
+        uri = uri + (uri.endsWith('/') ? 'enorett' : '/enorett');
+      }
+      console.log('📝 Added database name "enorett" to connection string');
+    } else {
+      const dbName = hasDatabaseName[1];
+      console.log('📝 Using existing database:', dbName);
     }
     
     await mongoose.connect(uri, {
