@@ -5,7 +5,7 @@
 
 const SUBSCRIPTION_STORAGE_KEY = 'enorett_subscription';
 const SUBSCRIPTION_SYNC_INTERVAL = 60 * 60 * 1000; // 1 hour
-const API_ENDPOINT = 'https://api.enorett.se';
+const API_ENDPOINT = 'https://www.enorett.se';
 
 /**
  * Get subscription status from local storage
@@ -153,7 +153,6 @@ async function syncSubscription(userId = null, email = null) {
     const apiEndpoints = [
       `${API_ENDPOINT}/api/subscription/status`,
       'https://api.enorett.se/api/subscription/status',
-      'https://www.enorett.se/api/subscription/status',
       'https://enorett.se/api/subscription/status'
     ];
     

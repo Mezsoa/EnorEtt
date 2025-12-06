@@ -332,8 +332,8 @@ async function initSubscriptionSync() {
         
         // API endpoint - try multiple endpoints if needed
         const apiEndpoints = [
-          'https://api.enorett.se/api/subscription/status',
           'https://www.enorett.se/api/subscription/status',
+          'https://api.enorett.se/api/subscription/status',
           'https://enorett.se/api/subscription/status'
         ];
         
@@ -444,8 +444,8 @@ async function handlePaymentSuccess(data) {
     if (data.sessionId) {
       // Try multiple endpoints
       const endpoints = [
-        `https://api.enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}`,
         `https://www.enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}`,
+        `https://api.enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}`,
         `https://enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}`
       ];
       

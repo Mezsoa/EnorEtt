@@ -31,7 +31,7 @@ let isPro = false;
 /**
  * Initialize the popup
  */
-function init() {
+async function init() {
   // Set up event listeners
   wordInput.addEventListener('input', handleInput);
   wordInput.addEventListener('keypress', handleKeyPress);
@@ -70,9 +70,9 @@ function init() {
   
   // Check auth status and subscription
   // Also check if auth exists in localStorage (from browser login) and sync it
-  syncAuthFromLocalStorage();
-  checkAuthStatus();
-  checkSubscriptionStatus();
+  await syncAuthFromLocalStorage();
+  await checkAuthStatus();
+  await checkSubscriptionStatus();
   
   // Check if there's a word from context menu
   checkForContextMenuWord();
@@ -99,8 +99,8 @@ async function syncAuthFromLocalStorage() {
       // Try to get fresh auth from backend using userId
       // Use subscription/status endpoint instead since it's more reliable
       const endpoints = [
-        'https://api.enorett.se/api/subscription/status',
         'https://www.enorett.se/api/subscription/status',
+        'https://api.enorett.se/api/subscription/status',
         'https://enorett.se/api/subscription/status'
       ];
       
@@ -550,8 +550,8 @@ async function checkSubscriptionStatus() {
       // User is logged in, sync subscription from backend
       // Try multiple endpoints
       const endpoints = [
-        'https://api.enorett.se/api/subscription/status',
         'https://www.enorett.se/api/subscription/status',
+        'https://api.enorett.se/api/subscription/status',
         'https://enorett.se/api/subscription/status'
       ];
       
@@ -703,5 +703,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
   }
 });
 
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => {
+  init().catch(err => console.warn('Init failed:', err));
+});
 
