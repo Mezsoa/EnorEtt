@@ -28,8 +28,8 @@ let currentWord = '';
 let lastResult = null;
 let isPro = false;
 
-// API fallback configuration
-const API_BASES = [
+// API fallback configuration (popup-local to avoid global collisions)
+const POPUP_API_BASES = [
   'https://www.enorett.se',
   'https://api.enorett.se',
   'https://enorett.se'
@@ -42,10 +42,10 @@ const FETCH_TIMEOUT_MS = 8000;
  * @param {object} options - fetch options
  * @returns {Promise<{response: Response, base: string}>}
  */
-async function fetchWithFallback(path, options = {}) {
+async function popupFetchWithFallback(path, options = {}) {
   let lastError = null;
   
-  for (const base of API_BASES) {
+  for (const base of POPUP_API_BASES) {
     const url = path.startsWith('http') ? path : `${base}${path}`;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
@@ -136,7 +136,7 @@ async function syncAuthFromLocalStorage() {
       // Try to get fresh auth from backend using userId
     // Use subscription/status endpoint instead since it's more reliable
     try {
-      const { response } = await fetchWithFallback(
+      const { response } = await popupFetchWithFallback(
         `/api/subscription/status?userId=${encodeURIComponent(userId)}`,
         {
           method: 'GET',
@@ -577,7 +577,7 @@ async function checkSubscriptionStatus() {
     if (auth && auth.user) {
       // User is logged in, sync subscription from backend with fallback
       try {
-        const { response } = await fetchWithFallback(
+        const { response } = await popupFetchWithFallback(
           `/api/subscription/status?userId=${encodeURIComponent(auth.user.userId)}`,
           {
             method: 'GET',
