@@ -39,10 +39,11 @@ export async function connectDB() {
     // mongodb+srv://user:pass@cluster.net  -> needs /enorett
     
     // Parse the URI to check if database name exists
-    // Pattern: @hostname/ or @hostname? or @hostname$
-    const hasDatabaseName = uri.match(/@[^\/\?]+\/([^\/\?]+)/);
+    // Pattern: @hostname/dbname?options or @hostname/dbname
+    // We want to avoid adding /enorett if it already exists
+    const dbNameMatch = uri.match(/@[^\/\?]+\/([^\/\?]+)(\?|$)/);
     
-    if (!hasDatabaseName) {
+    if (!dbNameMatch) {
       // No database name found - add /enorett
       if (uri.includes('?')) {
         // Has query params: insert /enorett before ?
@@ -53,8 +54,13 @@ export async function connectDB() {
       }
       console.log('📝 Added database name "enorett" to connection string');
     } else {
-      const dbName = hasDatabaseName[1];
+      const dbName = dbNameMatch[1];
       console.log('📝 Using existing database:', dbName);
+      // If database is "test", replace with "enorett"
+      if (dbName === 'test') {
+        uri = uri.replace('/test', '/enorett');
+        console.log('📝 Changed database from "test" to "enorett"');
+      }
     }
     
     await mongoose.connect(uri, {
