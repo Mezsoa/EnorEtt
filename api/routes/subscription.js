@@ -128,8 +128,35 @@ router.get('/status', async (req, res) => {
             }).sort({ purchasedAt: -1 });
           }
           
+          // If still not found and we have email, try to find user by email and their purchase
+          if (!purchase && (email || user.email)) {
+            const searchEmail = email || user.email;
+            const userByEmail = await User.findOne({ email: searchEmail });
+            if (userByEmail && userByEmail.userId !== user.userId) {
+              purchase = await Purchase.findActivePurchase(userByEmail.userId);
+              if (purchase && purchase.isActive()) {
+                // Found purchase with different userId - use the correct user
+                user = userByEmail;
+              }
+            }
+          }
+          
           if (purchase && purchase.isActive()) {
-            // Update purchase userId if it doesn't match (fixes mismatched userIds)
+            // Always use the userId from the purchase (which is the correct one)
+            // This ensures we return the correct userId even if user lookup found wrong one
+            const correctUserId = purchase.userId;
+            
+            // Update user record if userId doesn't match
+            if (user.userId !== correctUserId) {
+              // Find or create user with correct userId
+              const correctUser = await User.findOrCreate(correctUserId, {
+                email: user.email || email,
+                stripeCustomerId: purchase.stripeCustomerId
+              });
+              user = correctUser;
+            }
+            
+            // Update purchase userId if it doesn't match (shouldn't happen now, but just in case)
             if (purchase.userId !== user.userId) {
               purchase.userId = user.userId;
               await purchase.save();
@@ -159,9 +186,33 @@ router.get('/status', async (req, res) => {
         if (userId && !user) {
           purchase = await Purchase.findActivePurchase(userId);
           
+          // If not found by userId, also try to find by email (in case userId mismatch)
+          if (!purchase && email) {
+            // Find user by email first
+            const userByEmail = await User.findOne({ email });
+            if (userByEmail) {
+              purchase = await Purchase.findActivePurchase(userByEmail.userId);
+              if (purchase && purchase.isActive()) {
+                user = userByEmail;
+              }
+            }
+          }
+          
           if (purchase && purchase.isActive()) {
-            // Create user record if purchase exists but user doesn't
-            user = await User.findOrCreate(userId);
+            // Use the userId from the purchase (which is the correct one)
+            const correctUserId = purchase.userId;
+            
+            // Create/update user record with correct userId
+            user = await User.findOrCreate(correctUserId, {
+              email: user?.email || email,
+              stripeCustomerId: purchase.stripeCustomerId
+            });
+            
+            // Update email if available
+            if (email && !user.email) {
+              user.email = email;
+              await user.save();
+            }
             
             return res.json({
               success: true,

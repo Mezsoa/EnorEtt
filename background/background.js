@@ -254,27 +254,32 @@ async function initSubscriptionSync() {
     // Sync subscription status periodically
     const syncSubscription = async () => {
       try {
-        // Get user ID from storage
-        const userData = await chrome.storage.local.get(['enorett_userId']);
+        // Get user ID and email from storage
+        const userData = await chrome.storage.local.get(['enorett_userId', 'enorett_userEmail']);
         const userId = userData.enorett_userId;
+        const email = userData.enorett_userEmail;
         
-        if (!userId) {
-          console.log('No userId found, skipping subscription sync');
+        if (!userId && !email) {
+          console.log('No userId or email found, skipping subscription sync');
           return;
         }
         
-        // API endpoint - try multiple endpoints if needed
+        // API endpoint - try multiple endpoints if needed (prioritize www.enorett.se since api.enorett.se may not resolve)
         const apiEndpoints = [
-          'https://api.enorett.se/api/subscription/status',
           'https://www.enorett.se/api/subscription/status',
-          'https://enorett.se/api/subscription/status'
+          'https://enorett.se/api/subscription/status',
+          'https://api.enorett.se/api/subscription/status'
         ];
         
         let lastError = null;
         
         for (const endpoint of apiEndpoints) {
           try {
-            const url = `${endpoint}?userId=${encodeURIComponent(userId)}`;
+            // Build query string with available identifiers
+            const params = new URLSearchParams();
+            if (userId) params.append('userId', userId);
+            if (email) params.append('email', email);
+            const url = `${endpoint}?${params.toString()}`;
             console.log('Syncing subscription from:', url);
             
             // Add timeout to fetch
@@ -294,12 +299,24 @@ async function initSubscriptionSync() {
             if (response.ok) {
               const data = await response.json();
               if (data.success && data.subscription) {
-                await chrome.storage.local.set({
+                // Update subscription
+                const storageData = {
                   enorett_subscription: {
                     ...data.subscription,
                     lastSynced: new Date().toISOString()
                   }
-                });
+                };
+                
+                // Update userId if backend returned a different one (correct one)
+                if (data.user && data.user.userId) {
+                  storageData.enorett_userId = data.user.userId;
+                  if (data.user.email) {
+                    storageData.enorett_userEmail = data.user.email;
+                  }
+                  console.log('✅ Updated userId to:', data.user.userId);
+                }
+                
+                await chrome.storage.local.set(storageData);
                 console.log('✅ Subscription synced successfully');
                 return; // Success, exit function
               } else {
@@ -379,11 +396,11 @@ async function handlePaymentSuccess(data) {
     
     // If sessionId is provided, fetch subscription details
     if (data.sessionId) {
-      // Try multiple endpoints
+      // Try multiple endpoints (prioritize www.enorett.se since api.enorett.se may not resolve)
       const endpoints = [
-        `https://api.enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}&userId=${encodeURIComponent(userId)}`,
         `https://www.enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}&userId=${encodeURIComponent(userId)}`,
-        `https://enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}&userId=${encodeURIComponent(userId)}`
+        `https://enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}&userId=${encodeURIComponent(userId)}`,
+        `https://api.enorett.se/api/subscription/status?sessionId=${encodeURIComponent(data.sessionId)}&userId=${encodeURIComponent(userId)}`
       ];
       
       let response = null;

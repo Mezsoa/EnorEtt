@@ -194,68 +194,76 @@ function detectByPattern(word) {
  * @returns {Promise<object>} API result
  */
 async function fetchFromAPI(word, isPro = false) {
-  // Try multiple API endpoints
+  // Try multiple API endpoints (prioritize www.enorett.se since api.enorett.se may not resolve)
   const apiEndpoints = [
-    'https://api.enorett.se/api/enorett',
     'https://www.enorett.se/api/enorett',
-    'https://enorett.se/api/enorett'
+    'https://enorett.se/api/enorett',
+    'https://api.enorett.se/api/enorett'
   ];
   
-  // Use first endpoint as default, but will try others if needed
-  const API_ENDPOINT = apiEndpoints[0];
-  
+  // Get user ID for Pro verification
+  let userId = null;
   try {
-    // Get user ID for Pro verification
-    let userId = null;
-    try {
-      const userData = await chrome.storage.local.get(['enorett_userId']);
-      userId = userData.enorett_userId;
-    } catch (error) {
-      console.warn('Could not get user ID:', error);
-    }
-    
-    const url = `${API_ENDPOINT}?word=${encodeURIComponent(word)}${isPro ? '&pro=true' : ''}${userId ? `&userId=${encodeURIComponent(userId)}` : ''}`;
-    
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-    
-    if (!response.ok) {
-      if (response.status === 403) {
-        return {
-          success: false,
-          error: "Pro-funktion krävs",
-          errorEn: "Pro feature required",
-          requiresPro: true
-        };
-      }
-      throw new Error(`API error: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    
-    return {
-      success: true,
-      word: data.word,
-      article: data.article,
-      translation: data.translation,
-      confidence: data.confidence || "high",
-      source: "api",
-      explanation: data.explanation,
-      examples: data.examples || [],
-      pronunciation: data.pronunciation || null
-    };
+    const userData = await chrome.storage.local.get(['enorett_userId']);
+    userId = userData.enorett_userId;
   } catch (error) {
-    return {
-      success: false,
-      error: "API-anrop misslyckades",
-      errorEn: "API call failed",
-      details: error.message
-    };
+    console.warn('Could not get user ID:', error);
   }
+  
+  let lastError = null;
+  
+  // Try each endpoint until one succeeds
+  for (const endpoint of apiEndpoints) {
+    try {
+      const url = `${endpoint}?word=${encodeURIComponent(word)}${isPro ? '&pro=true' : ''}${userId ? `&userId=${encodeURIComponent(userId)}` : ''}`;
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        if (response.status === 403) {
+          return {
+            success: false,
+            error: "Pro-funktion krävs",
+            errorEn: "Pro feature required",
+            requiresPro: true
+          };
+        }
+        lastError = new Error(`API error: ${response.status}`);
+        continue; // Try next endpoint
+      }
+      
+      const data = await response.json();
+      
+      return {
+        success: true,
+        word: data.word,
+        article: data.article,
+        translation: data.translation,
+        confidence: data.confidence || "high",
+        source: "api",
+        explanation: data.explanation,
+        examples: data.examples || [],
+        pronunciation: data.pronunciation || null
+      };
+    } catch (error) {
+      lastError = error;
+      // Try next endpoint
+      continue;
+    }
+  }
+  
+  // All endpoints failed
+  return {
+    success: false,
+    error: "API-anrop misslyckades",
+    errorEn: "API call failed",
+    details: lastError ? lastError.message : "All endpoints failed"
+  };
 }
 
 /**
