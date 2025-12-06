@@ -57,11 +57,5 @@
       "resources": ["icons/*.png"],
       "matches": ["<all_urls>"]
     }
-  ],
-  
-  "homepage_url": "https://www.enorett.se",
-  
-  "privacy_policy": "https://www.enorett.se/privacy",
-  
-  "offline_enabled": true
+  ]
 }
