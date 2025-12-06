@@ -45,7 +45,7 @@ async function isProUser() {
       email = auth.user.email;
     } else {
       // Fallback to old method
-      const userData = await chrome.storage.local.get(['enorett_userId', 'enorett_userEmail']);
+    const userData = await chrome.storage.local.get(['enorett_userId', 'enorett_userEmail']);
       userId = userData.enorett_userId;
       email = userData.enorett_userEmail;
     }

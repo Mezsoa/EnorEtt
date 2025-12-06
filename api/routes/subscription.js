@@ -118,7 +118,7 @@ router.get('/status', async (req, res) => {
         
         if (session.payment_status === 'paid' && session.mode === 'payment') {
           const sessionUserId = session.metadata?.userId;
-          
+    
           // Security: If userId header is provided, verify it matches session metadata
           if (userId && sessionUserId && userId !== sessionUserId) {
             return res.status(403).json({
