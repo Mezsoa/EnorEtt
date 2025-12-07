@@ -287,10 +287,14 @@ function displayResult(result) {
 function displaySuccessResult(result) {
   const { word, article, translation, confidence, source, explanation, warning, examples, pronunciation, audioUrl } = result;
   
+  const displayArticle = article || '—';
+  const articleClass = article ? article : 'unknown';
+  const safeConfidence = confidence || 'none';
+  
   const html = `
     <div class="result-main">
-      <div class="result-article ${article}">
-        ${article}
+      <div class="result-article ${articleClass}">
+        ${displayArticle}
       </div>
       <div class="result-word">
         ${word}
@@ -299,14 +303,14 @@ function displaySuccessResult(result) {
     </div>
     
     <div class="result-details">
-      ${confidence ? `
+      ${safeConfidence ? `
         <div class="result-info">
           <span class="result-info-icon">ℹ️</span>
           <div class="result-info-text">
-            ${explanation || `Detta är ett ${article}-ord`}
+            ${explanation || (article ? `Detta är ett ${article}-ord` : 'Ingen artikel hittades')}
             <br>
-            <span class="result-confidence ${confidence}">
-              ${getConfidenceLabel(confidence)}
+            <span class="result-confidence ${safeConfidence}">
+              ${getConfidenceLabel(safeConfidence)}
             </span>
           </div>
         </div>

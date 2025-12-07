@@ -382,15 +382,32 @@ router.get('/', async (req, res) => {
       }
 
       if (externalResult) {
+        const article = externalResult.article || null;
+        const translation = externalResult.translation || null;
+        const pronunciation = externalResult.pronunciation || pronunciationData?.pronunciation || null;
+        const audioUrl = externalResult.audioUrl || pronunciationData?.audioUrl || null;
+        const examples = externalResult.examples;
+
+        const hasContent = article || translation || (examples && examples.length > 0) || pronunciation || audioUrl;
+        if (!hasContent) {
+          // Treat as not found if nothing useful returned
+          return res.json({
+            success: false,
+            error: 'Word not found in dictionary',
+            errorSv: 'Ordet finns inte i ordboken',
+            requiresPro: false
+          });
+        }
+
         return res.json({
           success: true,
           word: externalResult.word,
-          article: externalResult.article,
-          translation: externalResult.translation,
-          pronunciation: externalResult.pronunciation || pronunciationData?.pronunciation || null,
-          audioUrl: externalResult.audioUrl || pronunciationData?.audioUrl || null,
-          examples: externalResult.examples,
-          confidence: externalResult.article ? 'medium' : 'low',
+          article,
+          translation,
+          pronunciation,
+          audioUrl,
+          examples,
+          confidence: article ? 'medium' : 'low',
           source: externalResult.source
         });
       }
