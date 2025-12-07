@@ -1,0 +1,1297 @@
+Lexicon inspector output of lex\15swe030124NST.pron
+
+
+CONTENTS OF LEXICON
+Words containing one transcription:	927167
+Words containing two transcriptions:	6213
+Words containing three transcriptions:	204
+Words containing four transcriptions:	51
+Sum automatically generated variants:	0
+Total number of transcriptions:	933635
+
+--------------------
+CONTENTS OF FIELD 1 - EXTENDED POS
+	1346
+AB	2716
+DT	24
+IN	249
+JJ	132271
+KN	56
+NN	586618
+PF	52983
+PM|group|COM	828
+PM|group|ORG	593
+PM|person|FIR	682
+PM|person|FIR|FEM	2595
+PM|person|FIR|MAS	3049
+PM|person|FIR|MAS-FEM	6
+PM|person|FIR|NEU	18
+PM|person|SUR	15858
+PM|place|CIT	937
+PM|place|COU	420
+PM|place|GEO	10535
+PM|place|STR	12128
+PM||UNS	2176
+PN	176
+PP	87
+PS	16350
+RG	1130
+VB	83336
+--------------------
+CONTENTS OF FIELD 2 - MORPHOLOGY
+	74449
+AKT-PAS|IMP	17
+AKT-PAS|PRT	3
+AKT|IMP	1843
+AKT|IMP-PRS	102
+AKT|IMP-PRT	12
+AKT|IMP-SUP	37
+AKT|INF	2260
+AKT|INF-IMP	6732
+AKT|PRS	8729
+AKT|PRS-SUP	3
+AKT|PRT	8260
+AKT|SUP	3720
+PAS|IMP	7069
+PAS|IMP-PRS	551
+PAS|INF	8710
+PAS|PRS	9924
+PAS|PRS-PRT	92
+PAS|PRT	7870
+PAS|SUP	2531
+PLU|DEF|GEN	1
+PLU|DEF|GEN|	147
+PLU|DEF|GEN|NEU	16341
+PLU|DEF|GEN|UTR	49510
+PLU|DEF|GEN|UTR-FEM	5
+PLU|DEF|GEN|UTR-MAS	2
+PLU|DEF|NOM	7
+PLU|DEF|NOM|	125
+PLU|DEF|NOM|FEM	12
+PLU|DEF|NOM|MAS	5
+PLU|DEF|NOM|NEU	16271
+PLU|DEF|NOM|UTR	49651
+PLU|DEF|NOM|UTR-FEM	15
+PLU|DEF|NOM|UTR-MAS	8
+PLU|DEF|NOM|UTR-NEU	15
+PLU|IND-DEF|GEN|NEU	10
+PLU|IND-DEF|GEN|UTR	16
+PLU|IND-DEF|NOM|NEU	25
+PLU|IND-DEF|NOM|UTR	17
+PLU|IND|GEN|	149
+PLU|IND|GEN|FEM	1
+PLU|IND|GEN|NEU	5514
+PLU|IND|GEN|UTR	45785
+PLU|IND|GEN|UTR-MAS	1
+PLU|IND|NOM	90
+PLU|IND|NOM-GEN|NEU	129
+PLU|IND|NOM-GEN|UTR	7
+PLU|IND|NOM|	12
+PLU|IND|NOM|FEM	12
+PLU|IND|NOM|MAS	7
+PLU|IND|NOM|NEU	5491
+PLU|IND|NOM|UTR	45650
+PLU|IND|NOM|UTR-FEM	24
+PLU|IND|NOM|UTR-MAS	14
+PLU|IND|NOM|UTR-NEU	13
+SIN-PLU|DEF|GEN|UTR-NEU|SUV	4230
+SIN-PLU|DEF|NOM|MAS	1
+SIN-PLU|DEF|NOM|NEU	1
+SIN-PLU|DEF|NOM|UTR	4
+SIN-PLU|DEF|NOM|UTR-NEU	236
+SIN-PLU|DEF|NOM|UTR-NEU|SUV	3989
+SIN-PLU|IND-DEF|GEN|NEU	1
+SIN-PLU|IND-DEF|GEN|UTR-NEU	8435
+SIN-PLU|IND-DEF|GEN|UTR-NEU|KOM	4228
+SIN-PLU|IND-DEF|GEN|UTR-NEU|POS	11277
+SIN-PLU|IND-DEF|NOM-GEN|UTR-NEU	3
+SIN-PLU|IND-DEF|NOM|NEU	21
+SIN-PLU|IND-DEF|NOM|UTR	8490
+SIN-PLU|IND-DEF|NOM|UTR-FEM	1
+SIN-PLU|IND-DEF|NOM|UTR-NEU	5211
+SIN-PLU|IND-DEF|NOM|UTR-NEU|KOM	3811
+SIN-PLU|IND-DEF|NOM|UTR-NEU|POS	7885
+SIN-PLU|IND|GEN|NEU	388
+SIN-PLU|IND|GEN|UTR	107
+SIN-PLU|IND|GEN|UTR-NEU|SUV	4230
+SIN-PLU|IND|NOM|NEU	10958
+SIN-PLU|IND|NOM|UTR	3899
+SIN-PLU|IND|NOM|UTR-NEU	91
+SIN-PLU|IND|NOM|UTR-NEU|SUV	4136
+SIN|DEF|GEN|	1
+SIN|DEF|GEN|FEM	6
+SIN|DEF|GEN|MAS	7806
+SIN|DEF|GEN|MAS|POS	12597
+SIN|DEF|GEN|NEU	18719
+SIN|DEF|GEN|UTR	58427
+SIN|DEF|GEN|UTR-FEM	7
+SIN|DEF|GEN|UTR-MAS	14
+SIN|DEF|GEN|UTR-NEU	21
+SIN|DEF|NOM|	1
+SIN|DEF|NOM|FEM	28
+SIN|DEF|NOM|MAS	8234
+SIN|DEF|NOM|MAS|POS	12100
+SIN|DEF|NOM|MAS|SUV	2
+SIN|DEF|NOM|NEU	18755
+SIN|DEF|NOM|NEU-MAS	2
+SIN|DEF|NOM|UTR	58446
+SIN|DEF|NOM|UTR-FEM	40
+SIN|DEF|NOM|UTR-MAS	213
+SIN|DEF|NOM|UTR-NEU	34
+SIN|DEF|NOM|UTR-NEU-MAS	1
+SIN|DEF||UTR-NEU	5
+SIN|DEF||UTR-NEU|SUV	1
+SIN|IND-DEF|GEN|UTR	3
+SIN|IND-DEF|NOM|NEU	19
+SIN|IND-DEF|NOM|UTR	63
+SIN|IND|GEN	1
+SIN|IND|GEN|	237
+SIN|IND|GEN|FEM	6
+SIN|IND|GEN|MAS	4
+SIN|IND|GEN|NEU	19650
+SIN|IND|GEN|NEU|POS	11778
+SIN|IND|GEN|UTR	62565
+SIN|IND|GEN|UTR-FEM	4
+SIN|IND|GEN|UTR-MAS	1
+SIN|IND|GEN|UTR-NEU	219
+SIN|IND|GEN|UTR|POS	11478
+SIN|IND|NOM	64
+SIN|IND|NOM-GEN	1
+SIN|IND|NOM-GEN|NEU	135
+SIN|IND|NOM-GEN|UTR	2647
+SIN|IND|NOM-GEN|UTR|POS	393
+SIN|IND|NOM|	366
+SIN|IND|NOM|FEM	40
+SIN|IND|NOM|MAS	16
+SIN|IND|NOM|NEU	13538
+SIN|IND|NOM|NEU|POS	8654
+SIN|IND|NOM|UTR	62335
+SIN|IND|NOM|UTR-FEM	69
+SIN|IND|NOM|UTR-MAS	23
+SIN|IND|NOM|UTR-NEU	439
+SIN|IND|NOM|UTR-NEU|POS	812
+SIN|IND|NOM|UTR|POS	7476
+||	1
+||GEN	720
+||GEN|	11721
+||GEN|FEM	567
+||GEN|MAS	583
+||GEN|NEU	3
+||GEN|UTR	5
+||NOM	3902
+||NOM-GEN	276
+||NOM-GEN|FEM	13
+||NOM-GEN|MAS	83
+||NOM|	8345
+||NOM|FEM	557
+||NOM|MAS	588
+||NOM|NEU	11
+||NOM|UTR	34
+|||FEM	54
+|||MAS	98
+|||NEU	14038
+|||UTR	22654
+|||UTR-FEM	114
+|||UTR-MAS	66
+|||UTR-NEU	4609
+--------------------
+CONTENTS OF FIELD 4 - DECPOS
+	840190
+AB	1587
+AB+AB	84
+AB+AB+AB	2
+AB+AB+AB+AB	1
+AB+AB+JJ	4
+AB+AB+LN+NN	2
+AB+AB+NN	15
+AB+AB+PP	1
+AB+AB+VB	22
+AB+IN	2
+AB+JJ	770
+AB+JJ+LN+JJ	1
+AB+JJ+LN+NN	5
+AB+JJ+NN	5
+AB+KN	3
+AB+LN+NN	10
+AB+NN	1097
+AB+NN+AB	1
+AB+NN+AB+NN	1
+AB+NN+JJ	7
+AB+NN+LN+AB	2
+AB+NN+LN+AB+NN	7
+AB+NN+LN+DL+NN	1
+AB+NN+LN+JJ	31
+AB+NN+LN+NN	135
+AB+NN+LN+NN+LN+NN	1
+AB+NN+NN	32
+AB+NN+VB	8
+AB+PM	8
+AB+PM+NN+LN+JJ	1
+AB+PN	3
+AB+PP	12
+AB+PP+JJ	1
+AB+PP+NN	2
+AB+VB	1613
+AB+VB+JJ	3
+AB+VB+LN+NN	3
+AB+VB+NN	2
+DT	22
+DT+LN+NN	1
+DT+NN+LN+NN	6
+DT+PN	2
+IN	146
+IN+AB	4
+IN+DL+NN	3
+IN+IN	3
+IN+KN	1
+IN+NN	2
+JJ	13990
+JJ+AB	16
+JJ+AB+AB	1
+JJ+AB+JJ	5
+JJ+AB+NN	6
+JJ+AB+VB	1
+JJ+DL+JJ	4
+JJ+DL+NN	6
+JJ+DL+NN+NN	2
+JJ+DL+PM	2
+JJ+JJ	323
+JJ+JJ+JJ	1
+JJ+JJ+NN	2
+JJ+LN+JJ	7
+JJ+LN+NN	10
+JJ+LN+NN+LN+NN	1
+JJ+NN	844
+JJ+NN+AB+NN	1
+JJ+NN+JJ	2
+JJ+NN+LN+AB+JJ	1
+JJ+NN+LN+AB+NN	2
+JJ+NN+LN+DL	1
+JJ+NN+LN+JJ	7
+JJ+NN+LN+NN	141
+JJ+NN+LN+NN+LN+NN+LN+NN	1
+JJ+NN+LN+NN+NN	1
+JJ+NN+NN	41
+JJ+NN+NN+DL+NN	1
+JJ+NN+NN+LN+NN	1
+JJ+PM	3
+JJ+PP+JJ	1
+JJ+PP+NN	2
+JJ+VB	140
+KN	42
+KN+AB	1
+NN	28732
+NN+AB	29
+NN+AB+JJ	5
+NN+AB+NN	54
+NN+AB+NN+LN+NN	1
+NN+AB+VB	8
+NN+DL	3
+NN+DL+AB+NN	1
+NN+DL+JJ	5
+NN+DL+JJ+LN+NN	1
+NN+DL+JJ+NN	4
+NN+DL+NN	146
+NN+DL+NN+DL+NN	1
+NN+DL+NN+LN+NN	1
+NN+DL+NN+NN	4
+NN+DL+PM	4
+NN+JJ	546
+NN+JJ+LN+NN	1
+NN+JJ+NN	20
+NN+LN+AB	13
+NN+LN+AB+JJ	3
+NN+LN+AB+NN	31
+NN+LN+AB+PM	1
+NN+LN+AB+VB	1
+NN+LN+JJ	211
+NN+LN+JJ+JJ	1
+NN+LN+JJ+NN	7
+NN+LN+NN	2684
+NN+LN+NN+JJ	1
+NN+LN+NN+LN+AB+NN	2
+NN+LN+NN+LN+JJ	4
+NN+LN+NN+LN+JJ+NN	1
+NN+LN+NN+LN+NN	151
+NN+LN+NN+LN+NN+NN	2
+NN+LN+NN+NN	68
+NN+LN+PP+NN	16
+NN+LN+VB	23
+NN+LN+VB+NN	2
+NN+LN+VB+NN+LN+NN	1
+NN+NN	6122
+NN+NN+AB+NN	2
+NN+NN+DL+NN	1
+NN+NN+JJ	3
+NN+NN+LN	4
+NN+NN+LN+AB+NN	6
+NN+NN+LN+DL	1
+NN+NN+LN+DL+NN	1
+NN+NN+LN+JJ	5
+NN+NN+LN+NN	344
+NN+NN+LN+NN+LN+JJ	1
+NN+NN+LN+NN+LN+NN	5
+NN+NN+LN+NN+NN	1
+NN+NN+LN+PP	1
+NN+NN+NN	160
+NN+NN+NN+LN+NN	1
+NN+NN+PM	1
+NN+NN+VB	1
+NN+PM	17
+NN+PN	1
+NN+PP+NN	9
+NN+RG	1
+NN+VB	144
+NN+VB+NN	1
+PM	10516
+PM+DL+AB+NN	1
+PM+DL+JJ+NN	1
+PM+DL+NN	104
+PM+DL+NN+LN+NN	1
+PM+DL+NN+NN	1
+PM+DL+PM	2
+PM+NN	3
+PN	137
+PN+AB	2
+PN+JJ	20
+PN+LN+JJ	1
+PN+LN+NN+LN+NN	1
+PN+NN	37
+PN+NN+LN+NN	10
+PN+NN+NN	1
+PN+PN	2
+PN+PP+JJ	1
+PN+RG+NN	1
+PN+VB	2
+PP	53
+PP+AB	6
+PP+AB+NN	1
+PP+JJ	20
+PP+NN	82
+PP+NN+JJ	4
+PP+NN+LN+AB	1
+PP+NN+LN+JJ	5
+PP+NN+LN+NN	10
+PP+NN+LN+VB	2
+PP+NN+NN	7
+PP+NN+VB	7
+PP+PM	1
+PP+PP	7
+PP+VB	71
+PP+VB+JJ	1
+RG	74
+RG+JJ	11
+RG+NN	84
+RG+NN+LN+NN	28
+RG+NN+NN	7
+RG+RG	19
+RG+RG+JJ	1
+RG+RG+NN	2
+RG+RG+RG	1
+RG+VB	2
+VB	14283
+VB+AB	3
+VB+AB+JJ	1
+VB+DL+AB	1
+VB+DL+PP+DL+NN	1
+VB+JJ	22
+VB+JJ+LN+NN	1
+VB+LN+JJ	3
+VB+LN+NN	47
+VB+LN+NN+LN+NN	9
+VB+LN+NN+NN	6
+VB+NN	277
+VB+NN+LN+AB+NN	1
+VB+NN+LN+JJ	2
+VB+NN+LN+NN	42
+VB+NN+LN+NN+LN+NN	3
+VB+NN+LN+NN+NN	1
+VB+NN+NN	3
+VB+VB	12
+VB+VB+NN	1
+--------------------
+CONTENTS OF FIELD 5 - SOURCE
+INFL	677266
+LEX	116078
+LEX|INFL	133823
+--------------------
+CONTENTS OF FIELD 6 - LANGUAGE CODE ORTHOGRAPHY
+ENG	592
+FIN	547
+FOR	71
+FRE	63
+GER	28
+ITA	2
+LAT	2
+NOR	2
+RUS	3
+SFI	51
+SWE	925806
+--------------------
+CONTENTS OF FIELD 7 - GARBAGE
+	925188
+GARB	1979
+--------------------
+CONTENTS OF FIELD 8 - DOMAIN
+	926715
+1	452
+--------------------
+CONTENTS OF FIELD 9 - ABBR/ACR
+	926615
+ABBR	100
+ACR	452
+--------------------
+CONTENTS OF FIELD 12 - CERTAINTY TRANS 1
+0	678598
+1	247411
+2	1158
+--------------------
+CONTENTS OF FIELD 13 - STATUS TRANS 1
+STD	927167
+--------------------
+CONTENTS OF FIELD 14 - LANGUAGE CODE TRANS 1
+ENG	116
+FIN	3
+FOR	15
+FRE	9
+GER	9
+LAT	1
+SPA	1
+SWE	927013
+--------------------
+CONTENTS OF FIELD 16 - CERTAINTY TRANS 2
+	920954
+1	6213
+--------------------
+CONTENTS OF FIELD 17 - STATUS TRANS 2
+	920954
+STD	6213
+--------------------
+CONTENTS OF FIELD 18 - LANGUAGE CODE TRANS 2
+	920954
+ENG	479
+FIN	514
+FOR	56
+FRE	43
+GER	34
+ITA	1
+NOR	7
+SPA	5
+SWE	5074
+--------------------
+CONTENTS OF FIELD 20 - CERTAINTY TRANS 3
+	926963
+1	204
+--------------------
+CONTENTS OF FIELD 21 - STATUS TRANS 3
+	926963
+STD	204
+--------------------
+CONTENTS OF FIELD 22 - LANGUAGE CODE TRANS 3
+	926963
+DAN	2
+ENG	11
+FIN	1
+FOR	1
+FRE	5
+GER	5
+SPA	1
+SWE	178
+--------------------
+CONTENTS OF FIELD 24 - CERTAINTY TRANS 4
+	927116
+1	51
+--------------------
+CONTENTS OF FIELD 25 - STATUS TRANS 4
+	927116
+STD	51
+--------------------
+CONTENTS OF FIELD 26 - LANGUAGE CODE TRANS 4
+	927116
+FRE	1
+NOR	1
+SPA	1
+SWE	48
+--------------------
+CONTENTS OF FIELD 29 - SET NAME
+asrtest_se	566
+asrtest_se|asrtraining_se|inflector	1
+asrtest_se|inflector	171
+asrtraining_se	294
+asrtraining_se|inflector	228
+asrtraining_se|inflector|spd_se	1
+dictatest_se	1477
+dictatest_se|enter_se|inflector	2
+dictatest_se|inflector	1222
+dictatraining_se	18919
+dictatraining_se|enter_se	5
+dictatraining_se|enter_se|inflector	73
+dictatraining_se|inflector	14784
+dictatraining_se|inflector|spd_se	23
+dictatraining_se|spd_se	7
+enter_se	19622
+enter_se|finnsws_se	1
+enter_se|finnsws_se|inflector	31
+enter_se|inflector	63228
+enter_se|inflector|spd_se	10
+enter_se|inflector|spdnew_se	2
+enter_se|spd_se	3
+enter_se|spdnew_se	1
+finnsws_se	1985
+finnsws_se|inflector	359
+finnsws_se|inflector|spd_se	19
+finnsws_se|spd_se	4
+guru_dict	1020
+guru_dict|inflector	1381
+inflector	677266
+inflector|lacking_se_17may	3
+inflector|spd_se	13709
+inflector|spd_se|spdnew_se	1
+inflector|spdnew_se	1830
+inflector|telia_personnames_se	440
+inflector|telia_placenames_se	106
+inflector|teliabaseforms_se	66863
+lacking_se_17may	5
+spd_se	5668
+spd_se|spdnew_se	1
+spdnew_se	1797
+telia_personnames_se	12018
+telia_placenames_se	16298
+teliabaseforms_se	5723
+--------------------
+CONTENTS OF FIELD 30 - STYLE/STATUS
+	927167
+--------------------
+CONTENTS OF FIELD 31 - INFLECTOR ROLE
+	85414
+INFLECTED	841753
+--------------------
+CONTENTS OF FIELD 33 - INFLECTION RULE
+	85414
+3v-ombordanställd	3414
+3v-ombordanställd|a3q-fjäderlätt	2
+a0a-ande/ende	1998
+a1a-vacker	1075
+a1b-ädel	622
+a1c-ljummen	27
+a1d-ilsken	3459
+a1e,f-lätt,kavat	3099
+a1e,f-lätt,kavat|a2b-blöt	1
+a1e,f-lätt,kavat|a2d-röd	1
+a1e,f-lätt,kavat|a3q-fjäderlätt	4
+a1g-tunn	292
+a1h-frigid	44
+a1i-brydd	67
+a1i-endast fadd	12
+a1j-blond	910
+a1j-störd	317
+a1m-aktsam, dum	1786
+a1n-allmän	14
+a1o-vig,avig,trygg	26152
+a1o-vig,avig,trygg|a3c-olovlig	7
+a1q-övrigt	12383
+a1q-övrigt|a3q-fjäderlätt	1
+a1q-övrigt|a3u-övriga ord	21
+a1r-s/x	3172
+a1r-s/x|a3-s/x	6
+a1s-endast såt	11
+a1s-torr	140
+a24f-god	82
+a2a-fri	2501
+a2a-fri|a3g-ansedd	2
+a2b-blöt	953
+a2b-blöt|a2d-röd	2
+a2b-blöt|a3q-fjäderlätt	1
+a2c-rädd	84
+a2d-röd	1286
+a2d-röd|a3g-ansedd	2
+a3-s/x	1343
+a3b-disträ	12
+a3c-olovlig	8690
+a3g-ansedd	1454
+a3h-hybrid	168
+a3i-aktad	12095
+a3k-avgjord	1051
+a3l-brunnen	176
+a3m-kommen	116
+a3n-svulten	4134
+a3q-fjäderlätt	3908
+a3r-jättevacker	88
+a3s-femdubbel	581
+a3t-halvgammal	120
+a3u-övriga ord	25993
+a3v-aktsam, dum	248
+a3x-torr	8
+a3z-beige	32
+a4a-arbetsfri	32
+a4b-benvit	40
+a4d-död	95
+a4e-skyhög	88
+a4f-god	47
+a6a-lång,trång	16
+a6b-ung,tung	16
+a6c-gammal	8
+a6e-låg	7
+a_ob	9
+s0a-s-slut, genitiv	547
+s0a-s-slut, genitiv|s0c-övriga	5
+s0b-rs/rts-slut, genitiv	150
+s0c-sch-slut, genitiv	2
+s0c-övriga	10725
+s10a-kärande	515
+s10a-kärande|s6c-ansikte	12
+s10a-kärande|s8m-kaffe,lapri	20
+s10b-bagare	24165
+s10b-bagare|s1d-övriga, t.ex. vad	2
+s10b-bagare|s2b-båge	23
+s10b-bagare|s2e-nagel	3
+s10b-bagare|s2f-öken	1
+s10b-bagare|s2g-dager	2
+s10b-bagare|s2l-sjukdom	2
+s10b-bagare|s2n-kam	4
+s10b-bagare|s2q-lapp	48
+s10b-bagare|s2r-s-slut	4
+s10b-bagare|s9i-tro	2
+s10c-kritiker	3170
+s10c-kritiker|s2g-dager	60
+s10c-kritiker|s3b-dekor,skalär	4
+s10c-kritiker|s3m-ven	7
+s10c-kritiker|s3t-s-slut	4
+s10c-kritiker|s3u-bild,dam	19
+s10c-kritiker|s7d-fönster	4
+s10d-övrigt	150
+s10d-övrigt|s3u-bild,dam	4
+s10d-övrigt|s6c-ansikte	2
+s10d-övrigt|s7o-s-slut	2
+s110-center	7
+s110-center|s110-spektrum	8
+s110-center|s7d-fönster	2
+s110-fröken	14
+s110-hinder	12
+s110-hinder|s7d-fönster	10
+s110-lexikon	51
+s110-lexikon|s110-spektrum	2
+s110-lexikon|s7n-övriga ex träd	11
+s110-papper	252
+s110-papper|s7d-fönster	190
+s110-spektrum	401
+s110-spektrum|s4e-studium	20
+s110-spektrum|s7j2-serum	44
+s110-spektrum|s8a-natrium	2
+s110-spektrum|s8b-minimum	2
+s110-tema	24
+s110-tema|s6f-allegretto	7
+s110j, a->ä, land	444
+s110j, a->ä, land|s7n-övriga ex träd	4
+s110j, a->ä, land|s8r-övriga ex plock	3
+s110last, slask	28
+s110last, slask|s7n-övriga ex träd	4
+s110s, öra,öga	328
+s111-afton	40
+s111-bekant	16
+s111-deputerad	14
+s111-examen	364
+s111-examen|s2f-öken	46
+s111-himmel	15
+s111-himmel|s2d-lämmel	5
+s111-kammare	93
+s111-kammare|s2b-båge	3
+s111-officer	225
+s111-predikan	73
+s111-predikan|s2q-lapp	1
+s111a, o->ö, bok	1171
+s111a, o->ö, bok|s2q-lapp	4
+s111b, o->ö, bror	279
+s111c, o->ö, mor	137
+s111c, o->ö, mor|s3b-dekor,skalär	2
+s111d, o->ö, fot	492
+s111d, o->ö, fot|s9v-övrigt	3
+s111e, o->ö, dotter	120
+s111f, o->ö, son	160
+s111g, o->ö, ledamot	184
+s111h, å->ä, stång	433
+s111h, å->ä, stång|s2q-lapp	3
+s111h, å->ä, stång|s9v-övrigt	2
+s111i, å->ä, gås	71
+s111j, a->ä, and,land,strand	571
+s111j, a->ä, and,land,strand|s9v-övrigt	3
+s111k, a->ä, far	208
+s111k, a->ä, far|s7e-fanér,kvarter	2
+s111l, a->ä, natt	208
+s111m, a->ä bokstav	72
+s111n, a->ä, stad	741
+s111o, a->ä, spann	16
+s111o, a->ä, spann|s2q-lapp	2
+s111p, a->ä, man	2016
+s111p, a->ä, man|s2k-mun	4
+s111q, u->ö, lus,mus	188
+s111r, o->ö, bonde	112
+s111r,o->ö, bot	40
+s111t, nöt,get	143
+s111t, nöt,get|s7n-övriga ex träd	2
+s111övriga	296
+s1a-flicka	51966
+s1a-flicka|s1b-toffel	2
+s1a-flicka|s1c-ro	1
+s1a-flicka|s1e-mullah	1
+s1a-flicka|s20a -er/-or/-ar	1
+s1a-flicka|s3l1-kollega	6
+s1a-flicka|s3l3-a-slut	4
+s1a-flicka|s4f-drama	1
+s1a-flicka|s5e-sko	35
+s1a-flicka|s6f-allegretto	4
+s1a-flicka|s8m-kaffe,lapri	3
+s1a-flicka|s9i-tro	283
+s1b-toffel	28
+s1c-ros	195
+s1c-ros|s2r-s-slut	2
+s1c-ro|s9x-s-slut	2
+s1d-övriga, t.ex. vad	442
+s1d-övriga, t.ex. vad|s2q-lapp	8
+s1d-övriga, t.ex. vad|s9v-övrigt	3
+s1e-mullah	7
+s2-rs/rts-slut|s8	4
+s2-sjö	40
+s2-toker	7
+s2-toker|s2q-lapp	1
+s20a -er/-or/-ar	580
+s20a -er/-or/-ar|s2q-lapp	1
+s20a -er/-or/-ar|s3m-ven	1
+s20a -er/-or/-ar|s3u-bild,dam	1
+s20a -er/-or/-ar|s4e-studium	1
+s20a -er/-or/-ar|s7c-bekymmer	2
+s20a -er/-or/-ar|s7d-fönster	2
+s2a-choke	72
+s2a-choke|s2q-lapp	2
+s2a-choke|s3u-bild,dam	1
+s2a2-beagle	24
+s2b-båge	9030
+s2b-båge|s2e-nagel	3
+s2b-båge|s2q-lapp	33
+s2b-båge|s2r-s-slut	4
+s2b-båge|s5e-sko	8
+s2b-båge|s8m-kaffe,lapri	1
+s2b-båge|s9i-tro	8
+s2c-hummer	40
+s2d-lämmel	160
+s2d-lämmel|s7f-kummel	1
+s2e-jävul,jävel	22
+s2e-jävul,jävel|s2e-nagel	2
+s2e-nagel	5844
+s2e-nagel|s3i-muskel	6
+s2e-nagel|s7g-kapitel	2
+s2e-nagel|s8g-babbel	3
+s2e-nagel|s9l-gödsel	5
+s2f-öken	328
+s2g-dager	4395
+s2g-dager|s3k-fiber	17
+s2g-dager|s4d-center	1
+s2g-dager|s7d-fönster	20
+s2g-dager|s8e-bladder	1
+s2g-dager|s9u-liter,radar	6
+s2i-sky	804
+s2i-sky|s2r-s-slut	1
+s2i-sky|s3s-kö	3
+s2i-sky|s3t-s-slut	1
+s2i-sky|s5e-sko	9
+s2i-sky|s8s-s-slut	1
+s2i-sky|s9i-tro	4
+s2k-mun	52
+s2l-sjukdom	898
+s2n-kam	1316
+s2n-kam|s2r-s-slut	1
+s2n-kam|s3p-parallellogram	1
+s2n-kam|s7j1-rum	2
+s2n-kam|s8c-beröm	1
+s2n-kam|s9k-rom	2
+s2o-sommar	72
+s2p-caterpillar	7
+s2q-lapp	114443
+s2q-lapp|s3b-dekor,skalär	3
+s2q-lapp|s3m-ven	2
+s2q-lapp|s3u-bild,dam	94
+s2q-lapp|s5e-sko	2
+s2q-lapp|s6b-ankare	2
+s2q-lapp|s7e-fanér,kvarter	4
+s2q-lapp|s7n-övriga ex träd	102
+s2q-lapp|s8r-övriga ex plock	44
+s2q-lapp|s9v-övrigt	126
+s2q-morgon	135
+s2r-s-slut	5597
+s2r-s-slut|s3t-s-slut	54
+s2r-s-slut|s7o-s-slut	8
+s2r-s-slut|s8r-övriga ex plock	1
+s2r-s-slut|s8s-s-slut	13
+s2r-s-slut|s9x-s-slut	23
+s2r2-rs/rts-slut	122
+s2r2-rs/rts-slut|s3t2-rs/rts-slut	7
+s3-sägen	24
+s3a-ensamble,genre	16
+s3b-dekor,skalär	9877
+s3b-dekor,skalär|s7e-fanér,kvarter	10
+s3b-dekor,skalär|s9v-övrigt	17
+s3d-doktor	2689
+s3d-doktor|s9u-liter,radar	3
+s3f-konsul	32
+s3i-muskel	1235
+s3i-muskel|s9l-gödsel	2
+s3j-kansler	48
+s3k-fiber	271
+s3k-fiber|s4d-center	1
+s3k-fiber|s7d-fönster	2
+s3k-fiber|s9u-liter,radar	1
+s3l1-kollega	71
+s3l2-historia	71
+s3l2-historia|s9i-tro	1
+s3l3-a-slut	81
+s3l3-a-slut|s9i-tro	1
+s3m-ven	19715
+s3m-ven|s4g-övriga(fett,bageri)	24
+s3m-ven|s7n-övriga ex träd	10
+s3m-ven|s8r-övriga ex plock	4
+s3m-ven|s9v-övrigt	26
+s3p-parallellogram	55
+s3p-pilgrim	8
+s3q-geranium	18
+s3q-geranium|s4e-studium	5
+s3s-kö	7096
+s3s-kös3t-s-slut	3
+s3s-kö|s4g-övriga(fett,bageri)	9
+s3s-kö|s5e-sko	23
+s3s-kö|s9i-tro	16
+s3t-s-slut	11088
+s3t-s-slut|s4g-övriga(fett,bageri)	1
+s3t-s-slut|s4i-s-slut	4
+s3t-s-slut|s7o-s-slut	11
+s3t-s-slut|s8r-övriga ex plock	1
+s3t-s-slut|s9i-tro	1
+s3t-s-slut|s9x-s-slut	27
+s3t2-rs/rts-slut	1068
+s3t2-rs/rts-slut|s4j-rs/rts-slut	2
+s3u-bild,dam	94066
+s3u-bild,dam|s4g-övriga(fett,bageri)	21
+s3u-bild,dam|s5b-offside,cape	7
+s3u-bild,dam|s5e-sko	4
+s3u-bild,dam|s7n-övriga ex träd	86
+s3u-bild,dam|s8r-övriga ex plock	8
+s3u-bild,dam|s9v-övrigt	130
+s3v-sven	287
+s3x-dekanus,amaryllis	36
+s4b-gage	4
+s4b-gage|s7a-garage	4
+s4c-fängelse	68
+s4c-fängelse|s6c-ansikte	2
+s4d-center	28
+s4d-sekel	20
+s4d-sekel|s7g-kapitel	12
+s4e-studium	1966
+s4e-studium|s5e-sko	6
+s4e-studium|s7d-fönster	2
+s4e-studium|s7j2-serum	8
+s4e-studium|s8a-natrium	2
+s4e-studium|s8e-bladder	1
+s4f-drama	203
+s4g-övriga(fett,bageri)	5003
+s4g-övriga(fett,bageri)|s6a-bi,knä	3
+s4g-övriga(fett,bageri)|s6f-allegretto	1
+s4g-övriga(fett,bageri)|s7e-fanér,kvarter	2
+s4g-övriga(fett,bageri)|s7n-övriga ex träd	162
+s4g-övriga(fett,bageri)|s8r-övriga ex plock	18
+s4g-övriga(fett,bageri)|s9i-tro	1
+s4g-övriga(fett,bageri)|s9v-övrigt	2
+s4h-lim	13
+s4h-lim|s7j1-rum	3
+s4i-s-slut	568
+s4i-s-slut|s7o-s-slut	239
+s4i-s-slut|s8s-s-slut	10
+s4i-s-slut|s9x-s-slut	1
+s4j-rs/rts-slut 	38
+s5a-ensamble	64
+s5b-offside,cape	549
+s5b-offside,cape|s7a-garage	2
+s5c-pose,	156
+s5e-sko	9494
+s5e-sko|s6a-bi,knä	4
+s5e-sko|s6c-ansikte	1
+s5e-sko|s6f-allegretto	3
+s5e-sko|s7e-fanér,kvarter	2
+s5e-sko|s9i-tro	5
+s6a-bi,knä	772
+s6a-bi,knä|s7n-övriga ex träd	16
+s6a-bi,knä|s7o-s-slut	1
+s6a-bi,knä|s8r-övriga ex plock	2
+s6b-ankare	46
+s6b-ankare|s7-altare	15
+s6c-ansikte	20903
+s6c-ansikte|s6c-ansikte|s7n-övriga ex träd	2
+s6c-ansikte|s7n-övriga ex träd	2
+s6c-ansikte|s8m-kaffe,lapri	14
+s6d-eremitage	24
+s6e-övriga	194
+s6e-övriga|s7n-övriga ex träd	90
+s6f-allegretto	1843
+s6f-allegretto|s9i-tro	5
+s7-altare	47
+s7a-garage	356
+s7c-bekymmer	678
+s7d-fönster	3704
+s7d-fönster|s8e-bladder	6
+s7e-fanér,kvarter	5378
+s7e-fanér,kvarter|s9v-övrigt	2
+s7f-kummel	63
+s7f-kummel|s8f-tummel	3
+s7g-kapitel	1927
+s7g-kapitel|s8g-babbel	5
+s7g-kapitel|s9l-gödsel	2
+s7j1-rum	2616
+s7j1-rum|s8c-beröm	5
+s7j1-rum|s9k-rom	2
+s7j2-serum	670
+s7k-ton	35
+s7l-bäcken	15
+s7m-vatten	1167
+s7m-vatten|s8h-ssg med vatten	5
+s7m-vatten|s9m-fräken	2
+s7n-övriga ex träd	63059
+s7n-övriga ex träd|s7o-s-slut	4
+s7n-övriga ex träd|s8m-kaffe,lapri	2
+s7n-övriga ex träd|s8q-avantgarde	2
+s7n-övriga ex träd|s8r-övriga ex plock	68
+s7n-övriga ex träd|s8s-s-slut	1
+s7n-övriga ex träd|s9v-övrigt	49
+s7o-s-slut	7211
+s7o-s-slut|s8s-s-slut	14
+s7o-s-slut|s9x-s-slut	13
+s7o2-rs/rts-slut	180
+s8a-natrium	307
+s8a-natrium|s9v-övrigt	3
+s8c-beröm	76
+s8c-beröm|s9k-rom	2
+s8d-flimmer	22
+s8d-flimmer|s9u-liter,radar	1
+s8e-bladder	444
+s8e-bladder|s9u-liter,radar	2
+s8f-tummel	44
+s8g-babbel	267
+s8g-babbel|s9l-gödsel	4
+s8h-ssg med vatten	196
+s8m-kaffe,lapri	2058
+s8m-kaffe,lapri|s9i-tro	22
+s8p-bagage	65
+s8p-bagage|s9b2-bagage	1
+s8p3-debacle	2
+s8p3-debacle|s9b3-debacle	1
+s8q-avantgarde	6
+s8r-övriga ex plock	4861
+s8r-övriga ex plock|s9i-tro	2
+s8r-övriga ex plock|s9m-fräken	2
+s8r-övriga ex plock|s9v-övrigt	124
+s8s-s-slut	535
+s8s-s-slut|s9x-s-slut	25
+s9-snö	32
+s9b-service	124
+s9b2-bagage	19
+s9b3-debacle	3
+s9c-ampere	93
+s9c-ampere|s9v-övrigt	1
+s9i-tro	6369
+s9i-tro|s9v-övrigt	1
+s9j-judendom	108
+s9k-rom	84
+s9l-gödsel	683
+s9m-fräken	14
+s9u-liter,radar	806
+s9v-övrigt	25517
+s9x-rs/rts-slut	52
+s9x-s-slut	1719
+v1a-bada,fira,glesna-sformer	113433
+v1a-bada,fira,glesna-sformer|v2b-föda,lyda	4
+v1a-bada,fira,glesna-sformer|v2k-föra,mala,lära,tåla	12
+v1a-bada,fira,glesna-sformer|v2n-kräva	2
+v1a-bada,fira,glesna-sformer|v2q-övriga	8
+v1a-bada,fira,glesna-sformer|v3-resten	9
+v1a-bada,fira,glesna-sformer|v3a-byta	4
+v1a-bada,fira,glesna-sformer|v3b-lyfta	11
+v1a-bada,fira,glesna-sformer|v3g-blåsa-s-slut	6
+v1a-bada,fira,glesna-sformer|v3h-stänka	2
+v1a-bada,fira,glesna-sformer|v57a1,i->a->u,tvinga	18
+v1a-bada,fira,glesna-sformer|v57a2,i->a->u,bringa	29
+v1a-bada,fira,glesna-sformer|v57a61,i->a->u,simma	7
+v1a-bada,fira,glesna-sformer|v57a7a,i->a->u,sticka, mfl	3
+v1a-bada,fira,glesna-sformer|v58a1-i->e,skriva,bita	11
+v1a-bada,fira,glesna-sformer|v58b2-u->ö, bjuda,ljuga	6
+v1a-bada,fira,glesna-sformer|v58c1-a->o,fara	2
+v1b-andas	1044
+v2a-tända,bända	647
+v2b-föda,lyda	1535
+v2b-föda,lyda|v3a-byta	8
+v2b-föda,lyda|v4b-resten	91
+v2b-föda,lyda|v4b-resten|v4b-resten	16
+v2b-föda,lyda|v57d2-y-ö-u,	3
+v2b-föda,lyda|v58a1-i->e,skriva,bita	9
+v2b-föda,lyda|v58a1b,i->e,sprida	11
+v2b-föda,lyda|v59d-e->o,le	2
+v2c-skilja	153
+v2e-skämmas	8
+v2f-stämma	863
+v2g-kännas	24
+v2h-känna	517
+v2i-böja,sörja	1076
+v2k-föra,mala,lära,tåla	1984
+v2n-kräva	727
+v2o-ledas	16
+v2o-yvas	70
+v2q-övriga	3786
+v2q-övriga|v58b2-u->ö, bjuda,ljuga	5
+v3-resten	1208
+v3-resten|v57d2-y-ö-u,	3
+v3-resten|v57d2-y-ö-u,|v57d2-y-ö-u,	2
+v3a-byta	726
+v3b-lyfta	593
+v3b-lyfta|v57b3 ä-a-u,bära,svälta	17
+v3e-kräkas	49
+v3f-klösas	9
+v3f-klösas|v3g-blåsa-s-slut	2
+v3g-blåsa-s-slut	1425
+v3g-blåsa-s-slut|v57d1 y-ö,lysa	13
+v3g-blåsa-s-slut|v57d2-y-ö-u,S-stam	25
+v3h-stänka	2676
+v3h-stänka|v57d2-y-ö-u,	2
+v3h-stänka|v57d2-y-ö-u,|v57d2-y-ö-u,	2
+v3h-stänka|v58a1-i->e,skriva,bita	8
+v4a-brås	5
+v4b-resten	1233
+v552-ö->o, göra	754
+v55a2-ö->o, lj ->l	18
+v55a3-ä->å, lj ->l	96
+v57a1,i->a->u,tvinga	65
+v57a2,i->a->u,bringa	55
+v57a3,i->a->u,ligga	19
+v57a5,i->a->u,springa	15
+v57a61,i->a->u,simma	12
+v57a62,i->a->u,förnimma	20
+v57a62b,i->a->u,minna	12
+v57a63,i->a->u,spinna, mfl	562
+v57a7a,i->a->u,sticka, mfl	424
+v57a7b,i->a->u,binda, mfl	376
+v57a7c,i->a->u,brista, mfl	21
+v57b1 ä->a->u,stjäla	46
+v57b2 ä->a->u,skära	225
+v57b3 ä-a-u,bära,svälta	133
+v57b3 ä-å-a,lägga	47
+v57c1 ä-o-u,svära	9
+v57d1 y-ö,lysa	2
+v57d2 y-ö-u,byta	10
+v57d2-y-ö-u,	1234
+v57d2-y-ö-u,S-stam	106
+v58a1-i->e,skriva,bita	2527
+v58a1-i->e,skriva,bita|v59i,bli	2
+v58a1b,i->e,sprida	20
+v58a3-i->e,skina,vina	34
+v58b1-u->ö,hugga	227
+v58b2-u->ö, bjuda,ljuga	1026
+v58b2-u->ö, gjuta,	116
+v58b2-u->ö, sjunga/sjunka,	372
+v58b2-u->ö, skjuta	353
+v58c1-a->o,fara	163
+v58c2-a->o,taga,draga	97
+v58c2-a->o,taga,draga|v59h,a->o, ta,dra	3
+v58d-å->ä,gråta,låta	263
+v58e-ä->a,förgäta	20
+v58e-ä->å,äta	116
+v58f-aå->ö,falla	686
+v58h-i->a,giva	270
+v58h-i->a,giva|v59a1-e->a,ge	95
+v58i-e->a,bedja	49
+v58i-e->a,bedja|v59a2-e->a,be	4
+v58j1-o-o	82
+v58j2-o-o	370
+v59a1-e->a,ge	104
+v59a2-e->a,be	8
+v59b-å->u,stå	152
+v59d-e->o,le	32
+v59f1,få	79
+v59f2,gå	462
+v59g,slå	356
+v59h,a->o, ta,dra	67
+v59i,bli	3
+v60	6
+v60b	5
+--------------------
+CONTENTS OF FIELD 34 - MORPH LABEL
+	85414
+a0	1998
+a1	49840
+a1a3	10
+a1|a1³	4
+a1³	3738
+a1³|a2³	2
+a1³|a3	4
+a1³|a3³	11
+a2	4484
+a2|a3	1
+a2³	424
+a2³|a3³	4
+a3	63279
+a3a1	14
+a3|a3³	3
+a3³	351
+a4	302
+a6	16
+a6³	31
+a_ob	9
+s0	11429
+s1	52578
+s10	28000
+s10|s2	77
+s10|s2³	70
+s10|s3	34
+s10|s3³	4
+s10|s6	14
+s10|s7	6
+s10|s8	20
+s10|s9	2
+s110	1571
+s110|s4	20
+s110|s6	7
+s110|s7	265
+s110|s8	7
+s111	8464
+s111|s2	61
+s111|s2³	7
+s111|s3	2
+s111|s7	4
+s111|s9	8
+s111³	34
+s1|s10	2
+s1|s1³	3
+s1|s20	1
+s1|s3	6
+s1|s4	1
+s1|s5	35
+s1|s6	4
+s1|s8	3
+s1|s9	286
+s1³	61
+s1³|s2³	10
+s1³|s3	4
+s1³|s9	2
+s2	134860
+s20	581
+s20|s3	2
+s20|s4	1
+s20|s7	4
+s2|s2³	43
+s2|s3	77
+s2|s3³	1
+s2|s3¹	4
+s2|s4	1
+s2|s5	15
+s2|s7	52
+s2|s8	6
+s2|s9	90
+s2³	8552
+s2³|s3	23
+s2³|s3³	84
+s2³|s5	4
+s2³|s6	2
+s2³|s7	87
+s2³|s8	59
+s2³|s9	84
+s3	138913
+s3|s3³	70
+s3|s4	55
+s3|s4³	2
+s3|s5	31
+s3|s7	105
+s3|s8	10
+s3|s9	192
+s3³	3424
+s3³|s4	1
+s3³|s4³	9
+s3³|s5³	3
+s3³|s7	14
+s3³|s8	3
+s3³|s9	31
+s3¹	5448
+s3¹|s9	2
+s4	7762
+s4|s5	6
+s4|s6	6
+s4|s7	415
+s4|s8	27
+s4|s9	3
+s4³	149
+s4³|s7	17
+s4³|s8	4
+s4³|s9	1
+s5	10182
+s5|s6	8
+s5|s7	4
+s5|s9	5
+s5³	81
+s6	23782
+s6|s7	126
+s6|s8	16
+s6|s9	5
+s7	87110
+s7|s8	111
+s7|s9	70
+s8	8887
+s8|s9	189
+s9	35625
+v1	114477
+v1|v2	26
+v1|v3	32
+v1|v5	76
+v2	11406
+v2|v3	8
+v2|v4	107
+v2|v5	30
+v3	6688
+v3|v5	72
+v4	1238
+v5	12430
+--------------------
+CONTENTS OF FIELD 35 - COMPOUNDER CODE
+	927167
+--------------------
+CONTENTS OF FIELD 37 - 
+	927167
+--------------------
+CONTENTS OF FIELD 38 - 
+	927167
+--------------------
+CONTENTS OF FIELD 39 - 
+	927167
+--------------------
+CONTENTS OF FIELD 40 - 
+	927167
+--------------------
+CONTENTS OF FIELD 41 - 
+	927167
+--------------------
+CONTENTS OF FIELD 42 - 
+	927167
+--------------------
+CONTENTS OF FIELD 43 - 
+	927167
+--------------------
+CONTENTS OF FIELD 44 - 
+	927167
+--------------------
+CONTENTS OF FIELD 45 - 
+	927167
+--------------------
+CONTENTS OF FIELD 49 - UPDATE INFO
+	875391
+CE021121	4560
+CE021121-CE021121b	9
+CE021121b	2651
+CE030124	15401
+CE030131	28142
+Kläder.only.exists.in.the.pluralistic.form-CE021121b	1
+Only.exists.in.the.pluralistic.form-CE021121b	1
+ce030121	829
+ce030121|ce030121	181
+only_exists_as_plural-CE021121b	1

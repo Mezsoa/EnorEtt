@@ -10,15 +10,30 @@
 <body>
   <div class="container">
     <!-- Header -->
-    <header class="header">
+    <!-- <header class="header">
       <div class="logo">
         <span class="logo-en">en</span>
         <span class="logo-divider">/</span>
         <span class="logo-ett">ett</span>
       </div>
       <p class="subtitle">Din svenska grammatikassistent</p>
-    </header>
+    </header> -->
 
+    <!-- Login Section -->
+    <div class="login-section" id="loginSection">
+      <div class="login-content">
+        <!-- <p class="login-text">Logga in för att köpa Premium</p> -->
+        <button class="login-btn" id="loginBtn">Logga in</button>
+      </div>
+    </div>
+
+    <!-- User Info Section (shown when logged in) -->
+    <div class="user-section hidden" id="userSection">
+      <div class="user-content">
+        <span class="user-email" id="userEmail"></span>
+        <button class="logout-btn" id="logoutBtn">Logga ut</button>
+      </div>
+    </div>
 
     <!-- Input Section -->
     <div class="input-section">
@@ -46,21 +61,7 @@
       </div>
     </div>
 
-    <!-- Login Section -->
-    <div class="login-section" id="loginSection">
-      <div class="login-content">
-        <p class="login-text">Logga in för att köpa Premium</p>
-        <button class="login-btn" id="loginBtn">Logga in</button>
-      </div>
-    </div>
-
-    <!-- User Info Section (shown when logged in) -->
-    <div class="user-section hidden" id="userSection">
-      <div class="user-content">
-        <span class="user-email" id="userEmail"></span>
-        <button class="logout-btn" id="logoutBtn">Logga ut</button>
-      </div>
-    </div>
+    
 
     <!-- Pro Features Banner -->
     <div class="pro-banner hidden" id="proBanner">
