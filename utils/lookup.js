@@ -196,9 +196,10 @@ function detectByPattern(word) {
 async function fetchFromAPI(word, isPro = false) {
   // Try multiple API endpoints
   const apiEndpoints = [
-    'https://api.enorett.se/api/enorett',
+    'https://enorett.se/api/enorett',
     'https://www.enorett.se/api/enorett',
-    'https://enorett.se/api/enorett'
+    'https://api.enorett.se/api/enorett',
+    'http://localhost:3000/api/enorett'
   ];
   
   // Use first endpoint as default, but will try others if needed

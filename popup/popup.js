@@ -30,9 +30,11 @@ let isPro = false;
 
 // API fallback configuration (popup-local to avoid global collisions)
 const POPUP_API_BASES = [
-  // Prefer primary domain first
+  // Prefer primary domain
   'https://enorett.se',
   'https://www.enorett.se',
+  // API subdomain if configured
+  'https://api.enorett.se',
   // Dev fallback
   'http://localhost:3000'
 ];
