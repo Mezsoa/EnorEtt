@@ -61,3 +61,7 @@ coverage/
 
 ## MD files
 *.md
+
+# Large external files
+utils/externals/NST svensk leksikon/swe030224NST.pron/swe030224NST.pron
+**/swe030224NST.pron
