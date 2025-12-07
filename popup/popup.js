@@ -281,7 +281,7 @@ function displayResult(result) {
  * Display successful result
  */
 function displaySuccessResult(result) {
-  const { word, article, translation, confidence, source, explanation, warning, examples, pronunciation } = result;
+  const { word, article, translation, confidence, source, explanation, warning, examples, pronunciation, audioUrl } = result;
   
   const html = `
     <div class="result-main">
@@ -322,10 +322,11 @@ function displaySuccessResult(result) {
         </div>
       ` : ''}
       
-      ${pronunciation && isPro ? `
+      ${(pronunciation || audioUrl) && isPro ? `
         <div class="result-pronunciation">
           <span class="result-pronunciation-icon">🔊</span>
-          <span class="result-pronunciation-text">${pronunciation}</span>
+          ${pronunciation ? `<span class="result-pronunciation-text">${pronunciation}</span>` : ''}
+          ${audioUrl ? `<button class="result-audio-btn" onclick="playPronunciation('${encodeURIComponent(audioUrl)}')">Spela upp</button>` : ''}
         </div>
       ` : ''}
     </div>
@@ -375,6 +376,21 @@ function displayError(message) {
   
   resultContent.innerHTML = html;
   showResults();
+}
+
+/**
+ * Play pronunciation audio if available
+ */
+function playPronunciation(encodedUrl) {
+  try {
+    const url = decodeURIComponent(encodedUrl);
+    const audio = new Audio(url);
+    audio.play().catch(() => {
+      console.warn('Could not play audio');
+    });
+  } catch (e) {
+    console.warn('Audio URL invalid:', e);
+  }
 }
 
 /**

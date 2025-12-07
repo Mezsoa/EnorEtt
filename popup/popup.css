@@ -671,6 +671,24 @@
   font-style: italic;
 }
 
+.result-audio-btn {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: linear-gradient(135deg, #4562e3 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  box-shadow: 0 2px 6px rgba(69, 98, 227, 0.25);
+}
+
+.result-audio-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(69, 98, 227, 0.35);
+}
+
 /* ============================================
    PRO BANNER
    ============================================ */
