@@ -102,6 +102,25 @@ export async function lookupWord(rawWord, isPro = false) {
   }
 
   const proHit = fullDictionary.find((entry) => entry.word === word);
+  
+  // Bug 1 Fix: If word exists in premium dictionary but user is not pro, deny access
+  if (proHit && !isPro) {
+    // Return error object that can be handled by the route
+    return {
+      word,
+      article: null,
+      genus: null,
+      ipa: null,
+      examples: [],
+      source: { dictionary: false, sparv: false, lex: false, korp: false },
+      confidence: 'none',
+      isPremiumData: false,
+      requiresPro: true,
+      error: 'Premium subscription required',
+      errorSv: 'Premium-prenumeration krävs',
+    };
+  }
+  
   if (proHit && isPro) {
     return {
       word: proHit.word,
@@ -119,12 +138,28 @@ export async function lookupWord(rawWord, isPro = false) {
   const sparvResult = await fetchGenus(word);
   const korpResult = await fetchExamples(word);
 
-  const article = sparvResult?.article || (isPro ? proHit?.article : null) || null;
+  const article = sparvResult?.article || null;
   const genus = sparvResult?.genus || genusFromArticle(article);
 
   const hasArticle = Boolean(article);
   const hasIpa = Boolean(pronResult?.ipa);
   const hasExamples = Boolean(korpResult?.examples?.length);
+
+  // Bug 2 Fix: If no data found from any source, return error indication
+  if (!hasArticle && !hasIpa && !hasExamples) {
+    return {
+      word,
+      article: null,
+      genus: null,
+      ipa: null,
+      examples: [],
+      source: { dictionary: false, sparv: false, lex: false, korp: false },
+      confidence: 'none',
+      isPremiumData: false,
+      error: 'Word not found',
+      errorSv: 'Ordet hittades inte',
+    };
+  }
 
   const confidence = hasArticle ? 'medium' : hasIpa || hasExamples ? 'low' : 'low';
 
@@ -141,6 +176,6 @@ export async function lookupWord(rawWord, isPro = false) {
       korp: hasExamples,
     },
     confidence,
-    isPremiumData: Boolean(isPro && proHit),
+    isPremiumData: false,
   };
 }

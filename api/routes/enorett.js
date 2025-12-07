@@ -53,6 +53,28 @@ router.get('/', async (req, res) => {
 
     const result = await lookupWord(normalizedWord, proStatus);
 
+    // Bug 2 Fix: Check if lookup failed (has error field) or found no data
+    if (result.error || (!result.article && !result.ipa && result.examples.length === 0)) {
+      return res.json({
+        success: false,
+        word: result.word,
+        error: result.error || 'Word not found',
+        errorSv: result.errorSv || 'Ordet hittades inte',
+        requiresPro: result.requiresPro || false,
+      });
+    }
+
+    // Bug 1 Fix: If requiresPro flag is set, return error
+    if (result.requiresPro) {
+      return res.json({
+        success: false,
+        word: result.word,
+        error: result.error || 'Premium subscription required',
+        errorSv: result.errorSv || 'Premium-prenumeration krävs',
+        requiresPro: true,
+      });
+    }
+
     return res.json({
       success: true,
       ...result,
