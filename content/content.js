@@ -21,6 +21,16 @@ function init() {
   // Listen for messages from background script
   chrome.runtime.onMessage.addListener(handleMessage);
   
+  // Try to sync auth from page localStorage into extension storage
+  syncAuthFromPageStorage();
+  
+  // Listen for localStorage changes (e.g., login in another tab)
+  window.addEventListener('storage', (event) => {
+    if (event.key && event.key.startsWith('enorett_')) {
+      syncAuthFromPageStorage();
+    }
+  });
+  
   // Optional: Listen for double-click on words
   // document.addEventListener('dblclick', handleDoubleClick);
 }
@@ -47,6 +57,51 @@ function handleMessage(message, sender, sendResponse) {
   }
   
   return false;
+}
+
+/**
+ * Sync auth from page localStorage to extension storage
+ */
+function syncAuthFromPageStorage() {
+  try {
+    const rawAuth = localStorage.getItem('enorett_auth');
+    let payload = null;
+    
+    if (rawAuth) {
+      try {
+        payload = JSON.parse(rawAuth);
+      } catch (e) {
+        console.warn('Could not parse enorett_auth from localStorage', e);
+      }
+    }
+    
+    // Fallback: construct minimal payload from individual keys
+    if (!payload) {
+      const userId = localStorage.getItem('enorett_userId');
+      const email = localStorage.getItem('enorett_userEmail');
+      if (userId) {
+        payload = {
+          user: {
+            userId,
+            email: email || null
+          },
+          subscription: null,
+          token: null
+        };
+      }
+    }
+    
+    if (payload && payload.user && chrome.runtime?.sendMessage) {
+      chrome.runtime.sendMessage({
+        type: 'AUTH_LOGIN',
+        data: payload
+      }).catch(() => {
+        // Ignore if background not reachable
+      });
+    }
+  } catch (e) {
+    console.warn('Error syncing auth from page storage:', e);
+  }
 }
 
 /**

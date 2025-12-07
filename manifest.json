@@ -57,5 +57,17 @@
       "resources": ["icons/*.png"],
       "matches": ["<all_urls>"]
     }
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://enorett.se/*",
+        "https://www.enorett.se/*",
+        "http://localhost:*/*",
+        "https://localhost:*/*"
+      ],
+      "js": ["content/content.js"],
+      "run_at": "document_idle"
+    }
   ]
 }
