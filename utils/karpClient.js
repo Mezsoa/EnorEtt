@@ -10,7 +10,7 @@ import { setTimeout as delay } from 'timers/promises';
  * @property {boolean} fromCache - True if served from in-memory cache
  */
 
-const KARP_ENDPOINT = process.env.KARP_ENDPOINT || 'https://spraakbanken.gu.se/ws/karp/v6/query';
+const KARP_ENDPOINT = process.env.KARP_ENDPOINT || 'https://spraakbanken4.it.gu.se/karp/v6/query';
 const KARP_RESOURCE = 'saldo';
 const DEFAULT_TIMEOUT_MS = Number(process.env.KARP_TIMEOUT_MS || 7000);
 const CACHE_TTL_MS = Number(process.env.KARP_CACHE_TTL_MS || 12 * 60 * 60 * 1000); // 12h
@@ -69,7 +69,24 @@ export async function fetchGenus(rawWord) {
       throw new Error(`Karp responded with status ${response.status}`);
     }
 
-    const data = await response.json();
+    // Read response as text first to handle empty responses
+    const text = await response.text();
+    
+    // Check if response is empty (Karp API may return empty responses)
+    if (!text || text.trim().length === 0) {
+      console.warn(`Karp returned empty response for word "${word}" - API may be unavailable`);
+      return null;
+    }
+
+    // Try to parse JSON
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (parseError) {
+      console.warn(`Karp response could not be parsed for word "${word}":`, parseError.message);
+      return null;
+    }
+
     const hitEntries = extractHits(data);
     const best = selectBestEntry(hitEntries);
 

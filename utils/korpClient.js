@@ -5,7 +5,8 @@
  */
 
 const KORP_ENDPOINT = process.env.KORP_ENDPOINT || 'https://ws.spraakbanken.gu.se/ws/korp/v8/query';
-const CORPORA = process.env.KORP_CORPORA || 'rom99,skbl,bloggmix';
+// Use single corpus 'rom99' as default - multiple corpora may cause issues with some corpus names
+const CORPORA = process.env.KORP_CORPORA || 'rom99';
 const DEFAULT_LIMIT = Number(process.env.KORP_MAX_EXAMPLES || 5);
 const CACHE_TTL_MS = Number(process.env.KORP_CACHE_TTL_MS || 6 * 60 * 60 * 1000); // 6h
 const DEFAULT_TIMEOUT_MS = Number(process.env.KORP_TIMEOUT_MS || 7000);
@@ -28,11 +29,11 @@ export async function fetchExamples(rawWord, limit = DEFAULT_LIMIT) {
     return { ...cached.data, fromCache: true };
   }
 
+  // Korp API v8 requires CQP format: [word = "word"]
+  const cqpQuery = `[word = "${word}"]`;
   const params = new URLSearchParams({
-    corpname: CORPORA,
-    query: word,
-    context: '1+sentence',
-    incremental: 'false',
+    corpus: CORPORA,
+    cqp: cqpQuery,
   });
 
   const controller = new AbortController();
@@ -49,6 +50,12 @@ export async function fetchExamples(rawWord, limit = DEFAULT_LIMIT) {
     }
 
     const data = await response.json();
+    
+    // Check for API errors
+    if (data.ERROR) {
+      throw new Error(`Korp API error: ${data.ERROR.type} - ${data.ERROR.value}`);
+    }
+    
     const examples = parseExamples(data, limit);
     if (!examples.length) return null;
 
@@ -75,6 +82,7 @@ export async function fetchExamples(rawWord, limit = DEFAULT_LIMIT) {
  */
 function parseExamples(data, limit) {
   const sentences = [];
+  // Korp API v8 returns data.kwic array directly
   const kwicArray = Array.isArray(data?.kwic)
     ? data.kwic
     : Array.isArray(data?.hits?.hits)
@@ -84,14 +92,19 @@ function parseExamples(data, limit) {
         : [];
 
   for (const kwic of kwicArray) {
+    // Korp v8 returns tokens array directly in kwic object
     const tokens = Array.isArray(kwic?.tokens)
       ? kwic.tokens
       : Array.isArray(kwic?.left) && Array.isArray(kwic?.right)
         ? [...kwic.left, ...(kwic.kwic ? [kwic.kwic] : []), ...kwic.right]
         : [];
 
+    // Extract word from each token - Korp v8 uses 'word' property
     const sentence = tokens
-      .map((t) => t?.word || t?.lex || t?.lem || t?.baseform || t?.w || t?.token)
+      .map((t) => {
+        // Try multiple possible properties for word
+        return t?.word || t?.w || t?.lex || t?.lem || t?.baseform || t?.token || '';
+      })
       .filter(Boolean)
       .join(' ')
       .replace(/\s+/g, ' ')

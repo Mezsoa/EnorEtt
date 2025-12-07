@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import vm from 'vm';
 import { fileURLToPath } from 'url';
-import { fetchGenus } from './karpClient.js';
+import { fetchGenus } from './sparvClient.js';
 import { fetchExamples } from './korpClient.js';
 import { lookupPronunciation } from './pronunciationLoader.js';
 
@@ -13,7 +13,7 @@ import { lookupPronunciation } from './pronunciationLoader.js';
  * @property {'UTR'|'NEU'|null} genus
  * @property {string|null} ipa
  * @property {string[]} examples
- * @property {{ karp: boolean, lex: boolean, korp: boolean, dictionary: boolean }} source
+ * @property {{ sparv: boolean, lex: boolean, korp: boolean, dictionary: boolean }} source
  * @property {'high'|'medium'|'low'} confidence
  * @property {boolean} isPremiumData
  */
@@ -95,7 +95,7 @@ export async function lookupWord(rawWord, isPro = false) {
       genus: genusFromArticle(freeHit.article),
       ipa: pronResult.ipa,
       examples: [],
-      source: { dictionary: true, karp: false, lex: Boolean(pronResult.ipa), korp: false },
+      source: { dictionary: true, sparv: false, lex: Boolean(pronResult.ipa), korp: false },
       confidence: 'high',
       isPremiumData: false,
     };
@@ -109,18 +109,18 @@ export async function lookupWord(rawWord, isPro = false) {
       genus: genusFromArticle(proHit.article),
       ipa: pronResult.ipa,
       examples: [],
-      source: { dictionary: true, karp: false, lex: Boolean(pronResult.ipa), korp: false },
+      source: { dictionary: true, sparv: false, lex: Boolean(pronResult.ipa), korp: false },
       confidence: 'high',
       isPremiumData: true,
     };
   }
 
-  // Remote lookups
-  const karpResult = await fetchGenus(word);
+  // Remote lookups - use Sparv for genus information
+  const sparvResult = await fetchGenus(word);
   const korpResult = await fetchExamples(word);
 
-  const article = karpResult?.article || proHit?.article || null;
-  const genus = karpResult?.genus || genusFromArticle(article);
+  const article = sparvResult?.article || (isPro ? proHit?.article : null) || null;
+  const genus = sparvResult?.genus || genusFromArticle(article);
 
   const hasArticle = Boolean(article);
   const hasIpa = Boolean(pronResult?.ipa);
@@ -136,11 +136,11 @@ export async function lookupWord(rawWord, isPro = false) {
     examples: korpResult?.examples || [],
     source: {
       dictionary: false,
-      karp: Boolean(karpResult),
+      sparv: Boolean(sparvResult),
       lex: hasIpa,
       korp: hasExamples,
     },
     confidence,
-    isPremiumData: Boolean(isPro || proHit),
+    isPremiumData: Boolean(isPro && proHit),
   };
 }
