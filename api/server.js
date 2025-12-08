@@ -172,8 +172,39 @@ app.use('/api/admin', adminRouter); // WARNING: Protect this in production!
 // Serve login page
 app.get('/login', async (req, res) => {
   try {
-    const loginPath = join(__dirname, 'login.html');
-    const loginHtml = await readFile(loginPath, 'utf-8');
+    // Try multiple possible paths for Vercel serverless compatibility
+    let loginPath = join(__dirname, 'login.html');
+    let loginHtml = null;
+    
+    try {
+      loginHtml = await readFile(loginPath, 'utf-8');
+    } catch (fileError) {
+      // Try alternative path (for Vercel serverless)
+      try {
+        loginPath = join(process.cwd(), 'api', 'login.html');
+        loginHtml = await readFile(loginPath, 'utf-8');
+      } catch (altError) {
+        // Try one more path (relative to project root)
+        try {
+          const projectRoot = dirname(dirname(__dirname));
+          loginPath = join(projectRoot, 'api', 'login.html');
+          loginHtml = await readFile(loginPath, 'utf-8');
+        } catch (finalError) {
+          console.error('All file path attempts failed:', {
+            original: fileError.message,
+            alternative: altError.message,
+            final: finalError.message,
+            __dirname,
+            cwd: process.cwd()
+          });
+          throw fileError; // Throw original error
+        }
+      }
+    }
+    
+    if (!loginHtml) {
+      throw new Error('Could not read login.html file');
+    }
     
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Content-Security-Policy', 
@@ -191,20 +222,59 @@ app.get('/login', async (req, res) => {
     res.send(loginHtml);
   } catch (error) {
     console.error('Error serving login page:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to load login page',
-      errorSv: 'Kunde inte ladda inloggningssidan',
-      details: error.message
-    });
+    console.error('Error stack:', error.stack);
+    // Always return HTML even on error (for better UX)
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.status(500).send(`
+      <!DOCTYPE html>
+      <html lang="sv">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Fel - EnorEtt</title>
+      </head>
+      <body style="font-family: system-ui; padding: 2rem; text-align: center;">
+        <h1>Ett fel uppstod</h1>
+        <p>Kunde inte ladda inloggningssidan.</p>
+        <p><a href="/">Tillbaka till startsidan</a></p>
+        ${process.env.NODE_ENV === 'development' ? `<pre style="text-align: left; margin-top: 2rem;">${error.message}\n${error.stack}</pre>` : ''}
+      </body>
+      </html>
+    `);
   }
 });
 
 // Serve register page
 app.get('/register', async (req, res) => {
   try {
-    const registerPath = join(__dirname, 'register.html');
-    const registerHtml = await readFile(registerPath, 'utf-8');
+    let registerPath = join(__dirname, 'register.html');
+    let registerHtml = null;
+    
+    try {
+      registerHtml = await readFile(registerPath, 'utf-8');
+    } catch (fileError) {
+      try {
+        registerPath = join(process.cwd(), 'api', 'register.html');
+        registerHtml = await readFile(registerPath, 'utf-8');
+      } catch (altError) {
+        try {
+          const projectRoot = dirname(dirname(__dirname));
+          registerPath = join(projectRoot, 'api', 'register.html');
+          registerHtml = await readFile(registerPath, 'utf-8');
+        } catch (finalError) {
+          console.error('All file path attempts failed for register:', {
+            original: fileError.message,
+            alternative: altError.message,
+            final: finalError.message
+          });
+          throw fileError;
+        }
+      }
+    }
+    
+    if (!registerHtml) {
+      throw new Error('Could not read register.html file');
+    }
     
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Content-Security-Policy', 
@@ -222,29 +292,63 @@ app.get('/register', async (req, res) => {
     res.send(registerHtml);
   } catch (error) {
     console.error('Error serving register page:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to load register page',
-      errorSv: 'Kunde inte ladda registreringssidan',
-      details: error.message
-    });
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.status(500).send(`
+      <!DOCTYPE html>
+      <html lang="sv">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Fel - EnorEtt</title>
+      </head>
+      <body style="font-family: system-ui; padding: 2rem; text-align: center;">
+        <h1>Ett fel uppstod</h1>
+        <p>Kunde inte ladda registreringssidan.</p>
+        <p><a href="/">Tillbaka till startsidan</a></p>
+        ${process.env.NODE_ENV === 'development' ? `<pre style="text-align: left; margin-top: 2rem;">${error.message}\n${error.stack}</pre>` : ''}
+      </body>
+      </html>
+    `);
   }
 });
 
 // Serve upgrade/landing page
 app.get('/upgrade', async (req, res) => {
   try {
-    // Path to landing.html (in same directory as server.js)
-    const landingPath = join(__dirname, 'landing.html');
-    const landingHtml = await readFile(landingPath, 'utf-8');
+    let landingPath = join(__dirname, 'landing.html');
+    let landingHtml = null;
     
-    // Set CSP header that allows Tailwind CDN and inline scripts
-    // Includes all security directives from global helmet config
+    try {
+      landingHtml = await readFile(landingPath, 'utf-8');
+    } catch (fileError) {
+      try {
+        landingPath = join(process.cwd(), 'api', 'landing.html');
+        landingHtml = await readFile(landingPath, 'utf-8');
+      } catch (altError) {
+        try {
+          const projectRoot = dirname(dirname(__dirname));
+          landingPath = join(projectRoot, 'api', 'landing.html');
+          landingHtml = await readFile(landingPath, 'utf-8');
+        } catch (finalError) {
+          console.error('All file path attempts failed for landing:', {
+            original: fileError.message,
+            alternative: altError.message,
+            final: finalError.message
+          });
+          throw fileError;
+        }
+      }
+    }
+    
+    if (!landingHtml) {
+      throw new Error('Could not read landing.html file');
+    }
+    
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Content-Security-Policy', 
       "default-src 'self'; " +
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; " +
-      "script-src-attr \'unsafe-inline\'; " +
+      "script-src-attr 'unsafe-inline'; " +
       "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; " +
       "font-src 'self' data:; " +
       "img-src 'self' data: https:; " +
@@ -256,12 +360,23 @@ app.get('/upgrade', async (req, res) => {
     res.send(landingHtml);
   } catch (error) {
     console.error('Error serving landing page:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to load upgrade page',
-      errorSv: 'Kunde inte ladda uppgraderingssidan',
-      details: error.message
-    });
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.status(500).send(`
+      <!DOCTYPE html>
+      <html lang="sv">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Fel - EnorEtt</title>
+      </head>
+      <body style="font-family: system-ui; padding: 2rem; text-align: center;">
+        <h1>Ett fel uppstod</h1>
+        <p>Kunde inte ladda uppgraderingssidan.</p>
+        <p><a href="/">Tillbaka till startsidan</a></p>
+        ${process.env.NODE_ENV === 'development' ? `<pre style="text-align: left; margin-top: 2rem;">${error.message}\n${error.stack}</pre>` : ''}
+      </body>
+      </html>
+    `);
   }
 });
 
