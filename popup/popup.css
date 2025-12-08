@@ -75,8 +75,8 @@
     font-family: var(--font-family);
     font-size: var(--font-size-base);
     color: var(--color-text-primary);
-    background: transparent; /* eller background: #FFFFFF; för vit */
-    width: 380px;
+    background: rgb(252, 249, 243); /* eller background: #FFFFFF; för vit */
+    width: 400px;
     min-height: 100px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -87,14 +87,14 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
-  padding: var(--spacing-lg);
-  background: transparent;
+  padding: 15px;
+  background: rgb(252, 249, 243);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 24px;
-  min-height: 400px;
-  margin: 8px;
+  border-radius: 0px;
+  /* min-height: 400px; */
+  margin: 0px;
   box-shadow: 
     0 8px 32px rgba(0, 0, 0, 0.1),
     0 2px 8px rgba(0, 0, 0, 0.05),
@@ -392,7 +392,7 @@
 .result-content {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
+  gap: var(--spacing-xs);
 }
 
 .result-main {
@@ -1022,14 +1022,14 @@
 .user-content {
   display: flex;
   align-items: center;
-  justify-content: end;
+  justify-content: start;
   gap: var(--spacing-md);
 }
 
 .login-text {
-  font-size: 12px;
+  font-size: 10px;
   color: var(--color-text-secondary);
-  margin: 0;
+  margin-left: 0;
 }
 
 .login-btn,
@@ -1039,10 +1039,13 @@
   color: white;
   border: none;
   border-radius: var(--radius-md);
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.3s;
+  position: absolute;
+  top: -2px;
+  left: 0;
 }
 
 .login-btn:hover {
@@ -1052,7 +1055,7 @@
 .logout-btn {
   background: var(--color-text-tertiary);
   padding: var(--spacing-xs) var(--spacing-sm);
-  font-size: 11px;
+  font-size: 10px;
 }
 
 .logout-btn:hover {
@@ -1060,7 +1063,8 @@
 }
 
 .user-email {
-  font-size: 11px;
+  font-size: 8px;
   color: var(--color-text-primary);
   font-weight: 500;
+  margin-left: 52px;
 }
