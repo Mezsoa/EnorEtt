@@ -6,7 +6,7 @@
 import express from 'express';
 import { connectDB } from '../db/connection.js';
 import User from '../models/User.js';
-import { lookupWord } from '../../utils/enorettLookup.js';
+import { lookupWord } from '../utils/enorettLookup.js';
 
 const router = express.Router();
 

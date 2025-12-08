@@ -1,0 +1,10 @@
+{
+  "name": "enorett",
+  "version": "1.0.0",
+  "description": "EnorEtt - Swedish Grammar Helper Chrome Extension",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
