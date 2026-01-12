@@ -350,7 +350,14 @@
       console.log("handleUpgrade function defined:", typeof handleUpgrade);
 
       // Setup button click listener (required since CSP blocks inline onclick)
-      window.addEventListener("load", () => {
+      window.addEventListener("load", async () => {
+        // Check authentication first - redirect to login if not logged in
+        const auth = await checkAuth();
+        if (!auth || !auth.user) {
+          window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+          return;
+        }
+
         // Setup back button click listener
         const backBtn = document.getElementById("back-button");
         if (backBtn) {
