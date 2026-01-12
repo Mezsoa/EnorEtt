@@ -1,9 +1,10 @@
 {
   "manifest_version": 3,
   "name": "EnorEtt",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Din svenska grammatikassistent - Kolla snabbt om ett ord tar 'en' eller 'ett'. Your Swedish grammar helper.",
   "author": "EnorEtt Team",
+  "privacy_policy": "https://enorett.se/privacy",
   
   "icons": {
     "16": "icons/icon-16.png",
@@ -62,9 +63,7 @@
     {
       "matches": [
         "https://enorett.se/*",
-        "https://www.enorett.se/*",
-        "http://localhost:*/*",
-        "https://localhost:*/*"
+        "https://www.enorett.se/*"
       ],
       "js": ["content/content.js"],
       "run_at": "document_idle"
