@@ -584,7 +584,19 @@ function handleLogin() {
  * Handle logout button click
  */
 async function handleLogout() {
-  await clearAuth();
+  // Send logout to background script which will:
+  // 1. Clear extension storage
+  // 2. Broadcast to content scripts to clear localStorage
+  // 3. Notify all popups
+  try {
+    await chrome.runtime.sendMessage({ type: 'AUTH_LOGOUT' });
+    console.log('✅ Logout successful');
+  } catch (e) {
+    // Fallback: clear locally
+    console.warn('Could not send logout to background, clearing locally:', e);
+    await clearAuth();
+  }
+  
   await checkAuthStatus();
   await checkSubscriptionStatus();
 }

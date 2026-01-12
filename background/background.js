@@ -151,6 +151,42 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ success: true });
       break;
       
+    case 'AUTH_LOGOUT':
+      // Clear all auth-related storage
+      chrome.storage.local.remove([
+        'enorett_auth',
+        'enorett_userId',
+        'enorett_userEmail',
+        'enorett_subscription'
+      ]).then(() => {
+        console.log('✅ Auth cleared from extension storage');
+        
+        // Broadcast to all content scripts to clear localStorage
+        chrome.tabs.query({}, (tabs) => {
+          tabs.forEach((tab) => {
+            if (tab.url && (tab.url.includes('enorett.se') || tab.url.includes('localhost'))) {
+              chrome.tabs.sendMessage(tab.id, { type: 'CLEAR_LOCAL_AUTH' }).catch(() => {
+                // Tab might not have content script, ignore
+              });
+            }
+          });
+        });
+        
+        // Notify all popups that auth was cleared
+        chrome.runtime.sendMessage({
+          type: 'AUTH_UPDATED',
+          auth: null
+        }).catch(() => {
+          // Popup might not be open, ignore
+        });
+        
+        sendResponse({ success: true });
+      }).catch((error) => {
+        console.error('Error clearing auth:', error);
+        sendResponse({ success: false });
+      });
+      return true; // Keep channel open for async response
+      
     default:
       sendResponse({ success: false, error: 'Unknown message type' });
   }

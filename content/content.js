@@ -52,6 +52,20 @@ function handleMessage(message, sender, sendResponse) {
       sendResponse({ success: true });
       break;
       
+    case 'CLEAR_LOCAL_AUTH':
+      // Clear auth data from localStorage (user logged out via extension)
+      try {
+        localStorage.removeItem('enorett_auth');
+        localStorage.removeItem('enorett_userId');
+        localStorage.removeItem('enorett_userEmail');
+        console.log('✅ Local auth cleared from localStorage');
+        sendResponse({ success: true });
+      } catch (e) {
+        console.warn('Error clearing localStorage:', e);
+        sendResponse({ success: false });
+      }
+      break;
+      
     default:
       sendResponse({ success: false, error: 'Unknown message type' });
   }

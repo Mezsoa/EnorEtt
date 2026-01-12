@@ -58,11 +58,17 @@ async function setAuth(authData) {
 }
 
 /**
- * Clear auth data
+ * Clear auth data (removes all auth-related storage keys)
  */
 async function clearAuth() {
   try {
-    await chrome.storage.local.remove([AUTH_STORAGE_KEY]);
+    await chrome.storage.local.remove([
+      AUTH_STORAGE_KEY,
+      'enorett_userId',
+      'enorett_userEmail',
+      'enorett_subscription'
+    ]);
+    console.log('✅ Auth and subscription data cleared');
   } catch (error) {
     console.error('Error clearing auth:', error);
   }
