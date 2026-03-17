@@ -429,7 +429,7 @@ const fallbackPrivacyHTML = `<!DOCTYPE html>
     <h2>Contact</h2>
     <p>Questions about privacy: <a href="mailto:johnmessoa@gmail.com">johnmessoa@gmail.com</a></p>
     
-    <p>For the complete privacy policy, please visit: <a href="https://enorett.se/privacy">https://enorett.se/privacy</a></p>
+    <p>For the complete privacy policy, please visit: <a href="https://api.enorett.se/privacy">https://api.enorett.se/privacy</a></p>
 </body>
 </html>`;
 

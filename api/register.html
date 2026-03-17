@@ -60,6 +60,21 @@
             />
           </div>
 
+          <div class="flex items-start">
+            <input
+              type="checkbox"
+              id="privacyConsent"
+              name="privacyConsent"
+              required
+              class="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <label for="privacyConsent" class="ml-2 text-sm text-gray-700">
+              Jag har läst och godkänner
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" class="text-primary font-medium hover:underline">integritetspolicyn</a>
+              och att mina uppgifter används enligt denna policy.
+            </label>
+          </div>
+
           <div id="errorMessage" class="hidden text-red-600 text-sm"></div>
           <div id="successMessage" class="hidden text-green-600 text-sm"></div>
 

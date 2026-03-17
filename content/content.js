@@ -182,13 +182,17 @@ function createTooltipElement(data) {
   tooltip.id = 'enorett-tooltip';
   
   const { word, article, translation, success } = data;
-  
+  const safeWord = escapeHtml(String(word || ''));
+  const safeArticle = escapeHtml(String(article || ''));
+  const safeTranslation = translation ? escapeHtml(String(translation)) : '';
+  const articleClass = (article === 'en' || article === 'ett') ? article : '';
+
   if (success) {
     tooltip.innerHTML = `
       <div class="enorett-tooltip-content">
-        <div class="enorett-tooltip-article ${article}">${article}</div>
-        <div class="enorett-tooltip-word">${word}</div>
-        ${translation ? `<div class="enorett-tooltip-translation">${translation}</div>` : ''}
+        <div class="enorett-tooltip-article ${articleClass}">${safeArticle}</div>
+        <div class="enorett-tooltip-word">${safeWord}</div>
+        ${safeTranslation ? `<div class="enorett-tooltip-translation">${safeTranslation}</div>` : ''}
         <div class="enorett-tooltip-checkmark">✓</div>
       </div>
       <div class="enorett-tooltip-arrow"></div>

@@ -103,7 +103,8 @@
     <div class="spinner"></div>
   </div>
 
-  <!-- Load scripts in order: dictionary first, then lookup, subscription, auth, then popup -->
+  <!-- Load scripts in order: escapeHtml first (XSS safety), then dictionary, lookup, subscription, auth, popup -->
+  <script src="../utils/escapeHtml.js"></script>
   <script src="../utils/dictionary.js"></script>
   <script src="../utils/lookup.js"></script>
   <script src="../utils/subscription.js"></script>

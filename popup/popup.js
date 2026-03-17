@@ -28,15 +28,13 @@ let currentWord = '';
 let lastResult = null;
 let isPro = false;
 
-// API fallback configuration (popup-local to avoid global collisions)
+// API fallback configuration (popup-local to avoid global collisions).
+// Production only: CSP in manifest does not allow localhost. For local dev, you could
+// temporarily add 'http://localhost:3000' and allow it in extension_pages connect-src.
 const POPUP_API_BASES = [
-  // Prefer primary domain
   'https://enorett.se',
   'https://www.enorett.se',
-  // API subdomain if configured
-  'https://api.enorett.se',
-  // Dev fallback
-  'http://localhost:3000'
+  'https://api.enorett.se'
 ];
 const FETCH_TIMEOUT_MS = 8000;
 
@@ -103,6 +101,14 @@ async function init() {
   loginBtn.addEventListener('click', handleLogin);
   logoutBtn.addEventListener('click', handleLogout);
   
+  // Delegated click for audio button (avoids inline onclick / XSS)
+  resultContent.addEventListener('click', (e) => {
+    const btn = e.target.closest('.result-audio-btn');
+    if (btn && btn.dataset.audioUrl) {
+      playPronunciation(btn.dataset.audioUrl);
+    }
+  });
+
   // Focus input on load
   wordInput.focus();
   
@@ -283,6 +289,7 @@ function displayResult(result) {
 
 /**
  * Display successful result
+ * All user/API-sourced values are escaped to prevent XSS.
  */
 function displaySuccessResult(result) {
   const { word, article, translation, confidence, source, explanation, warning, examples, pronunciation, audioUrl } = result;
@@ -290,16 +297,25 @@ function displaySuccessResult(result) {
   const displayArticle = article || '—';
   const articleClass = article ? article : 'unknown';
   const safeConfidence = confidence || 'none';
-  
+  const safeWord = escapeHtml(word);
+  const safeTranslation = translation ? escapeHtml(translation) : '';
+  const safeExplanation = escapeHtml(explanation || (article ? `Detta är ett ${article}-ord` : 'Ingen artikel hittades'));
+  const safeWarning = warning ? escapeHtml(warning) : '';
+  const safePronunciation = pronunciation ? escapeHtml(pronunciation) : '';
+  const safeAudioUrl = audioUrl ? escapeHtml(audioUrl) : '';
+  const safeExamples = (examples && Array.isArray(examples) && isPro)
+    ? examples.map(ex => escapeHtml(String(ex)))
+    : [];
+
   const html = `
     <div class="result-main">
       <div class="result-article ${articleClass}">
-        ${displayArticle}
+        ${escapeHtml(displayArticle)}
       </div>
       <div class="result-word">
-        ${word}
+        ${safeWord}
       </div>
-      ${translation ? `<div class="result-translation">${translation}</div>` : ''}
+      ${safeTranslation ? `<div class="result-translation">${safeTranslation}</div>` : ''}
     </div>
     
     <div class="result-details">
@@ -307,7 +323,7 @@ function displaySuccessResult(result) {
         <div class="result-info">
           <span class="result-info-icon">ℹ️</span>
           <div class="result-info-text">
-            ${explanation || (article ? `Detta är ett ${article}-ord` : 'Ingen artikel hittades')}
+            ${safeExplanation}
             <br>
             <span class="result-confidence ${safeConfidence}">
               ${getConfidenceLabel(safeConfidence)}
@@ -316,83 +332,98 @@ function displaySuccessResult(result) {
         </div>
       ` : ''}
       
-      ${warning ? `
+      ${safeWarning ? `
         <div class="result-warning">
           <span class="result-warning-icon">⚠️</span>
-          <div class="result-info-text">${warning}</div>
+          <div class="result-info-text">${safeWarning}</div>
         </div>
       ` : ''}
       
-      ${examples && examples.length > 0 && isPro ? `
+      ${safeExamples.length > 0 ? `
         <div class="result-examples">
           <div class="result-examples-title">Exempel:</div>
-          ${examples.map(example => `<div class="result-example">${example}</div>`).join('')}
+          ${safeExamples.map(example => `<div class="result-example">${example}</div>`).join('')}
         </div>
       ` : ''}
       
-      ${(pronunciation || audioUrl) && isPro ? `
+      ${(safePronunciation || safeAudioUrl) && isPro ? `
         <div class="result-pronunciation">
           <span class="result-pronunciation-icon">🔊</span>
-          ${pronunciation ? `<span class="result-pronunciation-text">${pronunciation}</span>` : ''}
-          ${audioUrl ? `<button class="result-audio-btn" onclick="playPronunciation('${encodeURIComponent(audioUrl)}')">Spela upp</button>` : ''}
+          ${safePronunciation ? `<span class="result-pronunciation-text">${safePronunciation}</span>` : ''}
+          ${safeAudioUrl ? `<button type="button" class="result-audio-btn" data-audio-url="${safeAudioUrl}">Spela upp</button>` : ''}
         </div>
       ` : ''}
     </div>
   `;
-  
+
   resultContent.innerHTML = html;
 }
 
 /**
  * Display error result
+ * All user/API-sourced values are escaped to prevent XSS.
  */
 function displayErrorResult(result) {
   const { word, error, errorEn, suggestion, requiresPro } = result;
-  
+  const safeError = escapeHtml(error || 'Ordet hittades inte');
+  const safeErrorEn = escapeHtml(errorEn || 'Word not found in dictionary');
+  const safeSuggestion = suggestion ? escapeHtml(suggestion) : '';
+
   const html = `
     <div class="result-error">
       <div class="result-error-icon">🤔</div>
-      <div class="result-error-title">${error || 'Ordet hittades inte'}</div>
+      <div class="result-error-title">${safeError}</div>
       <div class="result-error-text">
-        ${errorEn || 'Word not found in dictionary'}
+        ${safeErrorEn}
       </div>
-      ${suggestion ? `
+      ${safeSuggestion ? `
         <div class="result-suggestion ${requiresPro ? 'pro-prompt' : ''}">
-          💡 ${suggestion}
+          💡 ${safeSuggestion}
           ${requiresPro ? `
-            <button class="upgrade-prompt-btn" onclick="handleProUpgrade()">Upgrade to Pro</button>
+            <button type="button" class="upgrade-prompt-btn" id="popupProUpgradeBtn">Upgrade to Pro</button>
           ` : ''}
         </div>
       ` : ''}
     </div>
   `;
-  
+
   resultContent.innerHTML = html;
+  if (requiresPro) {
+    const btn = resultContent.querySelector('#popupProUpgradeBtn');
+    if (btn) btn.addEventListener('click', handleProUpgrade);
+  }
 }
 
 /**
  * Display generic error
+ * Message is escaped to prevent XSS.
  */
 function displayError(message) {
+  const safeMessage = escapeHtml(String(message));
   const html = `
     <div class="result-error">
       <div class="result-error-icon">❌</div>
       <div class="result-error-title">Ett fel uppstod</div>
-      <div class="result-error-text">${message}</div>
+      <div class="result-error-text">${safeMessage}</div>
     </div>
   `;
-  
+
   resultContent.innerHTML = html;
   showResults();
 }
 
 /**
- * Play pronunciation audio if available
+ * Play pronunciation audio if available.
+ * Only allows https: URLs to prevent abuse.
  */
-function playPronunciation(encodedUrl) {
+function playPronunciation(url) {
   try {
-    const url = decodeURIComponent(encodedUrl);
-    const audio = new Audio(url);
+    const u = typeof url === 'string' ? url.trim() : '';
+    if (!u || !u.startsWith('https://')) {
+      console.warn('Audio URL not allowed (https only)');
+      return;
+    }
+    const audio = new Audio(u);
     audio.play().catch(() => {
       console.warn('Could not play audio');
     });
