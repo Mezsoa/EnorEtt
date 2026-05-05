@@ -22,11 +22,15 @@ const userSection = document.getElementById('userSection');
 const userEmail = document.getElementById('userEmail');
 const loginBtn = document.getElementById('loginBtn');
 const logoutBtn = document.getElementById('logoutBtn');
+const onboardingSection = document.getElementById('onboardingSection');
+const onboardingText = document.getElementById('onboardingText');
+const planCompareSection = document.getElementById('planCompareSection');
 
 // State
 let currentWord = '';
 let lastResult = null;
 let isPro = false;
+let onboardingLookupCount = 0;
 
 // API fallback configuration (popup-local to avoid global collisions).
 // Production only: CSP in manifest does not allow localhost. For local dev, you could
@@ -101,11 +105,16 @@ async function init() {
   loginBtn.addEventListener('click', handleLogin);
   logoutBtn.addEventListener('click', handleLogout);
   
-  // Delegated click for audio button (avoids inline onclick / XSS)
+  // Delegated click handlers for dynamic result actions
   resultContent.addEventListener('click', (e) => {
     const btn = e.target.closest('.result-audio-btn');
     if (btn && btn.dataset.audioUrl) {
       playPronunciation(btn.dataset.audioUrl);
+      return;
+    }
+    const saveBtn = e.target.closest('.result-save-btn');
+    if (saveBtn) {
+      saveWordToLearning(saveBtn.dataset.saveWord, saveBtn.dataset.saveStatus);
     }
   });
 
@@ -123,6 +132,45 @@ async function init() {
   
   // Check if there's a word from context menu
   checkForContextMenuWord();
+  await initializeOnboarding();
+}
+
+async function initializeOnboarding() {
+  try {
+    const data = await chrome.storage.local.get(['enorett_onboardingLookupCount']);
+    onboardingLookupCount = Number(data.enorett_onboardingLookupCount || 0);
+    updateOnboardingMessage();
+  } catch (error) {
+    console.warn('Could not initialize onboarding:', error);
+  }
+}
+
+function updateOnboardingMessage() {
+  if (!onboardingSection || !onboardingText) return;
+  if (isPro) {
+    onboardingSection.classList.add('hidden');
+    return;
+  }
+
+  if (onboardingLookupCount === 0) {
+    onboardingText.textContent = 'Tips: skriv ett substantiv och tryck Kolla för direkt svar.';
+    onboardingSection.classList.remove('hidden');
+    return;
+  }
+
+  if (onboardingLookupCount === 1) {
+    onboardingText.textContent = 'Bra start! Testa fler ord för att jämföra säkra och osäkra träffar.';
+    onboardingSection.classList.remove('hidden');
+    return;
+  }
+
+  if (onboardingLookupCount === 2) {
+    onboardingText.textContent = 'Behöver du fler exempel och uttal? Premium låser upp 10 000+ ord.';
+    onboardingSection.classList.remove('hidden');
+    return;
+  }
+
+  onboardingSection.classList.add('hidden');
 }
 
 /**
@@ -262,6 +310,9 @@ async function handleCheck() {
     
     // Show feedback section after successful lookup
     if (result.success) {
+      onboardingLookupCount += 1;
+      chrome.storage.local.set({ enorett_onboardingLookupCount: onboardingLookupCount }).catch(() => {});
+      updateOnboardingMessage();
       setTimeout(() => {
         feedbackSection.classList.remove('hidden');
         statsInfo.classList.add('hidden');
@@ -306,6 +357,8 @@ function displaySuccessResult(result) {
   const safeExamples = (examples && Array.isArray(examples) && isPro)
     ? examples.map(ex => escapeHtml(String(ex)))
     : [];
+  const confidenceScoreMap = { high: 92, medium: 63, low: 34, none: 18 };
+  const confidenceScore = confidenceScoreMap[safeConfidence] || confidenceScoreMap.none;
 
   const html = `
     <div class="result-main">
@@ -328,6 +381,9 @@ function displaySuccessResult(result) {
             <span class="result-confidence ${safeConfidence}">
               ${getConfidenceLabel(safeConfidence)}
             </span>
+            <div class="result-confidence-meter" role="img" aria-label="Säkerhetsnivå ${getConfidenceLabel(safeConfidence)}">
+              <div class="result-confidence-fill ${safeConfidence}" style="width: ${confidenceScore}%"></div>
+            </div>
           </div>
         </div>
       ` : ''}
@@ -353,6 +409,11 @@ function displaySuccessResult(result) {
           ${safeAudioUrl ? `<button type="button" class="result-audio-btn" data-audio-url="${safeAudioUrl}">Spela upp</button>` : ''}
         </div>
       ` : ''}
+      <div class="result-actions">
+        <button type="button" class="result-save-btn" data-save-word="${safeWord}" data-save-status="${safeConfidence}">
+          Spara i lärläge
+        </button>
+      </div>
     </div>
   `;
 
@@ -380,10 +441,15 @@ function displayErrorResult(result) {
         <div class="result-suggestion ${requiresPro ? 'pro-prompt' : ''}">
           💡 ${safeSuggestion}
           ${requiresPro ? `
-            <button type="button" class="upgrade-prompt-btn" id="popupProUpgradeBtn">Upgrade to Pro</button>
+            <button type="button" class="upgrade-prompt-btn" id="popupProUpgradeBtn">Uppgradera till Premium</button>
           ` : ''}
         </div>
       ` : ''}
+      <div class="result-actions">
+        <button type="button" class="result-save-btn" data-save-word="${escapeHtml(word || currentWord)}" data-save-status="low">
+          Spara i lärläge
+        </button>
+      </div>
     </div>
   `;
 
@@ -430,6 +496,39 @@ function playPronunciation(url) {
   } catch (e) {
     console.warn('Audio URL invalid:', e);
   }
+}
+
+async function saveWordToLearning(word, status) {
+  const normalized = String(word || '').trim().toLowerCase();
+  if (!normalized) return;
+  try {
+    const data = await chrome.storage.local.get(['enorett_learningWords']);
+    const words = Array.isArray(data.enorett_learningWords) ? data.enorett_learningWords : [];
+    const withoutDup = words.filter((item) => item.word !== normalized);
+    withoutDup.unshift({
+      word: normalized,
+      status: status || 'none',
+      savedAt: new Date().toISOString()
+    });
+    await chrome.storage.local.set({
+      enorett_learningWords: withoutDup.slice(0, 100)
+    });
+    displayToast('Sparad i lärläge');
+  } catch (error) {
+    console.warn('Could not save learning word:', error);
+  }
+}
+
+function displayToast(message) {
+  const toast = document.createElement('div');
+  toast.className = 'popup-toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add('visible'));
+  setTimeout(() => {
+    toast.classList.remove('visible');
+    setTimeout(() => toast.remove(), 180);
+  }, 1200);
 }
 
 /**
@@ -607,7 +706,7 @@ async function checkAuthStatus() {
 function handleLogin() {
   // Open login page in new tab with redirect parameter
   chrome.tabs.create({
-    url: 'https://enorett.se/login?redirect=/upgrade'
+    url: 'https://www.enorett.se/login?redirect=/upgrade'
   });
 }
 
@@ -711,6 +810,10 @@ function updateProUI() {
       header.style.position = 'relative';
       header.appendChild(badge);
     }
+    if (planCompareSection) {
+      planCompareSection.classList.add('hidden');
+    }
+    updateOnboardingMessage();
     
     console.log('✅ Premium status active!');
   } else {
@@ -730,6 +833,10 @@ function updateProUI() {
       statsText.style.color = '';
       statsText.style.fontWeight = '';
     }
+    if (planCompareSection) {
+      planCompareSection.classList.remove('hidden');
+    }
+    updateOnboardingMessage();
   }
 }
 
@@ -743,14 +850,14 @@ async function handleProUpgrade() {
   if (!loggedIn) {
     // Redirect to login first
     chrome.tabs.create({
-      url: 'https://enorett.se/login?redirect=/upgrade'
+      url: 'https://www.enorett.se/login?redirect=/upgrade'
     });
     return;
   }
   
   // Open landing page in new tab
   chrome.tabs.create({
-    url: 'https://enorett.se/upgrade'
+    url: 'https://www.enorett.se/upgrade'
   });
   
   // Track upgrade click (analytics)

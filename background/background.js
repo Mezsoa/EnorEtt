@@ -14,12 +14,30 @@ chrome.runtime.onInstalled.addListener((details) => {
   
   // Create context menu
   createContextMenu();
+  configureSidePanelBehavior();
   
   // Show welcome notification on first install
   if (details.reason === 'install') {
     showWelcomeNotification();
   }
 });
+
+chrome.runtime.onStartup.addListener(() => {
+  configureSidePanelBehavior();
+});
+
+async function configureSidePanelBehavior() {
+  try {
+    if (chrome.sidePanel?.setPanelBehavior) {
+      await chrome.sidePanel.setPanelBehavior({
+        openPanelOnActionClick: true
+      });
+      console.log('Side panel behavior configured');
+    }
+  } catch (error) {
+    console.warn('Could not configure side panel behavior:', error);
+  }
+}
 
 /**
  * Create context menu for checking selected text
@@ -56,15 +74,17 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       // Store the word for the popup to pick up
       chrome.storage.local.set({ pendingWord: word });
       
-      // Open popup or send message to existing popup
-      chrome.action.openPopup().catch(() => {
-        // If popup is already open, send message to it
-        chrome.runtime.sendMessage({
-          type: 'LOOKUP_WORD',
-          word: word
-        }).catch(err => {
-          console.error('Error sending message:', err);
+      // Open side panel and send word so UI can lookup directly
+      if (tab?.id && chrome.sidePanel?.open) {
+        chrome.sidePanel.open({ tabId: tab.id }).catch((error) => {
+          console.warn('Could not open side panel:', error);
         });
+      }
+      chrome.runtime.sendMessage({
+        type: 'LOOKUP_WORD',
+        word: word
+      }).catch(err => {
+        console.error('Error sending message:', err);
       });
     }
   }
@@ -279,22 +299,20 @@ function showWelcomeNotification() {
 }
 
 /**
- * Handle extension icon click
- */
-chrome.action.onClicked.addListener((tab) => {
-  // This is handled automatically by the popup
-  // But we can add custom logic here if needed
-  console.log('Extension icon clicked');
-});
-
-/**
  * Listen for keyboard shortcuts (if configured in manifest)
  */
 chrome.commands.onCommand.addListener((command) => {
   console.log('Command received:', command);
   
-  if (command === 'open-popup') {
-    chrome.action.openPopup();
+  if (command === '_execute_action') {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const activeTab = tabs[0];
+      if (activeTab?.id && chrome.sidePanel?.open) {
+        chrome.sidePanel.open({ tabId: activeTab.id }).catch((error) => {
+          console.warn('Could not open side panel from command:', error);
+        });
+      }
+    });
   }
 });
 
